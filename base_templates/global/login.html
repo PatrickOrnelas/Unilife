@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login | Unilife</title>
+  <link rel="stylesheet" href="{% static 'global/css/forms.css' %}">
+</head>
+
+<body class="login-page">
+
+  <!-- LOGO -->
+  <div class="logo-container">
+    <img src="{% static 'global/img/logo-unilife.png' %}" alt="Unilife" class="logo-img">
+  </div>
+
+  <!-- CARD -->
+  <form class="card card-login" method="post" action="">
+    {% csrf_token %}
+    <h2 class="title">Bem-vindo(a)</h2>
+    <p class="subtitle">Faça login para acessar o painel da academia</p>
+
+    {% if form and form.errors %}
+    <div class="error">CPF ou senha inválidos.</div>
+    {% endif %}
+
+    <label for="id_username">CPF</label>
+    <input type="text" name="username" id="id_username" placeholder="000.000.000-00" required />
+
+    <label for="id_password">Senha</label>
+    <div class="input-password">
+      <input type="password" name="password" id="id_password" required placeholder="••••••••"
+        autocomplete="current-password" />
+      <button type="button" class="toggle-password" data-target="id_password">👁</button>
+    </div>
+
+
+    <div class="row row-links">
+      <a href="#" class="muted link">Recuperar senha</a>
+      <a href="{% url 'registrar' %}" class="link">Cadastrar-se</a>
+    </div>
+
+    <button class="btn btn-green" type="submit">Entrar</button>
+  </form>
+
+  <!-- Máscara CPF -->
+  <script>
+    function mascaraCPF(valor) {
+      return valor.replace(/\D/g, '')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+        .substring(0, 14);
+    }
+    document.addEventListener("DOMContentLoaded", function () {
+      const cpfInput = document.getElementById("id_username");
+      if (cpfInput) cpfInput.addEventListener("input", e => e.target.value = mascaraCPF(e.target.value));
+    });
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".toggle-password").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const input = document.getElementById(btn.dataset.target);
+          if (input.type === "password") {
+            input.type = "text";
+            btn.textContent = "🙈"; // ícone quando visível
+          } else {
+            input.type = "password";
+            btn.textContent = "👁"; // ícone quando escondido
+          }
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>

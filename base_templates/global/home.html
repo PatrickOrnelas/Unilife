@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Painel | Academia</title>
+  <link rel="stylesheet" href="{% static 'global/css/home.css' %}">
+</head>
+<body>
+  <header>
+    <div class="brand">🏋️ Academia — Painel</div>
+    <nav class="sidebar">
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" style="background:none;border:none;color:#f97316;cursor:pointer;font-size: 18px;">
+          Sair
+        </button>
+      </form>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Olá, {{ request.user.first_name|default:request.user.username }}!</h1>
+    <p>Esse é seu painel. Exemplo de cartões para evoluir:</p>
+
+    <section class="grid">
+      <div class="card">
+        <h3>Seu plano</h3>
+        <p>Plano: <strong>Básico</strong> • Vencimento: <strong>10/09/2025</strong></p>
+        <a class="btn" href="#">Emitir segunda via</a>
+      </div>
+      <div class="card">
+        <h3>Próximo treino</h3>
+        <p>Seg • 19:00 — Treino A (Peito/Tríceps)</p>
+        <a class="btn" href="#">Ver agenda</a>
+      </div>
+      <div class="card">
+        <h3>Avaliação física</h3>
+        <p>Agende sua anamnese e avaliação com um instrutor.</p>
+        <a class="btn" href="#">Agendar</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

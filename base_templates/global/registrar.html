@@ -1,0 +1,138 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Criar Conta | Academia</title>
+  <link rel="stylesheet" href="{% static 'global/css/forms.css' %}">
+</head>
+<body class="auth-page">
+
+  <!-- LOGO -->
+  <div class="logo-container">
+    <img src="{% static 'global/img/logo-unilife.png' %}" alt="Logo" class="logo-img">
+  </div>
+
+  <form class="card" method="post" action="">
+    {% csrf_token %}
+    <h1 class="title">Cadastro 📝</h1>
+    <p class="subtitle">Preencha seus dados para criar uma conta.</p>
+
+    {% if form.non_field_errors %}
+      <div class="error">
+        {% for e in form.non_field_errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+      </div>
+    {% endif %}
+
+    <label for="id_first_name">Nome</label>
+    <input type="text" name="first_name" id="id_first_name" required
+           value="{{ form.first_name.value|default:'' }}" placeholder="Seu nome" />
+    {% if form.first_name.errors %}<div class="error">{% for e in form.first_name.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>{% endif %}
+
+    <label for="id_last_name">Sobrenome</label>
+    <input type="text" name="last_name" id="id_last_name"
+           value="{{ form.last_name.value|default:'' }}" placeholder="Seu sobrenome" />
+    {% if form.last_name.errors %}<div class="error">{% for e in form.last_name.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>{% endif %}
+
+    <label for="id_email">E-mail</label>
+    <input type="email" name="email" id="id_email" required
+           value="{{ form.email.value|default:'' }}" placeholder="voce@exemplo.com" />
+    {% if form.email.errors %}<div class="error">{% for e in form.email.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>{% endif %}
+
+    <label for="id_cpf">CPF</label>
+    <input type="text" name="cpf" id="id_cpf" required
+           value="{{ form.cpf.value|default:'' }}" placeholder="000.000.000-00" />
+    {% if form.cpf.errors %}<div class="error">{% for e in form.cpf.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>{% endif %}
+
+    <label for="id_tel">Telefone (com DDD)</label>
+    <input type="text" name="tel" id="id_tel" required
+           value="{{ form.tel.value|default:'' }}" placeholder="(11) 99999-9999" />
+    {% if form.tel.errors %}<div class="error">{% for e in form.tel.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>{% endif %}
+
+    <label for="id_sex">Sexo</label>
+    <select name="sex" id="id_sex" required>
+      <option value="">Selecione</option>
+      <option value="M" {% if form.sex.value == "M" %}selected{% endif %}>Masculino</option>
+      <option value="F" {% if form.sex.value == "F" %}selected{% endif %}>Feminino</option>
+      <option value="O" {% if form.sex.value == "O" %}selected{% endif %}>Outro</option>
+    </select>
+    {% if form.sex.errors %}<div class="error">{% for e in form.sex.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>{% endif %}
+
+    <label for="id_date_of_birth">Data de nascimento</label>
+    <input type="date" name="date_of_birth" id="id_date_of_birth" required
+           value="{{ form.date_of_birth.value|default:'' }}" />
+    {% if form.date_of_birth.errors %}<div class="error">{% for e in form.date_of_birth.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>{% endif %}
+
+    <label for="id_restrictions">Restrições</label>
+    <textarea name="restrictions" id="id_restrictions" rows="3"
+              placeholder="Ex: dor lombar, hipertensão...">{{ form.restrictions.value|default:'' }}</textarea>
+    {% if form.restrictions.errors %}<div class="error">{% for e in form.restrictions.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>{% endif %}
+
+    <label for="id_password1">Senha</label>
+    <div class="input-password">
+      <input type="password" name="password1" id="id_password1" required placeholder="••••••••" />
+      <button type="button" class="toggle-password" data-target="id_password1">👁</button>
+    </div>
+    {% if form.password1.errors %}<div class="error">{% for e in form.password1.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>{% endif %}
+
+    <label for="id_password2">Confirmar senha</label>
+    <div class="input-password">
+      <input type="password" name="password2" id="id_password2" required placeholder="••••••••" />
+      <button type="button" class="toggle-password" data-target="id_password2">👁</button>
+    </div>
+    {% if form.password2.errors %}<div class="error">{% for e in form.password2.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>{% endif %}
+
+    <button class="btn btn-green" type="submit">Criar Conta</button>
+
+    <div class="footer" style="text-align:center;margin-top:10px;">
+      <small>Já tem conta? <a href="{% url 'login' %}" class="link">Entrar</a></small>
+    </div>
+  </form>
+
+  <!-- Máscaras + Toggle Senha -->
+  <script>
+    // CPF
+    function maskCPF(v){
+      return v.replace(/\D/g,'')
+              .replace(/(\d{3})(\d)/,'$1.$2')
+              .replace(/(\d{3})(\d)/,'$1.$2')
+              .replace(/(\d{3})(\d{1,2})$/,'$1-$2')
+              .substring(0,14);
+    }
+    // Telefone (com DDD)
+    function maskTel(v){
+      v = v.replace(/\D/g,'');
+      if (v.length <= 10) {
+        return v.replace(/(\d{2})(\d{4})(\d{0,4})/,'($1) $2-$3');
+      } else {
+        return v.replace(/(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3');
+      }
+    }
+    // Toggle password
+    function setupPasswordToggles(){
+      document.querySelectorAll(".toggle-password").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const input = document.getElementById(btn.dataset.target);
+          if (!input) return;
+          if (input.type === "password") {
+            input.type = "text";
+            btn.textContent = "🙈";
+          } else {
+            input.type = "password";
+            btn.textContent = "👁";
+          }
+        });
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const cpf = document.getElementById("id_cpf");
+      const tel = document.getElementById("id_tel");
+      if (cpf) cpf.addEventListener("input", e => e.target.value = maskCPF(e.target.value));
+      if (tel) tel.addEventListener("input", e => e.target.value = maskTel(e.target.value));
+      setupPasswordToggles();
+    });
+  </script>
+</body>
+</html>
