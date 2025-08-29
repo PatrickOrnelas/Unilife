@@ -16,20 +16,29 @@ Um sistema web desenvolvido em **Django** para gerenciamento de academias, permi
 - Visualizar treinos atribuídos por Personais.
 - Visualizar perfil e atualizar dados.
 - Agendar anamnese.
-- Anexar anamnese.
 - Redefinir senha.
 
 ### 🏋️ Personais
 - Criar treinos.
 - Atribuir treinos a alunos.
 - Gerenciar treinos existentes.
+- Gerenciar alunos existentes.
 - Registrar/avaliar anamnese de alunos.
+- Anexar anamnese a alunos.
+- Redefinir senha.
 
 ### 🛠️ Proprietário
 - Cadastrar e remover Personais.
 - Gerenciar cadastros (alunos e personais).
 - Editar ou remover cadastros.
-
+- Criar treinos.
+- Atribuir treinos a alunos.
+- Gerenciar treinos existentes.
+- Gerenciar alunos existentes.
+- Registrar/avaliar anamnese de alunos.
+- Anexar anamnese a alunos.
+- Redefinir senha.
+  
 ---
 
 ## 🗂️ Modelagem
@@ -39,9 +48,9 @@ Um sistema web desenvolvido em **Django** para gerenciamento de academias, permi
 - **Cadastro** → perfil do usuário com informações complementares.
 - **Aluno** → perfil estendido de Cadastro.
 - **Personal** → perfil estendido de Cadastro (com CREF).
-- **Treino** → criado por personal, atribuído a alunos.
+- **Treino** → criado por personal ou proprietário, atribuído a alunos.
 - **Anamnese** → histórico médico/anamnese de alunos.
-- **Agendamento** → marcação de avaliações/anamneses entre Aluno e Personal.
+- **Agendamento** → marcação de avaliações/anamneses entre Aluno e Personal/Proprietário.
 
 ### Relacionamentos
 - `User 1—1 Cadastro`
