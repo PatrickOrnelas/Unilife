@@ -65,5 +65,14 @@ Um sistema web desenvolvido em **Django** para gerenciamento de academias, permi
 
 ---
 
-## 📂 Estrutura do Projeto
+
+---
+
+## ⚙️ Instalação e Execução
+
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/seu-usuario/academia-unilife.git
+   cd academia-unilife
+
 
