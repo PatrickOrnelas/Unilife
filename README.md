@@ -65,9 +65,6 @@ Um sistema web desenvolvido em **Django** para gerenciamento de academias, permi
 
 ---
 
-
----
-
 ## ⚙️ Instalação e Execução
 
 1. Clone o repositório:
@@ -75,4 +72,51 @@ Um sistema web desenvolvido em **Django** para gerenciamento de academias, permi
    git clone https://github.com/seu-usuario/academia-unilife.git
    cd academia-unilife
 
+2. Crie e ative um ambiente virtual:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate   # Linux/Mac
+   .venv\Scripts\activate      # Windows
 
+3. Instale as dependências:
+   ```bash
+   pip install -r requirements.txt
+   
+4. Realize as migrações:
+   ```bash
+   python manage.py migrate
+
+5. Crie um superusuário (Proprietário):
+   ```bash
+   python manage.py createsuperuser
+   
+6. Execute o servidor:
+   ```bash
+   python manage.py runserver
+   
+7. Acesse no navegador:
+   ```bash
+   http://127.0.0.1:8000
+
+---
+
+🔐 Login e Perfis
+
+- Aluno: cadastra-se diretamente no sistema.
+- Personal: cadastrado pelo proprietário (necessário informar CREF).
+- Proprietário: usuário administrador criado via createsuperuser.
+
+---
+
+📌 Roadmap (Próximos Passos)
+-  Upload de arquivos de anamnese (PDF, imagens).
+- Painel administrativo personalizado.
+- Notificações por e-mail (confirmação de cadastro e agendamento).
+- API REST com Django Rest Framework (para integração com app mobile).
+
+---
+
+📝 Licença
+
+Este projeto está sob a licença MIT.
+Sinta-se livre para usar, modificar e distribuir.
