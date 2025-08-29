@@ -34,3 +34,6 @@ def registrar(request):
         auth_login(request, user)    # opcional: já loga o usuário
         return redirect('home')      # depois redireciona
     return render(request, 'global/registrar.html', {'form': form})
+
+def recuperar_senha_view(request):
+    return render(request, 'global/esqueci_minha_senha.html')

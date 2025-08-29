@@ -8,4 +8,5 @@ urlpatterns = [
     path('', CPFLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('registrar/', views.registrar, name='registrar'),
+    path('recuperar-senha/', views.recuperar_senha_view, name='recuperar-senha')
 ]
