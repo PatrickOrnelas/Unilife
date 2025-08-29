@@ -100,7 +100,7 @@ Um sistema web desenvolvido em **Django** para gerenciamento de academias, permi
 
 ---
 
-🔐 Login e Perfis
+## 🔐 Login e Perfis
 
 - Aluno: cadastra-se diretamente no sistema.
 - Personal: cadastrado pelo proprietário (necessário informar CREF).
@@ -108,7 +108,7 @@ Um sistema web desenvolvido em **Django** para gerenciamento de academias, permi
 
 ---
 
-📌 Roadmap (Próximos Passos)
+## 📌 Roadmap (Próximos Passos)
 -  Upload de arquivos de anamnese (PDF, imagens).
 - Painel administrativo personalizado.
 - Notificações por e-mail (confirmação de cadastro e agendamento).
@@ -116,7 +116,7 @@ Um sistema web desenvolvido em **Django** para gerenciamento de academias, permi
 
 ---
 
-📝 Licença
+## 📝 Licença
 
 Este projeto está sob a licença MIT.
 Sinta-se livre para usar, modificar e distribuir.
