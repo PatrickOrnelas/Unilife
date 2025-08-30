@@ -1,8 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-class Alunos(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="aluno")
+class Cadastros(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="cadastros")
 
     first_name = models.CharField(max_length=254)
     last_name  = models.CharField(max_length=254, blank=True)
@@ -26,3 +26,16 @@ class Alunos(models.Model):
 
     def __str__(self):
         return f'{self.first_name} ({self.cpf})'
+    
+class Treinos(models.Model):
+    pass
+
+class Alunos(models.Model):
+
+    id_cadastro = models.OneToOneField(Cadastros, on_delete=models.CASCADE, related_name='alunos')
+    id_treino = models.OneToOneField(Treinos, on_delete=models.CASCADE, related_name="treinos")
+
+class Personais(models.Model):
+
+    id_cadastro = models.OneToOneField(Cadastros, on_delete=models.CASCADE, related_name="personais")
+    

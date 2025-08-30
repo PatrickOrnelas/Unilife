@@ -36,4 +36,4 @@ def registrar(request):
     return render(request, 'global/registrar.html', {'form': form})
 
 def recuperar_senha_view(request):
-    return render(request, 'global/esqueci_minha_senha.html')
+    return render(request, 'global/reset_password.html')

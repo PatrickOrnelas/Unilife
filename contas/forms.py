@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from .models import Alunos
+from .models import Cadastros
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
@@ -44,7 +44,7 @@ class RegistroForm(UserCreationForm):
     email         = forms.EmailField(label="E-mail", required=True)
     cpf           = forms.CharField(max_length=14, label="CPF", required=True)   # aceita com/sem máscara
     tel           = forms.CharField(max_length=15, label="Telefone (DDD + número)", required=True)
-    sex           = forms.ChoiceField(choices=Alunos.SEX_CHOICES, label='Sexo', required=True)
+    sex           = forms.ChoiceField(choices=Cadastros.SEX_CHOICES, label='Sexo', required=True)
     date_of_birth = forms.DateField(label='Data de nascimento',
                                     widget=forms.DateInput(attrs={"type": "date"}), required=True)
     restrictions  = forms.CharField(
@@ -60,7 +60,7 @@ class RegistroForm(UserCreationForm):
         cpf = validate_cpf(self.cleaned_data.get("cpf"))
         if User.objects.filter(username=cpf).exists():
             raise ValidationError("Já existe um usuário com esse CPF.")
-        if Alunos.objects.filter(cpf=cpf).exists():
+        if Cadastros.objects.filter(cpf=cpf).exists():
             raise ValidationError("Já existe um cadastro com esse CPF.")
         return cpf
 
@@ -87,7 +87,7 @@ class RegistroForm(UserCreationForm):
 
         if commit:
             user.save()
-            Alunos.objects.create(
+            Cadastros.objects.create(
                 user=user,
                 first_name=first_name,
                 last_name=last_name,
