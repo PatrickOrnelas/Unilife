@@ -1,113 +1,526 @@
-/* ===== Base / Tema ===== */
-:root{
-  --bg:#0f172a;
-  --card:#111827;
-  --text:#e5e7eb;
-  --muted:#9ca3af;
-  --accent:#22c55e;
-  --border:#243043;
-  --focus:#334155;
+/* ===========================
+   🎨 THEME (variáveis globais)
+   =========================== */
+:root {
+    --bg: #0f172a;
+    --text: #e5e7eb;
+    --muted: #8091a9;
+    --border: #1f2937;
+    --card: #101827;
+    --card-alt: #0e1424;
+    --card-border: #1f2937;
+    --card-outline:#1b2940;
+    --field:#0b1424;
+    --focus: #334155;
+    --accent: #1fe27e;
+    --accent-d: #13c56a;
+    --shadow: 0 20px 60px rgb(0 0 0 / 55%), 0 2px 0 rgba(255, 255, 255, 0.02) inset;
 }
-*{ box-sizing:border-box; }
-body{
-  margin:0; min-height:100vh; display:grid; place-items:center;
-  background: radial-gradient(1200px 800px at 80% -10%, #1f2937 0%, #0b1220 50%, var(--bg) 100%);
+
+/* Reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+}
+
+/* ===========================
+   🧾 HEADER (painel)
+   =========================== */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    background: #0b1220;
+}
+
+.brand {
+    font-weight: 800;
+    letter-spacing: .3px;
+}
+
+/* ===========================
+   📌 PAINEL PRINCIPAL
+   =========================== */
+.container {
+    max-width: 1000px;
+    margin: 26px auto;
+    padding: 0 16px;
+}
+
+.grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.card {
+    border:1px solid var(--card-outline);
+    background: var(--card);
+    border-radius: 14px;
+    padding: 18px;
+}
+
+.card h3 {
+    margin-top: 0;
+}
+
+.field{
+  width:100%;
+  height:46px;
+  padding:0 14px;
+  border-radius:10px;
+  border:1px solid var(--field-border);
+  background:var(--field);
   color:var(--text);
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  outline:none;
+  font-size:15px;
+  transition:border-color .15s ease, box-shadow .15s ease;
+}
+.field::placeholder{ color:#6f7e95; }
+.field:focus{
+  border-color:var(--focus);
+  box-shadow:0 0 0 3px rgba(32,218,131,.15);
 }
 
-/* ===== Card ===== */
+/* ===========================
+   🔗 BOTÕES E LINKS
+   =========================== */
+a.btn {
+    display: inline-block;
+    color: #0b121f;
+    background: var(--accent);
+    padding: 10px 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    border: 1px solid #14532d;
+}
+
+a.logout {
+    color: var(--muted);
+    text-decoration: none;
+}
+
+.btn {
+    width:100%; height:52px;
+  border:0; border-radius:12px;
+  background:linear-gradient(90deg, var(--accent), var(--accent-d));
+  color:#00140a; font-weight:700; font-size:16px;
+  box-shadow: 0 0px 15px rgba(31,226,126,.35);
+  cursor:pointer;
+  transition: transform .04s ease, filter .15s ease;
+}
+
+.btn:hover {
+    filter: brightness(1.03);
+    transform: translateY(-1px);
+}
+
+/* ===========================
+   🔑 LOGIN / REGISTRO / AUTH
+   =========================== */
+body.login-page,
+body.auth-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background:
+        radial-gradient(600px 400px at 82% 24%, rgba(255, 255, 255, .06), rgba(255, 255, 255, 0) 60%),
+        radial-gradient(900px 700px at 15% -10%, #121a2c 0%, #0b1220 50%, var(--bg) 100%);
+    padding: 20px;
+}
+
+/* Row de links abaixo dos campos */
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.row-links {
+    margin: 6px 2px 14px;
+    font-size: 13px;
+    margin-top: 10px;
+    color: #95a4ba;
+}
+
+.muted {
+    color: var(--muted);
+}
+
+a.link {
+    color: #25d886;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+a.link:hover {
+    text-decoration: underline;
+    font-size: 13px;
+}
+
 .card{
-  width:100%; max-width:420px;
-  background: linear-gradient(180deg,#0d1324 0%, #0a0f1c 100%);
-  border:1px solid #1f2937;
-  border-radius:18px; padding:28px;
-  box-shadow:0 10px 30px rgba(0,0,0,.35);
-}
-h1{ margin:0 0 6px; font-size:1.6rem; }
-p.subtitle{ margin:0 0 20px; color:var(--muted); font-size:.95rem; }
-
-/* ===== Labels ===== */
-label{
-  display:block; margin:12px 0 6px; font-size:.9rem; color:#cbd5e1;
+  width:min(92vw, 520px);
+  background:linear-gradient(180deg, rgba(19,30,51,.92), rgba(13,22,38,.92));
+  border:1px solid var(--card-outline);
+  border-radius:16px;
+  box-shadow:var(--shadow);
+  padding:32px 36px 28px;
 }
 
-/* ===== Campos (MESMO visual para todos) ===== */
+
+.title {
+    margin: 0 0 6px;
+    font-size: 26px;
+    font-weight:700;
+}
+
+.subtitle {
+    margin: 0 0 18px;
+    color: var(--muted);
+    font-size: 14px;
+    
+}
+
+/* ===========================
+   📝 FORMULÁRIOS
+   =========================== */
+label {
+    display: block;
+    margin: 12px 0 6px;
+    font-size: .85rem;
+    color: #cbd5e1;
+}
+
 input[type="text"],
 input[type="password"],
+input[type="email"],
 input[type="date"],
 select,
-textarea{
-  width:100%;
-  padding:12px 14px;
-  font-size:.95rem;
-  height:48px;                 /* altura uniforme (textarea ajusta abaixo) */
+textarea {
+    width:100%;
+  height:46px;
+  padding:14px;
   border-radius:10px;
-  border:1px solid var(--border);
-  background:#0a1222;
-  color:#e5e7eb;
+  border:1px solid var(--card-border);
+  background:var(--field);
+  color:var(--text);
   outline:none;
+  font-size:15px;
   transition:border-color .15s ease, box-shadow .15s ease;
-  -webkit-appearance:none;
-  -moz-appearance:none;
-  appearance:none;
-}
-input::placeholder, textarea::placeholder{ color:#6b7280; }
-input:focus, select:focus, textarea:focus{
-  border-color:var(--focus);
-  box-shadow:0 0 0 2px rgba(51,65,85,.35);
 }
 
-/* Textarea */
-textarea{
-  min-height:96px;
-  height:auto;        /* cresce com o conteúdo */
-  resize:vertical;
+.auth-page .card .btn{
+  margin-top: 14px;
 }
 
-/* Select: seta custom no dark (sem barras antes do <svg>) */
-select{
-  cursor:pointer;
-  padding-right:44px; /* espaço para seta */
-  background:
-    #0a1222
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'><path d='M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08z'/></svg>")
-    no-repeat right 12px center / 18px 18px;
+input::placeholder,
+textarea::placeholder {
+    color: #6b7280;
 }
 
-/* Date: ícone visível no dark */
-input[type="date"]{ color-scheme:dark; line-height:1; }
-input[type="date"]::-webkit-calendar-picker-indicator{
-  filter: invert(1) opacity(.85);
-  cursor:pointer;
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--focus);
+    box-shadow: 0 0 0 2px rgba(51, 65, 85, .35);
 }
 
-/* Linha auxiliar e botão */
-.row{ display:flex; align-items:center; justify-content:space-between; margin:10px 0 18px; }
-.btn{
-  width:100%; padding:12px 14px; margin-top:6px;
-  border-radius:10px; border:1px solid #14532d;
-  background: linear-gradient(180deg, #22c55e, #16a34a);
-  color:#0b121f; font-weight:700; cursor:pointer;
-  transition: transform .06s ease, filter .2s ease;
-}
-.btn:hover{ filter:brightness(1.03); transform: translateY(-1px); }
-
-/* Rodapé e links */
-.footer{ margin-top:14px; text-align:center; font-size:.9rem; color:#9ca3af; }
-a{ color:#86efac; text-decoration:none; }
-
-/* Estados de erro */
-.errorlist,.error{
-  background:#3f1d1d; color:#fecaca; padding:10px; border-radius:8px;
-  margin:0 0 14px; border:1px solid #7f1d1d;
-}
-.input-error{
-  border-color:#7f1d1d !important;
-  box-shadow:0 0 0 2px rgba(127,29,29,.35) !important;
+select {
+    height: 50px;
 }
 
-/* Responsivo */
-@media (max-width:480px){
-  .card{ padding:22px; }
+textarea {
+    min-height: 96px;
+    height: auto;
+    resize: vertical;
 }
+
+/* campo de senha com botão */
+.input-password {
+    position: relative;
+    width: 100%;
+}
+
+.input-password input {
+    width: 100%;
+    padding-right: 46px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.toggle-password:hover {
+    color: #fff;
+}
+
+/* ===========================
+   ❌ ERROS
+   =========================== */
+.error {
+    background: #3f1d1d;
+    color: #fecaca;
+    padding: 8px;
+    border-radius: 8px;
+    margin: 0 0 12px;
+    border: 1px solid #7f1d1d;
+    font-size: .85rem;
+}
+
+/* ===========================
+   🖼️ LOGO
+   =========================== */
+.logo-container {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.logo-img {
+    max-width: 260px;
+    height: auto;
+    display: inline-block;
+}
+
+.logo-img1 {
+    max-width: 150px;
+    height: auto;
+    display: inline-block;
+}
+
+/* ===========================
+   📱 RESPONSIVO
+   =========================== */
+@media (max-width:480px) {
+    .card-login {
+        max-width: 90%;
+        padding: 18px;
+    }
+
+    .logo-img {
+        max-width: 110px;
+    }
+}
+
+/* Ellipse/blur de fundo */
+
+.bg-blob1{
+  position: fixed;                  /* fica “grudado” na tela */
+  top: var(--y, 20%);               /* posição vertical */
+  left: var(--x, 80%);              /* posição horizontal */
+  transform: translate(-50%, -50%); /* centraliza no ponto x/y */
+  width: var(--w, 370px);
+  height: var(--h, 280px);
+  background: var(--color, #D9D9D9);
+  opacity: var(--opacity, 0.12);
+  filter: blur(var(--blur, 93px));
+  border-radius: 999px;
+  pointer-events: none;             /* não intercepta cliques */
+  z-index: 0;                       /* atrás do conteúdo */
+}
+
+.bg-blob1{ top: 120%; left: 50%; }
+
+.bg-blob{
+  position: fixed;                  /* fica “grudado” na tela */
+  top: var(--y, 20%);               /* posição vertical */
+  left: var(--x, 80%);              /* posição horizontal */
+  transform: translate(-50%, -50%); /* centraliza no ponto x/y */
+  width: var(--w, 370px);
+  height: var(--h, 280px);
+  background: var(--color, #D9D9D9);
+  opacity: var(--opacity, 0.12);
+  filter: blur(var(--blur, 93px));
+  border-radius: 999px;
+  pointer-events: none;             /* não intercepta cliques */
+  z-index: 0;                       /* atrás do conteúdo */
+}
+
+.bg-blob{ top: 0%; left: 3%; }
+
+
+.form-grid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap:14px;
+  row-gap:px;
+  margin-top:8px;
+}
+.field-group{ display:flex; flex-direction:column; }
+.span-2{ grid-column: 1 / -1; }
+
+@media (max-width:720px){
+  .form-grid{ grid-template-columns:1fr; }
+}
+
+
+/* ====== HOME DO ALUNO (complementos) ====== */
+
+/* cards do topo em 3 colunas no desktop */
+.cards{
+  display:grid;
+  gap:16px;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  margin: 16px 0 22px;
+}
+
+/* efeito “vidro” leve nos cards principais */
+.glass{
+  background: linear-gradient(180deg, rgba(19,30,51,.92), rgba(13,22,38,.92));
+  border:1px solid var(--card-outline);
+  box-shadow: var(--shadow);
+}
+
+/* seções internas */
+.section{ margin-top: 20px; }
+.section-title{ margin: 10px 0 12px; font-size: 20px; }
+
+/* grids internos (duas colunas) */
+.grid-2{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap:16px;
+}
+.grid-2 .span-2{ grid-column: 1 / -1; }
+
+.list{ padding-left: 18px; }
+
+/* tabelas de treino/agenda */
+.table{ width:100%; border-collapse: collapse; }
+.table th, .table td{
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--card-border);
+}
+.table.compact th, .table.compact td{ padding: 8px 10px; }
+
+/* badges de status */
+.badge{
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:12px;
+}
+.badge.ok{   background: rgba(34,197,94,.15); color:#34d399; }
+.badge.warn{ background: rgba(245,158,11,.15); color:#fbbf24; }
+.badge.mute{ background: rgba(148,163,184,.12); color:#cbd5e1; }
+
+/* botão fantasma para ações secundárias */
+.btn-ghost{
+  background: transparent;
+  border: 1px solid var(--card-border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+/* inputs/textarea reaproveitam .field já existente */
+
+/* responsivo */
+@media (max-width: 980px){
+  .cards{ grid-template-columns: 1fr; }
+  .grid-2{ grid-template-columns: 1fr; }
+}
+
+/* ===== Layout com Lateral ===== */
+.layout{
+  display:grid;
+  grid-template-columns: 240px 1fr;
+  gap: 22px;
+  max-width: 1280px;
+  margin: 22px auto;
+  padding: 0 16px;
+}
+
+/* como agora a .container fica dentro do grid, removemos a margem externa anterior */
+.layout .container{
+  max-width: 100%;
+  margin: 0;              /* substitui o 26px auto antigo */
+  padding: 0;             /* o padding já vem do .layout */
+}
+
+/* ===== Sidebar do app (esquerda) ===== */
+/* sidebar fixa na esquerda */
+.app-sidenav{
+  position: absolute;
+  top: 62px;                 /* altura do seu header */
+  left: 0px;
+  width: 200px;
+  height: calc(100% - 64px); /* ocupa o resto da tela */
+  background: var(--card-alt);
+  border-right: 1px solid var(--card-outline);
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: var(--shadow);
+  overflow-y: auto;          /* rolagem se tiver muitos itens */
+  z-index: 100;              /* acima do conteúdo */
+}
+
+.sidenav-title{
+  font-weight: 700;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.sidenav-link{
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: var(--text);
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+.sidenav-link:hover{
+  background: #0e1628;
+}
+.sidenav-link.active{
+  border-color: rgba(34,197,247,.35);
+  background: rgba(34,197,247,.07);
+}
+
+/* empurrar o conteúdo pra não ficar embaixo da sidebar */
+.content{
+  margin-left: 240px;   /* um pouco maior que o width da sidebar */
+  padding: 20px;
+}
+
+/* responsivo: sidebar vira topo/oculta */
+@media (max-width: 980px){
+  .app-sidenav{
+    position: static;
+    width: auto;
+    height: auto;
+    flex-direction: row;
+    border-right: 0;
+    border-bottom: 1px solid var(--card-outline);
+  }
+  .content{
+    margin-left: 0;
+  }
+  .sidenav-link{ white-space: nowrap; }
+}
+
+[data-view][hidden] { display: none !important; }
