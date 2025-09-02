@@ -1,17 +1,17 @@
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<!DOCTYPE html> 
+<html lang="pt-br"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Painel | Academia</title>
   <link rel="stylesheet" href="{% static 'global/css/style.css' %}">
 </head>
 <body>
+
   <header>
-    <div class="brand">🏋️ Academia — Painel</div>
+    <img src="{% static 'global/img/logo-unilife.png' %}" alt="Unilife" class="logo-img1">
     <nav class="sidebar">
-      <form method="post" action="{% url 'logout' %}">
+      <form method="post" action="{% url "logout" %}">
         {% csrf_token %}
         <button type="submit" style="background:none;border:none;color:#f97316;cursor:pointer;font-size: 18px;">
           Sair
@@ -20,27 +20,182 @@
     </nav>
   </header>
 
-  <main class="container">
-    <h1>Olá, {{ request.user.first_name|default:request.user.username }}!</h1>
-    <p>Esse é seu painel. Exemplo de cartões para evoluir:</p>
+  <!-- LATERAL FIXA -->
+  <aside class="app-sidenav">
+    <div class="sidenav-title">Menu</div>
+    <nav>
+      <a class="sidenav-link active" data-target="inicio" href="#inicio">Início</a>
+      <a class="sidenav-link" data-target="treinos" href="#treinos">Planos de treino</a>
+      <a class="sidenav-link" data-target="agenda" href="#agenda">Agenda</a>
+      <a class="sidenav-link" data-target="anamnese" href="#anamnese">Anamnese</a>
+    </nav>
+  </aside>
 
-    <section class="grid">
-      <div class="card">
-        <h3>Seu plano</h3>
-        <p>Plano: <strong>Básico</strong> • Vencimento: <strong>10/09/2025</strong></p>
-        <a class="btn" href="#">Emitir segunda via</a>
+  <!-- CONTEÚDO -->
+  <main class="content"><!-- note: usei .content pois temos sidebar fixa -->
+    <h1>Olá, {{ request.user.first_name|default:request.user.username }}!</h1>
+    <p class="muted">***Colocar tipo do aluno</p>
+
+    <!-- ========== VIEW: INÍCIO ========== -->
+    <section id="inicio" data-view="inicio" class="section">
+      <!-- CARDS DO TOPO -->
+      <div class="cards">
+        <div class="card glass">
+          <h3>Seu plano</h3>
+          <p>Plano: <strong>Básico</strong> • Vencimento: <strong>10/09/2025</strong></p>
+          <a class="btn" href="#">Emitir segunda via</a>
+        </div>
+
+        <div class="card glass">
+          <h3>Próximo treino</h3>
+          <p>Seg • 19:00 — Treino A (Peito/Tríceps)</p>
+          <a class="btn" data-go="agenda" href="#agenda">Ver agenda</a>
+        </div>
+
+        <div class="card glass">
+          <h3>Avaliação física</h3>
+          <p>Agende sua anamnese e avaliação com um instrutor.</p>
+          <a class="btn" data-go="anamnese" href="#anamnese">Agendar</a>
+        </div>
       </div>
-      <div class="card">
-        <h3>Próximo treino</h3>
-        <p>Seg • 19:00 — Treino A (Peito/Tríceps)</p>
-        <a class="btn" href="#">Ver agenda</a>
-      </div>
-      <div class="card">
-        <h3>Avaliação física</h3>
-        <p>Agende sua anamnese e avaliação com um instrutor.</p>
-        <a class="btn" href="#">Agendar</a>
+
+      <!-- RESUMO -->
+      <h2 class="section-title" style="margin-top:18px">Resumo</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h4>Treino da semana</h4>
+          <ul class="list">
+            <li><b>Seg</b> — Treino A (Peito/Tríceps)</li>
+            <li><b>Qua</b> — Treino B (Costas/Bíceps)</li>
+            <li><b>Sex</b> — Treino C (Pernas/Ombros)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>Mensagens</h4>
+          <p class="muted">Nenhuma mensagem nova do seu personal.</p>
+        </div>
       </div>
     </section>
+
+    <!-- ========== VIEW: TREINOS ========== -->
+    <section id="treinos" data-view="treinos" class="section" hidden="">
+      <h2 class="section-title">Planos de treino</h2>
+      <div class="card">
+        <details open="">
+          <summary><b>Treino A</b> — Peito/Tríceps</summary>
+          <table class="table">
+            <thead><tr><th>Exercício</th><th>Séries</th><th>Reps</th><th>Descanso</th></tr></thead>
+            <tbody>
+              <tr><td>Supino reto</td><td>4</td><td>8–10</td><td>90s</td></tr>
+              <tr><td>Crucifixo inclinado</td><td>3</td><td>10–12</td><td>60s</td></tr>
+              <tr><td>Tríceps testa</td><td>3</td><td>10–12</td><td>60s</td></tr>
+            </tbody>
+          </table>
+        </details>
+
+        <details>
+          <summary><b>Treino B</b> — Costas/Bíceps</summary>
+          <table class="table">
+            <thead><tr><th>Exercício</th><th>Séries</th><th>Reps</th><th>Descanso</th></tr></thead>
+            <tbody>
+              <tr><td>Puxada na frente</td><td>4</td><td>8–10</td><td>90s</td></tr>
+              <tr><td>Remada curvada</td><td>3</td><td>10–12</td><td>75s</td></tr>
+              <tr><td>Rosca direta</td><td>3</td><td>10–12</td><td>60s</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </div>
+    </section>
+
+    <!-- ========== VIEW: AGENDA ========== -->
+    <section id="agenda" data-view="agenda" class="section" hidden="">
+      <h2 class="section-title">Agenda</h2>
+      <div class="card">
+        <table class="table compact">
+          <thead><tr><th>Data</th><th>Hora</th><th>Atividade</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>Seg, 01/09</td><td>19:00</td><td>Treino A</td><td><span class="badge ok">Confirmado</span></td><td><button class="btn-ghost">Ver</button></td></tr>
+            <tr><td>Qua, 03/09</td><td>19:00</td><td>Treino B</td><td><span class="badge warn">Pendente</span></td><td><button class="btn-ghost">Confirmar</button></td></tr>
+            <tr><td>Sex, 05/09</td><td>19:00</td><td>Treino C</td><td><span class="badge mute">—</span></td><td><button class="btn-ghost">Cancelar</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ========== VIEW: ANAMNESE ========== -->
+    <section id="anamnese" data-view="anamnese" class="section" hidden="">
+      <h2 class="section-title">Anamnese</h2>
+      <div class="card">
+        <p class="muted">Envie seus documentos e respostas do questionário físico.</p>
+        <form class="grid-2">
+          <div>
+            <label for="peso">Peso (kg)</label>
+            <input id="peso" class="field" type="number" placeholder="72">
+          </div>
+          <div>
+            <label for="altura">Altura (cm)</label>
+            <input id="altura" class="field" type="number" placeholder="175">
+          </div>
+          <div class="span-2">
+            <label for="obs">Observações</label>
+            <textarea id="obs" class="field" rows="4" placeholder="Restrições, histórico, etc."></textarea>
+          </div>
+          <div class="span-2">
+            <label for="arquivo">Anexar PDF</label>
+            <input id="arquivo" class="field" type="file" accept="application/pdf">
+          </div>
+          <div class="span-2">
+            <button class="btn" type="button">Enviar</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <p class="muted" style="margin-top:18px;">© 2025 Unilife</p>
   </main>
-</body>
-</html>
+
+  <!-- ===== Script DEPOIS do HTML ===== -->
+  <script>
+  (function(){
+    const views = Array.from(document.querySelectorAll('[data-view]'));
+    const navLinks = Array.from(document.querySelectorAll('.sidenav-link'));
+    const goButtons = Array.from(document.querySelectorAll('[data-go]'));
+
+    function show(view){
+      views.forEach(sec => sec.hidden = (sec.dataset.view !== view));
+      navLinks.forEach(a => a.classList.toggle('active', a.dataset.target === view));
+      // opcional: rolar pro topo do conteúdo
+      document.querySelector('.content')?.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    // links da lateral
+    navLinks.forEach(a => a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const v = a.dataset.target;
+      history.pushState({v}, '', '#'+v);
+      show(v);
+    }));
+
+    // botões dos cards
+    goButtons.forEach(btn => btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const v = btn.dataset.go;
+      history.pushState({v}, '', '#'+v);
+      show(v);
+    }));
+
+    // histórico
+    window.addEventListener('popstate', () => {
+      const v = (location.hash || '').replace('#','') || 'inicio';
+      show(v);
+    });
+
+    // ao carregar: ESCONDE TUDO
+    views.forEach(sec => sec.hidden = true);
+    // se quiser abrir a home ao entrar, descomente a linha abaixo:
+    // show('inicio');
+  })();
+  </script>
+
+
+</body></html>
