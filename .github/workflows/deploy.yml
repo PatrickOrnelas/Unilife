@@ -2,40 +2,44 @@ name: Deploy no Raspberry
 
 on:
   push:
-    branches: [ "main" ]   # troque se a branch for outra
-  workflow_dispatch:        # permite rodar manualmente
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: [self-hosted, Linux, ARM64]
-    environment: production
-    concurrency:
-      group: deploy-rpi
-      cancel-in-progress: true
     env:
-      APP_DIR: /home/dawid/app/Unilife
-      MANAGE: /home/dawid/app/Unilife/manage.py
+      APP_DIR: /home/dawid/app/Unilife               # <-- AJUSTE se for outro
+      MANAGE:  /home/dawid/app/Unilife/manage.py     # <-- AJUSTE se estiver em subpasta
+      VENV:    /home/dawid/app/Unilife/.venv
 
     steps:
-      - name: Atualizar código (git reset em $APP_DIR)
+      - name: Atualizar código
         run: |
           set -e
           git -C "$APP_DIR" fetch --all
           git -C "$APP_DIR" reset --hard origin/${GITHUB_REF_NAME}
 
-      - name: Instalar dependências, migrar e coletar estáticos
+      - name: Preparar venv, instalar deps, migrar e coletar estáticos
         run: |
           set -e
-          if [ -f "$APP_DIR/.venv/bin/activate" ]; then
-            . "$APP_DIR/.venv/bin/activate"
+          # cria venv se não existir
+          if [ ! -x "$VENV/bin/python" ]; then
+            python3 -m venv "$VENV"
           fi
+
+          # usa SEMPRE o pip/python da venv
+          "$VENV/bin/pip" install -U pip wheel
           if [ -f "$APP_DIR/requirements.txt" ]; then
-            pip install -U pip wheel
-            pip install -r "$APP_DIR/requirements.txt"
+            "$VENV/bin/pip" install -r "$APP_DIR/requirements.txt"
+          else
+            # fallback mínimo se não houver requirements.txt
+            "$VENV/bin/pip" install django
           fi
-          python "$MANAGE" migrate --noinput
-          # se seu projeto não usa collectstatic, esse passo só ignora o erro:
-          python "$MANAGE" collectstatic --noinput || true
+
+          # comandos do Django usando o python da venv
+          "$VENV/bin/python" "$MANAGE" migrate --noinput
+          "$VENV/bin/python" "$MANAGE" collectstatic --noinput || true
 
       - name: Reiniciar serviço do Django
         run: |
