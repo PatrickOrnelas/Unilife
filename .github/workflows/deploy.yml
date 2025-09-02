@@ -9,8 +9,8 @@ jobs:
   deploy:
     runs-on: [self-hosted, Linux, ARM64]
     env:
-      APP_DIR: /home/dawid/app/Unilife               # <-- AJUSTE se for outro
-      MANAGE:  /home/dawid/app/Unilife/manage.py     # <-- AJUSTE se estiver em subpasta
+      APP_DIR: /home/dawid/app/Unilife          
+      MANAGE:  /home/dawid/app/Unilife/manage.py  
       VENV:    /home/dawid/app/Unilife/.venv
 
     steps:
