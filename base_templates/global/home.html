@@ -149,7 +149,7 @@
 
   <!-- ===== Script DEPOIS do HTML ===== -->
   <script>
-(function(){
+  (function(){
   const views = Array.from(document.querySelectorAll('[data-view]'));
   const navLinks = Array.from(document.querySelectorAll('.sidenav-link'));
   const goButtons = Array.from(document.querySelectorAll('[data-go]'));
@@ -160,33 +160,28 @@
     document.querySelector('.content')?.scrollTo({top:0, behavior:'smooth'});
   }
 
-  // navegação pelos links da lateral
+  // navegação
   navLinks.forEach(a => a.addEventListener('click', (e) => {
     e.preventDefault();
     const v = a.dataset.target;
     history.pushState({v}, '', '#'+v);
     show(v);
   }));
-
-  // botões que navegam para uma view
   goButtons.forEach(btn => btn.addEventListener('click', (e) => {
     e.preventDefault();
     const v = btn.dataset.go;
     history.pushState({v}, '', '#'+v);
     show(v);
   }));
-
-  // voltar/avançar do navegador
   window.addEventListener('popstate', () => {
     const v = (location.hash || '').replace('#','') || 'inicio';
     show(v);
   });
-
-  // estado inicial: abre o hash, senão a home
+    
   const initial = (location.hash || '').replace('#','') || 'inicio';
   show(initial);
 })();
-</script>
+  </script>
 
 
 </body></html>
