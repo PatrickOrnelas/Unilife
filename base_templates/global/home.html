@@ -149,46 +149,44 @@
 
   <!-- ===== Script DEPOIS do HTML ===== -->
   <script>
-  (function(){
-    const views = Array.from(document.querySelectorAll('[data-view]'));
-    const navLinks = Array.from(document.querySelectorAll('.sidenav-link'));
-    const goButtons = Array.from(document.querySelectorAll('[data-go]'));
+(function(){
+  const views = Array.from(document.querySelectorAll('[data-view]'));
+  const navLinks = Array.from(document.querySelectorAll('.sidenav-link'));
+  const goButtons = Array.from(document.querySelectorAll('[data-go]'));
 
-    function show(view){
-      views.forEach(sec => sec.hidden = (sec.dataset.view !== view));
-      navLinks.forEach(a => a.classList.toggle('active', a.dataset.target === view));
-      // opcional: rolar pro topo do conteúdo
-      document.querySelector('.content')?.scrollTo({top:0, behavior:'smooth'});
-    }
+  function show(view){
+    views.forEach(sec => sec.hidden = (sec.dataset.view !== view));
+    navLinks.forEach(a => a.classList.toggle('active', a.dataset.target === view));
+    document.querySelector('.content')?.scrollTo({top:0, behavior:'smooth'});
+  }
 
-    // links da lateral
-    navLinks.forEach(a => a.addEventListener('click', (e) => {
-      e.preventDefault();
-      const v = a.dataset.target;
-      history.pushState({v}, '', '#'+v);
-      show(v);
-    }));
+  // navegação pelos links da lateral
+  navLinks.forEach(a => a.addEventListener('click', (e) => {
+    e.preventDefault();
+    const v = a.dataset.target;
+    history.pushState({v}, '', '#'+v);
+    show(v);
+  }));
 
-    // botões dos cards
-    goButtons.forEach(btn => btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const v = btn.dataset.go;
-      history.pushState({v}, '', '#'+v);
-      show(v);
-    }));
+  // botões que navegam para uma view
+  goButtons.forEach(btn => btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    const v = btn.dataset.go;
+    history.pushState({v}, '', '#'+v);
+    show(v);
+  }));
 
-    // histórico
-    window.addEventListener('popstate', () => {
-      const v = (location.hash || '').replace('#','') || 'inicio';
-      show(v);
-    });
+  // voltar/avançar do navegador
+  window.addEventListener('popstate', () => {
+    const v = (location.hash || '').replace('#','') || 'inicio';
+    show(v);
+  });
 
-    // ao carregar: ESCONDE TUDO
-    views.forEach(sec => sec.hidden = true);
-    // se quiser abrir a home ao entrar, descomente a linha abaixo:
-    // show('inicio');
-  })();
-  </script>
+  // estado inicial: abre o hash, senão a home
+  const initial = (location.hash || '').replace('#','') || 'inicio';
+  show(initial);
+})();
+</script>
 
 
 </body></html>
