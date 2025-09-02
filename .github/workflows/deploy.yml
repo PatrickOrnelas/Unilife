@@ -1,0 +1,43 @@
+name: Deploy no Raspberry
+
+on:
+  push:
+    branches: [ "main" ]   # troque se a branch for outra
+  workflow_dispatch:        # permite rodar manualmente
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, Linux, ARM64]
+    environment: production
+    concurrency:
+      group: deploy-rpi
+      cancel-in-progress: true
+    env:
+      APP_DIR: /home/dawid/app/Unilife
+      MANAGE: /home/dawid/app/Unilife/manage.py
+
+    steps:
+      - name: Atualizar código (git reset em $APP_DIR)
+        run: |
+          set -e
+          git -C "$APP_DIR" fetch --all
+          git -C "$APP_DIR" reset --hard origin/${GITHUB_REF_NAME}
+
+      - name: Instalar dependências, migrar e coletar estáticos
+        run: |
+          set -e
+          if [ -f "$APP_DIR/.venv/bin/activate" ]; then
+            . "$APP_DIR/.venv/bin/activate"
+          fi
+          if [ -f "$APP_DIR/requirements.txt" ]; then
+            pip install -U pip wheel
+            pip install -r "$APP_DIR/requirements.txt"
+          fi
+          python "$MANAGE" migrate --noinput
+          # se seu projeto não usa collectstatic, esse passo só ignora o erro:
+          python "$MANAGE" collectstatic --noinput || true
+
+      - name: Reiniciar serviço do Django
+        run: |
+          sudo systemctl restart django-runserver
+          sudo systemctl --no-pager status django-runserver
