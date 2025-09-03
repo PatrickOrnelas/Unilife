@@ -2,26 +2,44 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.views import LoginView
+from django.urls import reverse_lazy
 
 from .forms import LoginForm, RegistroAlunoForm
 
+
+def destino_por_perfil(user):
+    if hasattr(user, "admin"):
+        return reverse_lazy("home-admin")
+    if hasattr(user, "personal"):
+        return reverse_lazy("home-personal")
+    if hasattr(user, "aluno"):
+        return reverse_lazy("home-aluno")
+    # fallback (caso futuro sem perfil)
+    return reverse_lazy("home")
 
 class CPFLoginView(LoginView):
     template_name = "global/login.html"
     authentication_form = LoginForm
 
     def get_success_url(self):
-        # se quiser redirecionar por perfil:
-        # u = self.request.user
-        # if hasattr(u, "admin"):    return "/home/"
-        # if hasattr(u, "personal"): return "/home/"
-        # if hasattr(u, "aluno"):    return "/home/"
-        return "/home/"
-
+        return destino_por_perfil(self.request.user)
 
 @login_required
-def home(request):
-    return render(request, 'global/home.html')
+def home_redirect(request):
+    """Caso você queira uma rota /home/ única que redirecione para a home certa."""
+    return redirect(destino_por_perfil(request.user))
+
+@login_required
+def home_aluno(request):
+    return render(request, "global/home_aluno.html")
+
+@login_required
+def home_personal(request):
+    return render(request, "global/home_personal.html")
+
+@login_required
+def home_admin(request):
+    return render(request, "global/home_admin.html")
 
 
 def login_view(request):
