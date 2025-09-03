@@ -112,7 +112,7 @@
         <!-- Sexo -->
         <div class="field-group">
           <label for="id_sexo">Sexo</label>
-          {{ personal_form.sexo.as_widget(attrs={'id':'id_sexo','class':'field','required':'required'}) }}
+          {{ personal_form.sexo|add_class:"field"|attr:"id:id_sexo" }}
           {% if personal_form.sexo.errors %}
             <div class="error">
               {% for e in personal_form.sexo.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
