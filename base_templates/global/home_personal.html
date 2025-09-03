@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Painel do Admin | Academia</title>
+  <title>Painel do Personal | Academia</title>
   <link rel="stylesheet" href="{% static 'global/css/style.css' %}">
 </head>
 <body>
@@ -36,7 +36,7 @@
   <!-- CONTEÚDO -->
   <main class="content">
     <h1>Olá, {{ request.user.first_name|default:request.user.username }}!</h1>
-    <p class="muted">Tipo de usuário: Proprietário</p>
+    <p class="muted">Tipo de usuário: Personal</p>
 
     <!-- ====== VIEW: INÍCIO ====== -->
     <section class="section" data-view="inicio">
