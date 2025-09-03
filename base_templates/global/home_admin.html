@@ -1,18 +1,19 @@
 {% load static %}
 <!DOCTYPE html> 
-<html lang="pt-br"><head>
+<html lang="pt-br">
+<head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Painel do Admin| Academia</title>
+  <title>Painel do Admin | Academia</title>
   <link rel="stylesheet" href="{% static 'global/css/style.css' %}">
 </head>
 <body>
-    <header>
+  <header>
     <img src="{% static 'global/img/logo-unilife.png' %}" alt="Unilife" class="logo-img1">
     <nav class="sidebar">
-      <form method="post" action="{% url "logout" %}">
+      <form method="post" action="{% url 'logout' %}">
         {% csrf_token %}
-        <button type="submit" style="background:none;border:none;color:#f97316;cursor:pointer;font-size: 18px;">
+        <button type="submit" style="background:none;border:none;color:#f97316;cursor:pointer;font-size:18px;">
           Sair
         </button>
       </form>
@@ -26,15 +27,167 @@
       <a class="sidenav-link active" data-target="inicio" href="#inicio">Início</a>
       <a class="sidenav-link" data-target="criar-treinos" href="#">Criar treinos</a>
       <a class="sidenav-link" data-target="gerenciar-treinos" href="#">Gerenciar treinos</a>
-      <a class="sidenav-link" data-target="cadastrar-personal" href="#">Cadastrar Personal</a>
-      <a class="sidenav-link" data-target="gerenciar-personal" href="#">Gerenciar Persona</a>
+      <a class="sidenav-link" data-target="cadastrar-personal" href="#cadastrar-personal">Cadastrar Personal</a>
+      <a class="sidenav-link" data-target="gerenciar-personal" href="#">Gerenciar Personal</a>
       <a class="sidenav-link" data-target="anamnese" href="#">Anamnese</a>
     </nav>
   </aside>
   
   <!-- CONTEÚDO -->
-  <main class="content"><!-- note: usei .content pois temos sidebar fixa -->
+  <main class="content">
     <h1>Olá, {{ request.user.first_name|default:request.user.username }}!</h1>
     <p class="muted">Tipo de usuário: Proprietário</p>
+
+    <!-- ====== VIEW: INÍCIO ====== -->
+    <section class="section" data-view="inicio">
+      <div class="cards">
+        <div class="card glass">
+          <h3>Bem-vindo!</h3>
+          <p class="muted">Use o menu ao lado para gerenciar treinos, personais e alunos.</p>
+        </div>
+        <div class="card glass">
+          <h3>Ações rápidas</h3>
+          <a class="btn" href="#cadastrar-personal" data-go="cadastrar-personal" style="display:inline-block;margin-top:8px;">Cadastrar Personal</a>
+        </div>
+        <div class="card glass">
+          <h3>Status</h3>
+          <span class="badge ok">Online</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== VIEW: CADASTRAR PERSONAL ====== -->
+    <section class="section" data-view="cadastrar-personal" hidden>
+      <h2 class="section-title">Cadastrar Personal</h2>
+
+      <div class="card glass">
+        <form method="post" action=" ">
+          {% csrf_token %}
+
+          <div class="form-grid">
+            <!-- Nome -->
+            <div class="field-group span-2">
+              <label for="id_nome">Nome completo</label>
+              <input id="id_nome" name="nome" type="text" class="field" placeholder="Ex.: Ana Souza" required>
+            </div>
+
+            <!-- E-mail -->
+            <div class="field-group">
+              <label for="id_email">E-mail</label>
+              <input id="id_email" name="email" type="email" class="field" placeholder="exemplo@academia.com" required>
+            </div>
+
+            <!-- Telefone -->
+            <div class="field-group">
+              <label for="id_telefone">Telefone</label>
+              <input id="id_telefone" name="telefone" type="tel" inputmode="numeric"
+                     class="field" placeholder="(11) 91234-5678"
+                     pattern="^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$" required>
+            </div>
+
+            <!-- Sexo -->
+            <div class="field-group">
+              <label for="id_sexo">Sexo</label>
+              <select id="id_sexo" name="sexo" class="field" required>
+                <option value="" disabled selected>Selecione</option>
+                <option value="Feminino">Feminino</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Outro">Outro / Prefiro não informar</option>
+              </select>
+            </div>
+
+            <!-- Data de nascimento -->
+            <div class="field-group">
+              <label for="id_nascimento">Data de nascimento</label>
+              <input id="id_nascimento" name="nascimento" type="date" class="field" required>
+            </div>
+
+            <!-- CREF -->
+            <div class="field-group span-2">
+              <label for="id_cref">CREF</label>
+              <input id="id_cref" name="cref" type="text" class="field"
+                     placeholder="Ex.: CREF 123456-G/SP" required
+                     title="Use algo como: CREF 123456-G/SP ou 123456-SP">
+            </div>
+
+            <!-- Botões -->
+            <div class="span-2" style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px;">
+              <button type="reset" class="btn-ghost">Limpar</button>
+              <button type="submit" class="btn">Salvar cadastro</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="card glass" style="margin-top:14px;">
+        <h3 style="margin-bottom:6px;">Observações</h3>
+        <ul class="list muted">
+          <li>O CREF deve estar ativo para ativar o perfil do personal.</li>
+          <li>Documentos e foto podem ser anexados depois em “Gerenciar Personal”.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- outras views podem vir aqui: criar-treinos, gerenciar-treinos etc. -->
+  </main>
+
+  <!-- JS de navegação entre views + máscara simples de telefone + validação CREF -->
+  <script>
+    (function(){
+      const views = Array.from(document.querySelectorAll('[data-view]'));
+      const links = Array.from(document.querySelectorAll('.sidenav-link'));
+      const goBtns = Array.from(document.querySelectorAll('[data-go]'));
+
+      function show(view){
+        views.forEach(v => v.hidden = (v.dataset.view !== view));
+        links.forEach(a => a.classList.toggle('active', a.dataset.target === view));
+        if (view === 'cadastrar-personal') location.hash = '#cadastrar-personal';
+      }
+      function currentFromHash(){
+        const h = (location.hash || '').replace('#','');
+        return h && views.some(v => v.dataset.view === h) ? h : 'inicio';
+      }
+      links.forEach(a => a.addEventListener('click', (e) => {
+        e.preventDefault();
+        show(a.dataset.target);
+      }));
+      goBtns.forEach(b => b.addEventListener('click', (e) => {
+        e.preventDefault();
+        show(b.dataset.go);
+      }));
+      window.addEventListener('hashchange', () => show(currentFromHash()));
+      show(currentFromHash());
+
+      // máscara simples de telefone
+      const tel = document.getElementById('id_telefone');
+      if (tel){
+        tel.addEventListener('input', () => {
+          let v = tel.value.replace(/\D/g, '').slice(0, 11);
+          if (v.length > 2 && v.length <= 6) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+          else if (v.length > 6 && v.length <= 10) v = `(${v.slice(0,2)}) ${v.slice(2,6)}-${v.slice(6)}`;
+          else if (v.length > 10) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+          tel.value = v;
+        });
+      }
+
+      // validação simples de CREF antes de enviar (cliente)
+      const form = document.querySelector('section[data-view="cadastrar-personal"] form');
+      function validaCREF(text){
+        const t = String(text || '').trim().toUpperCase();
+        const re = /^(CREF\s*)?\d{4,7}(-?[A-Z])?(\/|-)?[A-Z]{2}$/; // ex.: CREF 123456-G/SP ou 123456-SP
+        return re.test(t);
+      }
+      if (form){
+        form.addEventListener('submit', (e) => {
+          const cref = document.getElementById('id_cref').value;
+          if(!validaCREF(cref)){
+            e.preventDefault();
+            alert('Verifique o formato do CREF (ex.: CREF 123456-G/SP ou 123456-SP).');
+            document.getElementById('id_cref').focus();
+          }
+        });
+      }
+    })();
+  </script>
 </body>
 </html>
