@@ -1,4 +1,258 @@
 {% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Criar Conta | Academia</title>
+  <link rel="stylesheet" href="{% static 'global/css/style.css' %}">
+  <style>
+    .form-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .field-group label { display: block; margin: 8px 0 6px; }
+    .span-2 { grid-column: 1 / -1; }
+    .form-grid input, .form-grid select, .form-grid textarea { width: 100%; }
+  </style>
+</head>
+
+<body class="auth-page">
+
+  <!-- LOGO -->
+  <div class="logo-container">
+    <img src="{% static 'global/img/logo-unilife.png' %}" alt="Logo" class="logo-img">
+  </div>
+
+  <form class="card" method="post" action="">
+    {% csrf_token %}
+    <h1 class="title">Cadastre-se</h1>
+    <p class="subtitle">Preencha seus dados para criar uma conta.</p>
+
+    {% if form.non_field_errors %}
+      <div class="error">
+        {% for e in form.non_field_errors %}
+          {{ e }}{% if not forloop.last %}<br>{% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="form-grid">
+      <!-- Nome -->
+      <div class="field-group">
+        <label for="id_first_name">Nome</label>
+        <input type="text" name="first_name" id="id_first_name" required autocomplete="given-name"
+               value="{{ form.first_name.value|default:'' }}" placeholder="Seu nome" />
+        {% if form.first_name.errors %}
+          <div class="error">
+            {% for e in form.first_name.errors %}
+              {{ e }}{% if not forloop.last %}<br>{% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Sobrenome -->
+      <div class="field-group">
+        <label for="id_last_name">Sobrenome</label>
+        <input type="text" name="last_name" id="id_last_name" autocomplete="family-name"
+               value="{{ form.last_name.value|default:'' }}" placeholder="Seu sobrenome" />
+        {% if form.last_name.errors %}
+          <div class="error">
+            {% for e in form.last_name.errors %}
+              {{ e }}{% if not forloop.last %}<br>{% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- E-mail -->
+      <div class="field-group span-2">
+        <label for="id_email">E-mail</label>
+        <input type="email" name="email" id="id_email" required autocomplete="email"
+               value="{{ form.email.value|default:'' }}" placeholder="voce@exemplo.com" />
+        {% if form.email.errors %}
+          <div class="error">
+            {% for e in form.email.errors %}
+              {{ e }}{% if not forloop.last %}<br>{% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- CPF -->
+      <div class="field-group">
+        <label for="id_cpf">CPF</label>
+        <input type="text" name="cpf" id="id_cpf" required inputmode="numeric" autocomplete="off"
+               value="{{ form.cpf.value|default:'' }}" placeholder="000.000.000-00" />
+        {% if form.cpf.errors %}
+          <div class="error">
+            {% for e in form.cpf.errors %}
+              {{ e }}{% if not forloop.last %}<br>{% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Telefone -->
+      <div class="field-group">
+        <label for="id_tel">Telefone (com DDD)</label>
+        <input type="text" name="tel" id="id_tel" required inputmode="tel" autocomplete="tel"
+               value="{{ form.tel.value|default:'' }}" placeholder="(11) 99999-9999" />
+        {% if form.tel.errors %}
+          <div class="error">
+            {% for e in form.tel.errors %}
+              {{ e }}{% if not forloop.last %}<br>{% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Sexo -->
+      <div class="field-group">
+        <label for="id_sex">Sexo</label>
+        <select name="sex" id="id_sex" required>
+          <option value="">Selecione</option>
+          <option value="M" {% if form.sex.value == 'M' %}selected{% endif %}>Masculino</option>
+          <option value="F" {% if form.sex.value == 'F' %}selected{% endif %}>Feminino</option>
+          <option value="O" {% if form.sex.value == 'O' %}selected{% endif %}>Outro</option>
+        </select>
+        {% if form.sex.errors %}
+          <div class="error">
+            {% for e in form.sex.errors %}
+              {{ e }}{% if not forloop.last %}<br>{% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Data de nascimento -->
+      <div class="field-group">
+        <label for="id_date_of_birth">Data de nascimento</label>
+        <input type="date" name="date_of_birth" id="id_date_of_birth" required
+               value="{{ form.date_of_birth.value|default:'' }}" />
+        {% if form.date_of_birth.errors %}
+          <div class="error">
+            {% for e in form.date_of_birth.errors %}
+              {{ e }}{% if not forloop.last %}<br>{% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Restrições -->
+      <div class="field-group span-2">
+        <label for="id_restrictions">Restrições</label>
+        <textarea name="restrictions" id="id_restrictions" rows="3"
+                  placeholder="Ex: dor lombar, hipertensão...">{{ form.restrictions.value|default:'' }}</textarea>
+        {% if form.restrictions.errors %}
+          <div class="error">
+            {% for e in form.restrictions.errors %}
+              {{ e }}{% if not forloop.last %}<br>{% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Senha -->
+      <div class="field-group">
+        <label for="id_password1">Senha</label>
+        <div class="input-password" style="position:relative;">
+          <input type="password" name="password1" id="id_password1" required autocomplete="new-password" placeholder="••••••••"
+                 style="padding-right:40px;">
+          <button type="button" class="toggle-password" aria-label="Mostrar senha"
+                  data-target="id_password1"
+                  data-open="{% static 'global/img/olho-aberto.png' %}"
+                  data-closed="{% static 'global/img/olho-fechado.png' %}"
+                  style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:0; padding:4px; cursor:pointer;"
+                  onclick="
+                    const input = document.getElementById(this.dataset.target);
+                    const img   = this.querySelector('img');
+                    const show  = (input.type === 'password');
+                    input.type  = show ? 'text' : 'password';
+                    img.src     = show ? this.dataset.open : this.dataset.closed;
+                    this.setAttribute('aria-label', show ? 'Ocultar senha' : 'Mostrar senha');
+                  ">
+            <img src="{% static 'global/img/olho-fechado.png' %}" alt="" width="22" height="22" draggable="false" style="pointer-events:none;">
+          </button>
+        </div>
+        {% if form.password1.errors %}
+          <div class="error">
+            {% for e in form.password1.errors %}
+              {{ e }}{% if not forloop.last %}<br>{% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Confirmar senha -->
+      <div class="field-group">
+        <label for="id_password2">Confirmar senha</label>
+        <div class="input-password" style="position:relative;">
+          <input type="password" name="password2" id="id_password2" required autocomplete="new-password" placeholder="••••••••"
+                 style="padding-right:40px;">
+          <button type="button" class="toggle-password" aria-label="Mostrar senha"
+                  data-target="id_password2"
+                  data-open="{% static 'global/img/olho-aberto.png' %}"
+                  data-closed="{% static 'global/img/olho-fechado.png' %}"
+                  style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:0; padding:4px; cursor:pointer;"
+                  onclick="
+                    const input = document.getElementById(this.dataset.target);
+                    const img   = this.querySelector('img');
+                    const show  = (input.type === 'password');
+                    input.type  = show ? 'text' : 'password';
+                    img.src     = show ? this.dataset.open : this.dataset.closed;
+                    this.setAttribute('aria-label', show ? 'Ocultar senha' : 'Mostrar senha');
+                  ">
+            <img src="{% static 'global/img/olho-fechado.png' %}" alt="" width="22" height="22" draggable="false" style="pointer-events:none;">
+          </button>
+        </div>
+        {% if form.password2.errors %}
+          <div class="error">
+            {% for e in form.password2.errors %}
+              {{ e }}{% if not forloop.last %}<br>{% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <button class="btn btn-green span-2" type="submit">Criar Conta</button>
+
+      <div class="footer span-2" style="text-align:center;margin-top:10px;">
+        <small>Já tem conta? <a href="{% url 'login' %}" class="link">Entrar</a></small>
+      </div>
+    </div>
+  </form>
+
+  <!-- Máscaras -->
+  <script>
+    function maskCPF(v) {
+      return v.replace(/\D/g, '')
+              .replace(/(\d{3})(\d)/, '$1.$2')
+              .replace(/(\d{3})(\d)/, '$1.$2')
+              .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+              .substring(0, 14);
+    }
+    function maskTel(v) {
+      v = v.replace(/\D/g, '');
+      if (v.length <= 10) {
+        return v.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+      } else {
+        return v.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+      }
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+      const cpf = document.getElementById("id_cpf");
+      const tel = document.getElementById("id_tel");
+      if (cpf) cpf.addEventListener("input", e => e.target.value = maskCPF(e.target.value));
+      if (tel) tel.addEventListener("input", e => e.target.value = maskTel(e.target.value));
+    });
+  </script>
+</body>
+
+</html>" e o html do admin "{% load static %}
 <!DOCTYPE html> 
 <html lang="pt-br">
 <head>
@@ -53,256 +307,131 @@
     </div>
   </section>
 
-<!-- ====== VIEW: CADASTRAR PERSONAL ====== -->
-<section class="section" data-view="cadastrar-personal" hidden>
-  <div class="form-wrapper">
-    <form class="card glass" method="post" action="{% url 'personal_create' %}">
-      {% csrf_token %}
-      <h2 class="card-title">Cadastrar Personal</h2>
+  <!-- ====== VIEW: CADASTRAR PERSONAL ====== -->
+  <section class="section" data-view="cadastrar-personal" hidden>
+    <div class="form-wrapper">
+      <div class="card glass">
+        <h2 class="card-title">Cadastrar Personal</h2>
 
-      {# mensagens de erro gerais do form #}
-      {% if personal_form.non_field_errors %}
-        <div class="error">
-          {% for e in personal_form.non_field_errors %}
-            {{ e }}{% if not forloop.last %}<br>{% endif %}
-          {% endfor %}
-        </div>
-      {% endif %}
+        <form method="post" action=" ">
+          {% csrf_token %}
 
-      <div class="form-grid" style="grid-template-columns:1fr 1fr; gap:12px;">
-        <!-- Nome -->
-        <div class="field-group span-2">
-          <label for="id_nome">Nome completo</label>
-          {{ personal_form.nome.as_widget(attrs={
-              'id':'id_nome','class':'field','placeholder':'Ex.: Ana Souza','required':'required'
-          }) }}
-          {% if personal_form.nome.errors %}
-            <div class="error">
-              {% for e in personal_form.nome.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+          <div class="form-grid">
+            <div class="field-group span-2">
+              <label for="id_nome">Nome completo</label>
+              <input id="id_nome" name="nome" type="text" class="field" placeholder="Ex.: Ana Souza" required>
             </div>
-          {% endif %}
-        </div>
 
-        <!-- E-mail -->
-        <div class="field-group">
-          <label for="id_email">E-mail</label>
-          {{ personal_form.email.as_widget(attrs={
-              'id':'id_email','class':'field','placeholder':'exemplo@academia.com','required':'required'
-          }) }}
-          {% if personal_form.email.errors %}
-            <div class="error">
-              {% for e in personal_form.email.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+            <div class="field-group">
+              <label for="id_email">E-mail</label>
+              <input id="id_email" name="email" type="email" class="field" placeholder="exemplo@academia.com" required>
             </div>
-          {% endif %}
-        </div>
 
-        <!-- Telefone -->
-        <div class="field-group">
-          <label for="id_telefone">Telefone (com DDD)</label>
-          {{ personal_form.telefone.as_widget(attrs={
-              'id':'id_telefone','class':'field','placeholder':'(11) 99999-9999','inputmode':'tel','required':'required'
-          }) }}
-          {% if personal_form.telefone.errors %}
-            <div class="error">
-              {% for e in personal_form.telefone.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+            <div class="field-group">
+              <label for="id_telefone">Telefone</label>
+              <input id="id_telefone" name="telefone" type="tel" inputmode="numeric"
+                     class="field" placeholder="(11) 91234-5678"
+                     pattern="^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$" required>
             </div>
-          {% endif %}
-        </div>
 
-        <!-- Sexo -->
-        <div class="field-group">
-          <label for="id_sexo">Sexo</label>
-          {{ personal_form.sexo|add_class:"field"|attr:"id:id_sexo" }}
-          {% if personal_form.sexo.errors %}
-            <div class="error">
-              {% for e in personal_form.sexo.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+            <div class="field-group">
+              <label for="id_sexo">Sexo</label>
+              <select id="id_sexo" name="sexo" class="field" required>
+                <option value="" disabled selected>Selecione</option>
+                <option value="Feminino">Feminino</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Outro">Outro / Prefiro não informar</option>
+              </select>
             </div>
-          {% endif %}
-        </div>
 
-        <!-- Data de nascimento -->
-        <div class="field-group">
-          <label for="id_nascimento">Data de nascimento</label>
-          {{ personal_form.nascimento.as_widget(attrs={
-              'id':'id_nascimento','class':'field','type':'date','required':'required'
-          }) }}
-          {% if personal_form.nascimento.errors %}
-            <div class="error">
-              {% for e in personal_form.nascimento.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+            <div class="field-group">
+              <label for="id_nascimento">Data de nascimento</label>
+              <input id="id_nascimento" name="nascimento" type="date" class="field" required>
             </div>
-          {% endif %}
-        </div>
 
-        <!-- CREF -->
-        <div class="field-group">
-          <label for="id_cref">CREF</label>
-          {{ personal_form.cref.as_widget(attrs={
-              'id':'id_cref','class':'field','placeholder':'Ex.: CREF 123456-G/SP','required':'required',
-              'title':'Use algo como: CREF 123456-G/SP ou 123456-SP'
-          }) }}
-          {% if personal_form.cref.errors %}
-            <div class="error">
-              {% for e in personal_form.cref.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+            <div class="field-group span-2">
+              <label for="id_cref">CREF</label>
+              <input id="id_cref" name="cref" type="text" class="field"
+                     placeholder="Ex.: CREF 123456-G/SP" required
+                     title="Use algo como: CREF 123456-G/SP ou 123456-SP">
             </div>
-          {% endif %}
-        </div>
 
-        <!-- Ações -->
-        <div class="span-2" style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px;">
-          <button type="reset" class="btn-ghost">Limpar</button>
-          <button type="submit" class="btn">Salvar cadastro</button>
-        </div>
+            <div class="span-2" style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px;">
+              <button type="reset" class="btn-ghost">Limpar</button>
+              <button type="submit" class="btn">Salvar cadastro</button>
+            </div>
+          </div>
+        </form>
       </div>
-    </form>
-  </div>
+    </div>
 
-  <div class="card glass notes-card">
-    <h3 style="margin-bottom:6px;">Observações</h3>
-    <ul class="list muted">
-      <li>O CREF deve estar ativo para ativar o perfil do personal.</li>
-      <li>Documentos e foto podem ser anexados depois em “Gerenciar Personal”.</li>
-    </ul>
-  </div>
-</section>
-    
+    <div class="card glass notes-card">
+      <h3 style="margin-bottom:6px;">Observações</h3>
+      <ul class="list muted">
+        <li>O CREF deve estar ativo para ativar o perfil do personal.</li>
+        <li>Documentos e foto podem ser anexados depois em “Gerenciar Personal”.</li>
+      </ul>
+    </div>
+  </section>
 </main>
   
   <!-- JS de navegação entre views + máscara simples de telefone + validação CREF -->
   <script>
-/* ===========================
-   Helpers de máscara/validação
-   =========================== */
-function maskTel(v){
-  v = String(v || "").replace(/\D/g, "");
-  if (v.length <= 10){
-    return v.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3");
-  }
-  return v.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3");
-}
+    (function(){
+      const views = Array.from(document.querySelectorAll('[data-view]'));
+      const links = Array.from(document.querySelectorAll('.sidenav-link'));
+      const goBtns = Array.from(document.querySelectorAll('[data-go]'));
 
-// CREF: aceita "CREF 123456-G/SP", "123456-SP", "123456G/XX", etc.
-function validaCREF(text){
-  const t = String(text || "").trim().toUpperCase();
-  return /^(CREF\s*)?\d{4,7}(-?[A-Z])?(\/|-)?[A-Z]{2}$/.test(t);
-}
-
-/* ===========================
-   SPA de navegação por seções
-   =========================== */
-(function () {
-  const views = Array.from(document.querySelectorAll("[data-view]"));
-  const links = Array.from(document.querySelectorAll(".sidenav-link"));
-  const goBtns = Array.from(document.querySelectorAll("[data-go]"));
-
-  function show(view){
-    // alterna visibilidade
-    views.forEach(v => v.hidden = (v.dataset.view !== view));
-    // ativa link
-    links.forEach(a => a.classList.toggle("active", a.dataset.target === view));
-    // atualiza hash
-    if (view) location.hash = "#" + view;
-  }
-
-  function currentFromHash(){
-    const h = (location.hash || "").replace("#", "");
-    return h && views.some(v => v.dataset.view === h) ? h : "inicio";
-  }
-
-  // Clique no menu lateral
-  links.forEach(a => {
-    a.addEventListener("click", (e) => {
-      e.preventDefault();
-      show(a.dataset.target);
-    });
-  });
-
-  // Botões que navegam direto (ex.: Ações rápidas)
-  goBtns.forEach(b => {
-    b.addEventListener("click", (e) => {
-      e.preventDefault();
-      if (b.dataset.go) show(b.dataset.go);
-    });
-  });
-
-  // Reage quando o hash muda (voltar/avançar do navegador)
-  window.addEventListener("hashchange", () => show(currentFromHash()));
-
-  // Abre a view vinda do servidor (opcional)
-  try {
-    // se você passar {"open_view": "cadastrar-personal"} no contexto Django:
-    {% if open_view %}
-      show("{{ open_view }}");
-    {% else %}
+      function show(view){
+        views.forEach(v => v.hidden = (v.dataset.view !== view));
+        links.forEach(a => a.classList.toggle('active', a.dataset.target === view));
+        if (view === 'cadastrar-personal') location.hash = '#cadastrar-personal';
+      }
+      function currentFromHash(){
+        const h = (location.hash || '').replace('#','');
+        return h && views.some(v => v.dataset.view === h) ? h : 'inicio';
+      }
+      links.forEach(a => a.addEventListener('click', (e) => {
+        e.preventDefault();
+        show(a.dataset.target);
+      }));
+      goBtns.forEach(b => b.addEventListener('click', (e) => {
+        e.preventDefault();
+        show(b.dataset.go);
+      }));
+      window.addEventListener('hashchange', () => show(currentFromHash()));
       show(currentFromHash());
-    {% endif %}
-  } catch(_e){
-    // se não estiver usando Django template aqui, só abre pelo hash
-    show(currentFromHash());
-  }
-})();
 
-/* ===========================
-   Comportamentos de formulário
-   =========================== */
-(function () {
-  // ----- Cadastro de Personal -----
-  const personalSection = document.querySelector('section[data-view="cadastrar-personal"]');
-  if (personalSection){
-    const form = personalSection.querySelector("form");
-    const telInput = personalSection.querySelector("#id_telefone");
-    const crefInput = personalSection.querySelector("#id_cref");
-    const submitBtn = personalSection.querySelector('button[type="submit"]');
+      // máscara simples de telefone
+      const tel = document.getElementById('id_telefone');
+      if (tel){
+        tel.addEventListener('input', () => {
+          let v = tel.value.replace(/\D/g, '').slice(0, 11);
+          if (v.length > 2 && v.length <= 6) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+          else if (v.length > 6 && v.length <= 10) v = `(${v.slice(0,2)}) ${v.slice(2,6)}-${v.slice(6)}`;
+          else if (v.length > 10) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+          tel.value = v;
+        });
+      }
 
-    // máscara de telefone
-    if (telInput){
-      telInput.addEventListener("input", (e) => {
-        e.target.value = maskTel(e.target.value);
-      });
-    }
-
-    // validação + proteção contra duplo envio
-    if (form){
-      let submitting = false;
-      form.addEventListener("submit", (e) => {
-        // valida CREF
-        if (crefInput && !validaCREF(crefInput.value)){
-          e.preventDefault();
-          alert("Verifique o formato do CREF (ex.: CREF 123456-G/SP ou 123456-SP).");
-          crefInput.focus();
-          return;
-        }
-
-        // evita duplo clique
-        if (submitting){
-          e.preventDefault();
-          return;
-        }
-        submitting = true;
-        if (submitBtn){
-          submitBtn.disabled = true;
-          submitBtn.style.opacity = "0.8";
-          submitBtn.textContent = "Salvando...";
-        }
-      });
-    }
-  }
-
-  // ----- (Opcional) Anamnese -----
-  // Se você criou a view de Anamnese, você pode plugar máscaras/validações aqui.
-  const anamSection = document.querySelector('section[data-view="anamnese"]');
-  if (anamSection){
-    // exemplo: ao digitar peso/altura você pode formatar casas decimais
-    const peso = anamSection.querySelector("#peso");
-    const altura = anamSection.querySelector("#altura");
-    [peso, altura].forEach(inp => {
-      if (!inp) return;
-      inp.addEventListener("blur", () => {
-        if (inp.value) inp.value = Number(inp.value).toFixed(2);
-      });
-    });
-  }
-})();
-</script>
-
+      // validação simples de CREF antes de enviar (cliente)
+      const form = document.querySelector('section[data-view="cadastrar-personal"] form');
+      function validaCREF(text){
+        const t = String(text || '').trim().toUpperCase();
+        const re = /^(CREF\s*)?\d{4,7}(-?[A-Z])?(\/|-)?[A-Z]{2}$/; // ex.: CREF 123456-G/SP ou 123456-SP
+        return re.test(t);
+      }
+      if (form){
+        form.addEventListener('submit', (e) => {
+          const cref = document.getElementById('id_cref').value;
+          if(!validaCREF(cref)){
+            e.preventDefault();
+            alert('Verifique o formato do CREF (ex.: CREF 123456-G/SP ou 123456-SP).');
+            document.getElementById('id_cref').focus();
+          }
+        });
+      }
+    })();
+  </script>
 </body>
 </html>
