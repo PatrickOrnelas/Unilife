@@ -58,10 +58,6 @@ class RegistroAlunoForm(forms.Form):
     sex            = forms.ChoiceField(choices=SEX_CHOICES, label='Sexo', required=True)
     date_of_birth  = forms.DateField(label='Data de nascimento',
                                      widget=forms.DateInput(attrs={"type": "date"}), required=True)
-    restrictions   = forms.CharField(
-        label='Restrições', required=False,
-        widget=forms.Textarea(attrs={"rows": 3, "placeholder": "Ex.: dor lombar, hipertensão..."})
-    )
     password1      = forms.CharField(label="Senha", widget=forms.PasswordInput)
     password2      = forms.CharField(label="Confirmar senha", widget=forms.PasswordInput)
 
@@ -91,7 +87,6 @@ class RegistroAlunoForm(forms.Form):
         tel_digits    = self.cleaned_data["tel"]      # já só dígitos
         sex           = self.cleaned_data["sex"]
         date_of_birth = self.cleaned_data["date_of_birth"]
-        restrictions  = self.cleaned_data.get("restrictions", "").strip()
         password      = self.cleaned_data["password1"]
 
         # cria o User com username = CPF
@@ -108,7 +103,6 @@ class RegistroAlunoForm(forms.Form):
                 sex=sex,
                 email=email,
                 date_of_birth=date_of_birth,
-                restrictions=restrictions,
             )
         return user
 
@@ -125,10 +119,6 @@ class RegistroPersonalForm(forms.Form):
     sex            = forms.ChoiceField(choices=SEX_CHOICES, label="Sexo", required=True)
     date_of_birth  = forms.DateField(label="Data de nascimento",
                                      widget=forms.DateInput(attrs={"type": "date"}), required=True)
-    restrictions   = forms.CharField(
-        label='Restrições', required=False,
-        widget=forms.Textarea(attrs={"rows": 3, "placeholder": "Ex.: dor lombar, hipertensão..."})
-    )
     password1      = forms.CharField(label="Senha", widget=forms.PasswordInput)
     password2      = forms.CharField(label="Confirmar senha", widget=forms.PasswordInput)
 
@@ -165,7 +155,6 @@ class RegistroPersonalForm(forms.Form):
         tel_digits    = self.cleaned_data["tel"]      # já só dígitos
         sex           = self.cleaned_data["sex"]
         date_of_birth = self.cleaned_data["date_of_birth"]
-        restrictions  = self.cleaned_data.get("restrictions", "").strip()
         password      = self.cleaned_data["password1"]
 
         # cria o User com username = CPF
@@ -182,7 +171,6 @@ class RegistroPersonalForm(forms.Form):
                 sex=sex,
                 email=email,
                 date_of_birth=date_of_birth,
-                restrictions=restrictions,
                 cref=cref_code,           # <== AGORA salvando o CREF!
                 # ativo usa default=True
             )

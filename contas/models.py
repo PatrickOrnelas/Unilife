@@ -22,7 +22,6 @@ class PerfilBase(TimeStampedModel):
     sex = models.CharField(max_length=1, choices=SEX_CHOICES)
     email = models.EmailField()
     date_of_birth = models.DateField()
-    restrictions  = models.TextField(blank=True)
 
     class Meta:
         abstract = True
@@ -61,3 +60,36 @@ class Treino(TimeStampedModel):
 
     def is_criador_admin(self):
         return hasattr(self.criado_por, "admin")
+
+class Anamnese(models.Model):
+    aluno = models.ForeignKey(
+        Aluno, 
+        on_delete=models.CASCADE, 
+        related_name="anamneses"
+    )
+    responsavel = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        null=True, blank=True,
+        related_name="anamneses_realizadas"
+    )
+    data = models.DateTimeField(auto_now_add=True)
+
+    # Campos médicos básicos
+    peso = models.DecimalField(max_digits=5, decimal_places=2, help_text="kg")
+    altura = models.DecimalField(max_digits=4, decimal_places=2, help_text="m")
+    
+    # Histórico do aluno
+    historico_medico = models.TextField(blank=True)
+    restricoes = models.TextField(blank=True)
+    observacoes = models.TextField(blank=True)
+
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Anamnese"
+        verbose_name_plural = "Anamneses"
+        ordering = ["-data"]
+
+    def __str__(self):
+        return f"Anamnese de {self.aluno.first_name} em {self.data.strftime('%d/%m/%Y')}"

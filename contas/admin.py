@@ -1,126 +1,94 @@
 # contas/admin.py
 from django.contrib import admin
-from django.utils.html import format_html
-from .models import Aluno, Personal, Admin as AdminPerfil, Treino
+from django.contrib.auth.models import User
+from .models import Aluno, Personal, Admin as Proprietario, Treino, Anamnese
 
+# --- Utilitário: auto-atribuir o responsável (usuário logado) ---
+class SetResponsavelMixin:
+    def save_model(self, request, obj, form, change):
+        if hasattr(obj, "responsavel") and obj.responsavel_id is None:
+            obj.responsavel = request.user
+        super().save_model(request, obj, form, change)
 
-# --------- Mixins/Helpers ---------
-class PerfilBaseAdmin(admin.ModelAdmin):
-    """
-    Configuração base para Aluno/Personal/Admin:
-    - lista com nome, CPF (username), e-mail, sexo, data de nasc.
-    - busca por CPF (user__username), nome e e-mail
-    """
-    list_display = (
-        "nome_completo",
-        "cpf",
-        "email",
-        "sex",
-        "date_of_birth",
-        "created_at",
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+        for inst in instances:
+            if isinstance(inst, Anamnese) and inst.responsavel_id is None:
+                inst.responsavel = request.user
+            inst.save()
+        formset.save_m2m()
+
+# --- Inline de Anamnese dentro do Aluno ---
+class AnamneseInline(SetResponsavelMixin, admin.StackedInline):
+    model = Anamnese
+    extra = 0
+    fields = (
+        "data",
+        "peso", "altura",
+        "historico_medico", "restricoes", "observacoes",
+        "responsavel", "atualizado_em",
     )
-    list_select_related = ("user",)
-    search_fields = (
-        "user__username",      # CPF
-        "first_name",
-        "last_name",
-        "email",
-    )
-    list_filter = ("sex",)
+    readonly_fields = ("data", "atualizado_em")
+    classes = ("collapse",)
+
+# --- Admins principais ---
+@admin.register(Aluno)
+class AlunoAdmin(admin.ModelAdmin):
+    inlines = [AnamneseInline]
+    list_display = ("id", "first_name", "last_name", "username_cpf", "tel", "sex", "email", "created_at")
+    search_fields = ("first_name", "last_name", "user__username", "email", "tel")
+    list_filter = ("sex", "created_at")
     ordering = ("-created_at",)
-    readonly_fields = ("created_at", "updated_at")
 
-    @admin.display(description="Nome")
-    def nome_completo(self, obj):
-        return f"{obj.first_name} {obj.last_name}".strip()
-
-    @admin.display(description="CPF")
-    def cpf(self, obj):
+    @admin.display(description="CPF (username)")
+    def username_cpf(self, obj: Aluno):
         return obj.user.username
 
-    @admin.display(description="Criado em")
-    def created_at(self, obj):
-        return obj.created_at
-
-
-# --------- Aluno ---------
-@admin.register(Aluno)
-class AlunoAdmin(PerfilBaseAdmin):
-    fieldsets = (
-        ("Vinculação", {"fields": ("user",)}),
-        ("Dados pessoais", {
-            "fields": (
-                "first_name", "last_name", "email", "tel",
-                "sex", "date_of_birth", "restrictions",
-            )
-        }),
-        ("Metadados", {"fields": ("created_at", "updated_at")}),
-    )
-
-
-# --------- Personal ---------
 @admin.register(Personal)
-class PersonalAdmin(PerfilBaseAdmin):
-    list_display = PerfilBaseAdmin.list_display + ("cref", "ativo")
-    list_filter = PerfilBaseAdmin.list_filter + ("ativo",)
-    search_fields = PerfilBaseAdmin.search_fields + ("cref",)
+class PersonalAdmin(admin.ModelAdmin):
+    list_display = ("id", "first_name", "last_name", "username_cpf", "cref", "tel", "sex", "email", "ativo", "created_at")
+    search_fields = ("first_name", "last_name", "user__username", "cref", "email", "tel")
+    list_filter = ("ativo", "sex", "created_at")
+    ordering = ("-created_at",)
 
-    fieldsets = (
-        ("Vinculação", {"fields": ("user",)}),
-        ("Dados pessoais", {
-            "fields": (
-                "first_name", "last_name", "email", "tel",
-                "sex", "date_of_birth", "restrictions",
-            )
-        }),
-        ("Profissional", {"fields": ("cref", "ativo")}),
-        ("Metadados", {"fields": ("created_at", "updated_at")}),
-    )
+    @admin.display(description="CPF (username)")
+    def username_cpf(self, obj: Personal):
+        return obj.user.username
 
+@admin.register(Proprietario)
+class AdminPerfilAdmin(admin.ModelAdmin):
+    list_display = ("id", "first_name", "last_name", "username_cpf", "cargo", "tel", "email", "created_at")
+    search_fields = ("first_name", "last_name", "user__username", "email", "tel", "cargo")
+    list_filter = ("created_at",)
+    ordering = ("-created_at",)
 
-# --------- Admin (Proprietário) ---------
-@admin.register(AdminPerfil)
-class AdminPerfilAdmin(PerfilBaseAdmin):
-    list_display = PerfilBaseAdmin.list_display + ("cargo",)
-    search_fields = PerfilBaseAdmin.search_fields + ("cargo",)
+    @admin.display(description="CPF (username)")
+    def username_cpf(self, obj: Proprietario):
+        return obj.user.username
 
-    fieldsets = (
-        ("Vinculação", {"fields": ("user",)}),
-        ("Dados pessoais", {
-            "fields": (
-                "first_name", "last_name", "email", "tel",
-                "sex", "date_of_birth", "restrictions",
-            )
-        }),
-        ("Organizacional", {"fields": ("cargo",)}),
-        ("Metadados", {"fields": ("created_at", "updated_at")}),
-    )
-
-
-# --------- Treino ---------
+# --- Admin de Treino ---
 @admin.register(Treino)
 class TreinoAdmin(admin.ModelAdmin):
-    list_display = ("titulo", "criador", "alunos_count", "created_at")
-    search_fields = ("titulo", "descricao", "criado_por__first_name", "criado_por__last_name", "criado_por__username")
-    list_filter = ()
-    ordering = ("-created_at",)
-    readonly_fields = ("created_at", "updated_at")
-
-    # UI melhor para ManyToMany
+    list_display = ("id", "titulo", "criado_por", "created_at")
+    search_fields = ("titulo", "descricao", "criado_por__username", "criado_por__first_name", "criado_por__last_name")
+    list_filter = ("created_at",)
     filter_horizontal = ("alunos",)
+    ordering = ("-created_at",)
 
-    fieldsets = (
-        ("Informações", {"fields": ("titulo", "descricao")}),
-        ("Relacionamentos", {"fields": ("criado_por", "alunos")}),
-        ("Metadados", {"fields": ("created_at", "updated_at")}),
+# --- Admin de Anamnese ---
+@admin.register(Anamnese)
+class AnamneseAdmin(SetResponsavelMixin, admin.ModelAdmin):
+    list_display = ("id", "aluno", "responsavel", "data", "peso", "altura")
+    search_fields = (
+        "aluno__first_name", "aluno__last_name", "aluno__user__username",
+        "responsavel__username", "responsavel__first_name", "responsavel__last_name",
     )
-
-    @admin.display(description="Criado por")
-    def criador(self, obj):
-        u = obj.criado_por
-        nome = (u.get_full_name() or u.username).strip()
-        return f"{nome} (CPF: {u.username})"
-
-    @admin.display(description="Alunos")
-    def alunos_count(self, obj):
-        return obj.alunos.count()
+    list_filter = ("data",)
+    readonly_fields = ("data", "atualizado_em")
+    fields = (
+        "aluno", "responsavel",
+        "data", "atualizado_em",
+        "peso", "altura",
+        "historico_medico", "restricoes", "observacoes",
+    )
+    ordering = ("-data",)
