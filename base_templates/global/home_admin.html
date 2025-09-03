@@ -1,11 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Admin | Academia</title>
+{% load static %}
+<!DOCTYPE html> 
+<html lang="pt-br"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel do Admin| Academia</title>
+  <link rel="stylesheet" href="{% static 'global/css/style.css' %}">
 </head>
 <body>
-    
+    <header>
+    <img src="{% static 'global/img/logo-unilife.png' %}" alt="Unilife" class="logo-img1">
+    <nav class="sidebar">
+      <form method="post" action="{% url "logout" %}">
+        {% csrf_token %}
+        <button type="submit" style="background:none;border:none;color:#f97316;cursor:pointer;font-size: 18px;">
+          Sair
+        </button>
+      </form>
+    </nav>
+  </header>
+
+  <!-- LATERAL FIXA -->
+  <aside class="app-sidenav">
+    <div class="sidenav-title">Menu</div>
+    <nav>
+      <a class="sidenav-link active" data-target="inicio" href="#inicio">Início</a>
+      <a class="sidenav-link" data-target="criar-treinos" href="#">Criar treinos</a>
+      <a class="sidenav-link" data-target="gerenciar-treinos" href="#">Gerenciar treinos</a>
+      <a class="sidenav-link" data-target="cadastrar-personal" href="#">Cadastrar Personal</a>
+      <a class="sidenav-link" data-target="gerenciar-personal" href="#">Gerenciar Persona</a>
+      <a class="sidenav-link" data-target="anamnese" href="#">Anamnese</a>
+    </nav>
+  </aside>
+  
+  <!-- CONTEÚDO -->
+  <main class="content"><!-- note: usei .content pois temos sidebar fixa -->
+    <h1>Olá, {{ request.user.first_name|default:request.user.username }}!</h1>
+    <p class="muted">Tipo de usuário: Proprietário</p>
 </body>
 </html>
