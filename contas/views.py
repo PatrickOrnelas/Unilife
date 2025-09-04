@@ -68,3 +68,19 @@ def registrar(request):
 def recuperar_senha_view(request):
     # sua página de "esqueci a senha" custom (entrada por e-mail/CPF)
     return render(request, 'global/reset_password.html')
+
+from .forms import RegistroPersonalForm
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render, redirect
+
+def is_admin(user):
+    return hasattr(user, "admin")  # ou user.is_superuser, como preferir
+
+@login_required
+@user_passes_test(is_admin)
+def cadastrar_personal(request):
+    form = RegistroPersonalForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        return redirect('admin:index')  # ou sua home de admin
+    return render(request, 'global/admin_painel.html', {'form_personal': form})
