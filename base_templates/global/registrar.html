@@ -142,20 +142,6 @@
         {% endif %}
       </div>
 
-      <!-- Restrições -->
-      <div class="field-group span-2">
-        <label for="id_restrictions">Restrições</label>
-        <textarea name="restrictions" id="id_restrictions" rows="3"
-                  placeholder="Ex: dor lombar, hipertensão...">{{ form.restrictions.value|default:'' }}</textarea>
-        {% if form.restrictions.errors %}
-          <div class="error">
-            {% for e in form.restrictions.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
-        {% endif %}
-      </div>
-
       <!-- Senha -->
       <div class="field-group">
         <label for="id_password1">Senha</label>
