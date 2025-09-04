@@ -1,0 +1,219 @@
+:root{
+  /* fundo geral */
+  --bg1:#0e37a6;
+  --bg2:#0a1c5a;
+
+  /* painel claro (lado direito) */
+  --panel:#ffffff;
+  --panel-shadow:0 30px 60px rgba(3,10,40,.25);
+  --border:#9db7ff;
+
+  /* tipografia */
+  --text:#0f1b2e;
+  --muted:#7b879c;
+  --on-hero:#f5f8ff;
+
+  /* botões */
+  --grad1:#2e90ff;
+  --grad2:#1dd1ff;
+  --grad-deep1:#1338f0;
+  --grad-deep2:#1e9bff;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body.login-split{
+  font-family: Inter, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--text);
+
+  /* degrade horizontal de duas cores */
+  background: linear-gradient(90deg, #0a1c5a, #123caa);
+}
+
+/* container central */
+.shell{ min-height:100vh; display:grid; place-items:center; padding:32px; }
+
+/* cartão split */
+.card-split{
+  width:min(1100px, 96vw);
+  background:#ffffff;
+  border-radius: 22px;
+  box-shadow: var(--panel-shadow);
+  overflow: hidden;
+  display:grid;
+  grid-template-columns: 1.05fr 0.95fr;
+}
+
+/* ===== LADO ESQUERDO (hero) ===== */
+.hero{
+  position:relative;
+  padding: 28px 26px 26px;
+  display:flex; flex-direction:column; gap:22px;
+  color: var(--on-hero);
+
+  /* 🔵 seu SVG animado do bgjar aqui */
+  background-image: url("../img/Forma-animada.svg"); /* << ajuste o caminho se preciso */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* overlay leve para melhorar contraste do texto sobre o SVG */
+.hero::before{
+  content:""; position:absolute; inset:0; z-index:0;
+  background: linear-gradient(180deg, rgba(0,18,66,.55), rgba(0,18,66,.25));
+}
+.brand, .hero-copy{ position:relative; z-index:1; }
+
+.brand img{ height:34px; width:auto; filter: drop-shadow(0 4px 10px rgba(0,0,0,.3)); }
+.hero-copy{ margin: 6px 10px 0 10px; }
+.hero-copy h1{
+  font-size: clamp(28px, 3.2vw, 44px);
+  line-height: 1.1; font-weight: 800;
+  margin-bottom: 10px;
+  text-shadow: 0 1px 0 rgba(0,0,0,.08);
+}
+.hero-copy p{
+  color: #d7e6ff;
+  max-width: 440px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.ghost-btn{
+  display:inline-block;
+  color:#0c2c66; background:#fff;
+  border-radius: 999px; padding: 10px 18px;
+  font-weight:700; text-decoration:none;
+  box-shadow: 0 10px 24px rgba(255,255,255,.18);
+}
+
+/* ===== LADO DIREITO (form) ===== */
+.panel{
+  background: var(--panel);
+  position:relative;
+  display:flex; align-items:center; justify-content:center;
+}
+.panel::before{
+  content:""; position:absolute; left:0; top:24px; bottom:24px;
+  width:1px; background: linear-gradient(180deg, #dde3f5, #eef2fb);
+}
+.panel-inner{
+  width:min(480px, 92%);
+  padding: 28px 28px 34px;
+}
+.panel-inner h2{
+  margin-bottom: 12px;
+  color:#1a2b6a; font-weight:800; letter-spacing:.2px;
+}
+
+/* campos */
+.field{ margin: 10px 0 12px; }
+.field .label{ display:block; font-size:.9rem; color:#62708a; margin-bottom:6px; }
+.input-wrap{ position:relative; }
+.input-wrap .peek{
+  position:absolute; right:10px; top:50%; transform:translateY(-50%);
+  border:0; background:transparent; cursor:pointer; color:#96a1b6; font-size:16px;
+}
+.input-wrap .peek:hover{ color:#6c7790; }
+
+.field input{
+  width:100%; height:46px; border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #fff;
+  outline:none; font-size: 15px; color:#0f1b2e;
+  padding: 0 40px 0 12px;
+  box-shadow: 0 6px 16px rgba(12,25,75,.06);
+  transition: box-shadow .15s ease, border-color .15s ease, background .15s ease;
+}
+.field input::placeholder{ color:#9aa3b2; }
+.field input:focus{
+  border-color:#b9c6ff;
+  box-shadow: 0 0 0 3px rgba(57,119,255,.18);
+}
+
+/* ações */
+.row{
+  display:flex; align-items:center; justify-content:space-between;
+  margin: 6px 2px 14px; color:#7b879c; font-size:.92rem;
+}
+.check{ display:inline-flex; gap:8px; align-items:center; cursor:pointer; }
+.check input{ width:16px; height:16px; }
+.link{ color:#2e90ff; text-decoration:none; }
+.link:hover{ text-decoration:underline; }
+
+/* botões */
+.btn-primary{
+  width:100%; height:46px; border:0; border-radius: 12px;
+  font-weight:800; color:#fff;
+  background: linear-gradient(90deg, var(--grad1), var(--grad2));
+  box-shadow: 0 12px 26px rgba(39,142,255,.35);
+  cursor:pointer; transition: transform .05s ease, filter .15s ease;
+}
+.btn-primary:hover{ transform: translateY(-1px); filter:brightness(1.03); }
+
+.cta{
+  margin-top: 16px; display:grid; gap:10px; justify-items:center;
+  color:#7b879c;
+}
+.btn-secondary{
+  display:inline-block; width: 100%; max-width: 340px; text-align:center;
+  padding: 10px 16px; border-radius:12px; color:#fff; font-weight:800; text-decoration:none;
+  background: linear-gradient(90deg, var(--grad-deep1), var(--grad-deep2));
+  box-shadow: 0 10px 24px rgba(19,56,240,.28);
+}
+
+/* erros */
+.err{
+  background:#fee2e2; color:#7f1d1d; border:1px solid #fecaca;
+  padding:8px 10px; border-radius:10px; font-size:.9rem; margin: 6px 0 10px;
+}
+
+/* responsivo */
+@media (max-width: 1024px){
+  .card-split{ grid-template-columns: 1fr; }
+  .panel::before{ display:none; }
+}
+@media (max-width: 520px){
+  .shell{ padding: 16px; }
+  .panel-inner{ padding: 22px; }
+  .ghost-btn{ padding: 9px 16px; }
+}
+
+
+/* ---- Centralização robusta em qualquer celular ---- */
+html, body { height: 100%; }
+body.login-split { overflow-x: hidden; }              /* evita “empurrões” laterais */
+
+.shell{
+  /* usa a viewport “segura” dos celulares (iOS/Android) */
+  min-height: 100svh;                                  /* melhor que 100vh no mobile */
+  display: grid;
+  place-content: center;                               /* centraliza vertical/horizontal */
+  padding: clamp(12px, 4vw, 32px);
+  padding-left: calc(clamp(12px, 4vw, 32px) + env(safe-area-inset-left, 0px));
+  padding-right: calc(clamp(12px, 4vw, 32px) + env(safe-area-inset-right, 0px));
+}
+
+.card-split{
+  margin: 0 auto;                                      /* garante centralização */
+}
+
+/* Empilha esquerda/direita e define uma largura confortável no mobile */
+@media (max-width: 1024px){
+  .card-split{ grid-template-columns: 1fr; }
+  .panel::before{ display:none; }                      /* tira a divisória vertical */
+}
+
+@media (max-width: 600px){
+  .card-split{
+    width: min(440px, 94vw);                           /* largura do cartão no celular */
+    border-radius: 20px;
+  }
+  .hero{
+    padding: 20px;                                     /* respiro */
+    border-radius: 20px 20px 0 0;                      /* topo arredondado */
+    text-align: left;                                  /* ou center, se preferir */
+  }
+  .panel-inner{ padding: 20px; }
+  .btn-primary, .btn-secondary{ height: 46px; }
+}

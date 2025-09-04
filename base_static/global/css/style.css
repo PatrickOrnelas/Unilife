@@ -1,636 +1,245 @@
-/* ===========================
-   🎨 THEME (variáveis globais)
-   =========================== */
-:root {
-    --bg: #0f172a;
-    --text: #e5e7eb;
-    --muted: #8091a9;
-    --border: #1f2937;
-    --card: #101827;
-    --card-alt: #0e1424;
-    --card-border: #1f2937;
-    --card-outline:#1b2940;
-    --field:#0b1424;
-    --focus: #334155;
-    --accent: #1fe27e;
-    --accent-d: #13c56a;
-    --shadow: 0 20px 60px rgb(0 0 0 / 55%), 0 2px 0 rgba(255, 255, 255, 0.02) inset;
+/* ================= THEME VARS ================= */
+:root{
+  /* paleta (igual login) */
+  --degrade1:#0e37a6;
+  --degrade2:#0a1c5a;
+
+  --bg:#f3f5f9;
+  --text:#0f1b2e;
+  --muted:#67758f;
+
+  --border:#e6e8ee;
+
+  --card:#ffffff;
+  --card-outline:#eaeef6;
+  --card-shadow: 0 30px 60px rgba(2,16,54,.10);
+
+  --field:#ffffff;
+  --focus:#9db7ff;
+
+  --accent:#2e90ff;
+  --accent2:#1dd1ff;
+
+  /* sidebar */
+  --nav-bg:#0b1629;
+  --nav-bg-2:#0a1c5a;
+  --nav-border: rgba(23,36,64,.7);
+  --nav-active: linear-gradient(90deg,#2e90ff,#1dd1ff);
+  --nav-hover:#0f2240;
+  --nav-link:#cfe1ff;
+
+  /* dimensões */
+  --w-collapsed: 76px;
+  --w-expanded: 220px;
+  --content-max: 1240px;
 }
 
-/* Reset */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+/* ================ RESET ================= */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--text);
+  background: var(--bg);
 }
 
-body {
-    font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    color: var(--text);
-    background: var(--bg);
+/* ================ HEADER ================= */
+header{
+  display:flex; align-items:center; justify-content:space-between;
+  height:64px; padding:10px 16px;
+  background: linear-gradient(90deg, var(--degrade2), var(--degrade1));
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.logo-img1{ max-height:38px; width:auto; }
+.logout-btn{ background:none; border:none; color:#f97316; cursor:pointer; font-size:18px; }
+.nav-toggle{
+  display:none;                 /* aparece só no mobile */
+  background:none; border:0; color:#fff;
+  font-size:22px; cursor:pointer;
+  margin:0 10px 0 0;            /* espaço à direita da logo */
+  line-height:1;
+}
+@media (max-width:980px){ .nav-toggle{ display:inline; } }
+header .sidebar{ margin-left:auto; }
+
+.nav-backdrop{
+  position: fixed;
+  left:0; right:0; top:64px; bottom:0;   /* começa abaixo do header */
+  background: rgba(0,0,0,.35);
+  opacity:0; pointer-events:none;
+  transition: opacity .22s ease;
+  z-index: 95;                           /* abaixo da sidebar (100) */
 }
 
-/* ===========================
-   🧾 HEADER (painel)
-   =========================== */
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    border-bottom: 1px solid var(--border);
-    background: #0b1220;
+/* só precisa aparecer no mobile */
+@media (max-width:980px){
+  body.nav-open .nav-backdrop{
+    opacity:1; pointer-events:auto;
+  }
 }
 
-.brand {
-    font-weight: 800;
-    letter-spacing: .3px;
+/* ================ BASE / CARDS ================= */
+.content{
+  margin-left: var(--w-collapsed);
+  padding: 24px;
+  transition: margin-left .2s ease;
+}
+.content > .section{
+  max-width: var(--content-max);
+  margin: 0 auto;
 }
 
-/* ===========================
-   📌 PAINEL PRINCIPAL
-   =========================== */
-.container {
-    max-width: 1000px;
-    margin: 26px auto;
-    padding: 0 16px;
+.cards{
+  display:grid; gap:16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 18px 0 24px;
 }
-
-.grid {
-    display: grid;
-    gap: 16px;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-}
-
-.card {
-    border:1px solid var(--card-outline);
-    background: var(--card);
-    border-radius: 14px;
-    padding: 18px;
-}
-
-.card h3 {
-    margin-top: 0;
-}
-
-.field{
-  width:100%;
-  height:46px;
-  padding:0 14px;
-  border-radius:10px;
-  border:1px solid var(--field-border);
-  background:var(--field);
-  color:var(--text);
-  outline:none;
-  font-size:15px;
-  transition:border-color .15s ease, box-shadow .15s ease;
-}
-.field::placeholder{ color:#6f7e95; }
-.field:focus{
-  border-color:var(--focus);
-  box-shadow:0 0 0 3px rgba(32,218,131,.15);
-}
-
-/* ===========================
-   🔗 BOTÕES E LINKS
-   =========================== */
-a.btn {
-    display: inline-block;
-    color: #0b121f;
-    background: var(--accent);
-    padding: 10px 14px;
-    border-radius: 10px;
-    text-decoration: none;
-    font-weight: 700;
-    border: 1px solid #14532d;
-}
-
-a.logout {
-    color: var(--muted);
-    text-decoration: none;
-}
-
-.btn {
-    width:100%; height:52px;
-  border:0; border-radius:12px;
-  background:linear-gradient(90deg, var(--accent), var(--accent-d));
-  color:#00140a; font-weight:700; font-size:16px;
-  box-shadow: 0 0px 15px rgba(31,226,126,.35);
-  cursor:pointer;
-  transition: transform .04s ease, filter .15s ease;
-}
-
-.btn:hover {
-    filter: brightness(1.03);
-    transform: translateY(-1px);
-}
-
-/* ===========================
-   🔑 LOGIN / REGISTRO / AUTH
-   =========================== */
-body.login-page,
-body.auth-page {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background:
-        radial-gradient(600px 400px at 82% 24%, rgba(255, 255, 255, .06), rgba(255, 255, 255, 0) 60%),
-        radial-gradient(900px 700px at 15% -10%, #121a2c 0%, #0b1220 50%, var(--bg) 100%);
-    padding: 20px;
-}
-
-/* Row de links abaixo dos campos */
-.row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.row-links {
-    margin: 6px 2px 14px;
-    font-size: 13px;
-    margin-top: 10px;
-    color: #95a4ba;
-}
-
-.muted {
-    color: var(--muted);
-}
-
-a.link {
-    color: #25d886;
-    text-decoration: none;
-    font-size: 13px;
-}
-
-a.link:hover {
-    text-decoration: underline;
-    font-size: 13px;
-}
+@media (max-width:980px){ .cards{ grid-template-columns:1fr; } }
 
 .card{
-  width:min(92vw, 520px);
-  background:linear-gradient(180deg, rgba(19,30,51,.92), rgba(13,22,38,.92));
-  border:1px solid var(--card-outline);
-  border-radius:16px;
-  box-shadow:var(--shadow);
-  padding:32px 36px 28px;
+  background: var(--card);
+  border: 1px solid var(--card-outline);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  padding: 18px;
+}
+.glass{ /* visual do seu dashboard claro */
+  background: #fff;
 }
 
+/* badges */
+.badge{
+  display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px;
+}
+.badge.ok{ background: rgba(34,197,94,.15); color:#34d399; }
 
-.title {
-    margin: 0 0 6px;
-    font-size: 26px;
-    font-weight:700;
+/* botões */
+a.btn{
+  display:inline-block;
+  color:#fff;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:700; border:0;
+}
+.btn{
+  width:100%; height:48px; border:0; border-radius:12px;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  color:#00233a; font-weight:800; box-shadow:0 10px 24px rgba(39,142,255,.25);
+  cursor:pointer; transition:transform .05s, filter .15s;
+}
+.btn:hover{ transform: translateY(-1px); filter:brightness(1.03); }
+.btn-ghost{
+  background:transparent; border:1px solid var(--border); color:var(--text);
+  border-radius:10px; padding:8px 12px; cursor:pointer;
 }
 
-.subtitle {
-    margin: 0 0 18px;
-    color: var(--muted);
-    font-size: 14px;
-    
-}
-
-/* ===========================
-   📝 FORMULÁRIOS
-   =========================== */
-label {
-    display: block;
-    margin: 12px 0 6px;
-    font-size: .85rem;
-    color: #cbd5e1;
-}
-
-input[type="text"],
-input[type="password"],
-input[type="email"],
-input[type="date"],
-select,
-textarea {
-    width:100%;
-  height:46px;
-  padding:14px;
-  border-radius:10px;
-  border:1px solid var(--card-border);
-  background:var(--field);
-  color:var(--text);
-  outline:none;
-  font-size:15px;
+/* ================ FORM FIELDS ================= */
+label{ display:block; margin:12px 0 6px; font-size:.92rem; color:#3a4763; }
+.field{
+  width:100%; height:46px;
+  padding:0 14px; border-radius:10px;
+  border:1px solid var(--border); background:var(--field); color:var(--text);
+  outline:none; font-size:15px;
   transition:border-color .15s ease, box-shadow .15s ease;
 }
+.field::placeholder{ color:#8fa0b8; }
+.field:focus{ border-color:var(--focus); box-shadow:0 0 0 3px rgba(157,183,255,.35); }
 
-.auth-page .card .btn{
-  margin-top: 14px;
-}
-
-input::placeholder,
-textarea::placeholder {
-    color: #6b7280;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-    border-color: var(--focus);
-    box-shadow: 0 0 0 2px rgba(51, 65, 85, .35);
-}
-
-select {
-    height: 50px;
-}
-
-textarea {
-    min-height: 96px;
-    height: auto;
-    resize: vertical;
-}
-
-/* campo de senha com botão */
-.input-password {
-    position: relative;
-    width: 100%;
-}
-
-.input-password input {
-    width: 100%;
-    padding-right: 46px;
-}
-
-.toggle-password {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: #9ca3af;
-    cursor: pointer;
-    font-size: 1rem;
-}
-
-.toggle-password:hover {
-    color: #fff;
-}
-
-/* ===========================
-   ❌ ERROS
-   =========================== */
-.error {
-    background: #3f1d1d;
-    color: #fecaca;
-    padding: 8px;
-    border-radius: 8px;
-    margin: 0 0 12px;
-    border: 1px solid #7f1d1d;
-    font-size: .85rem;
-}
-
-/* ===========================
-   🖼️ LOGO
-   =========================== */
-.logo-container {
-    text-align: center;
-    margin-bottom: 16px;
-}
-
-.logo-img {
-    max-width: 260px;
-    height: auto;
-    display: inline-block;
-}
-
-.logo-img1 {
-    max-width: 150px;
-    height: auto;
-    display: inline-block;
-}
-
-/* ===========================
-   📱 RESPONSIVO
-   =========================== */
-@media (max-width:480px) {
-    .card-login {
-        max-width: 90%;
-        padding: 18px;
-    }
-
-    .logo-img {
-        max-width: 110px;
-    }
-}
-
-/* Ellipse/blur de fundo */
-
-.bg-blob1{
-  position: fixed;                  /* fica “grudado” na tela */
-  top: var(--y, 20%);               /* posição vertical */
-  left: var(--x, 80%);              /* posição horizontal */
-  transform: translate(-50%, -50%); /* centraliza no ponto x/y */
-  width: var(--w, 370px);
-  height: var(--h, 280px);
-  background: var(--color, #D9D9D9);
-  opacity: var(--opacity, 0.12);
-  filter: blur(var(--blur, 93px));
-  border-radius: 999px;
-  pointer-events: none;             /* não intercepta cliques */
-  z-index: 0;                       /* atrás do conteúdo */
-}
-
-.bg-blob1{ top: 120%; left: 50%; }
-
-.bg-blob{
-  position: fixed;                  /* fica “grudado” na tela */
-  top: var(--y, 20%);               /* posição vertical */
-  left: var(--x, 80%);              /* posição horizontal */
-  transform: translate(-50%, -50%); /* centraliza no ponto x/y */
-  width: var(--w, 370px);
-  height: var(--h, 280px);
-  background: var(--color, #D9D9D9);
-  opacity: var(--opacity, 0.12);
-  filter: blur(var(--blur, 93px));
-  border-radius: 999px;
-  pointer-events: none;             /* não intercepta cliques */
-  z-index: 0;                       /* atrás do conteúdo */
-}
-
-.bg-blob{ top: 0%; left: 3%; }
-
-
-.form-grid{
-  display:grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap:14px;
-  row-gap:px;
-  margin-top:8px;
-}
+/* grid do form */
+.form-grid{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:14px 14px; margin-top:8px; }
 .field-group{ display:flex; flex-direction:column; }
 .span-2{ grid-column: 1 / -1; }
+@media (max-width:720px){ .form-grid{ grid-template-columns:1fr; } }
 
-@media (max-width:720px){
-  .form-grid{ grid-template-columns:1fr; }
-}
+.form-actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:6px; }
+.form-wrapper{ display:flex; justify-content:center; margin-top:6px; }
+section[data-view="cadastrar-personal"] .card{ margin:0 auto; width:min(92vw, 640px); }
+.notes-card{ width:min(92vw, 640px); margin:14px auto 0; }
+.card-title{ margin:0 0 12px; font-size:20px; }
 
-
-/* ====== HOME DO ALUNO (complementos) ====== */
-
-/* cards do topo em 3 colunas no desktop */
-.cards{
-  display:grid;
-  gap:16px;
-  grid-template-columns: repeat(3, minmax(0,1fr));
-  margin: 16px 0 22px;
-}
-
-/* efeito “vidro” leve nos cards principais */
-.glass{
-  background: linear-gradient(180deg, rgba(19,30,51,.92), rgba(13,22,38,.92));
-  border:1px solid var(--card-outline);
-  box-shadow: var(--shadow);
-}
-
-/* seções internas */
-.section{ margin-top: 20px; }
-.section-title{ margin: 10px 0 12px; font-size: 20px; }
-
-/* grids internos (duas colunas) */
-.grid-2{
-  display:grid;
-  grid-template-columns: repeat(2, minmax(0,1fr));
-  gap:16px;
-}
-.grid-2 .span-2{ grid-column: 1 / -1; }
-
-.list{ padding-left: 18px; }
-
-/* tabelas de treino/agenda */
-.table{ width:100%; border-collapse: collapse; }
-.table th, .table td{
-  padding: 10px 12px;
-  text-align: left;
-  border-bottom: 1px solid var(--card-border);
-}
-.table.compact th, .table.compact td{ padding: 8px 10px; }
-
-/* badges de status */
-.badge{
-  display:inline-block;
-  padding:4px 8px;
-  border-radius:999px;
-  font-size:12px;
-}
-.badge.ok{   background: rgba(34,197,94,.15); color:#34d399; }
-.badge.warn{ background: rgba(245,158,11,.15); color:#fbbf24; }
-.badge.mute{ background: rgba(148,163,184,.12); color:#cbd5e1; }
-
-/* botão fantasma para ações secundárias */
-.btn-ghost{
-  background: transparent;
-  border: 1px solid var(--card-border);
-  color: var(--text);
-  border-radius: 10px;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-/* inputs/textarea reaproveitam .field já existente */
-
-/* responsivo */
-@media (max-width: 980px){
-  .cards{ grid-template-columns: 1fr; }
-  .grid-2{ grid-template-columns: 1fr; }
-}
-
-/* ===== Layout com Lateral ===== */
-.layout{
-  display:grid;
-  grid-template-columns: 240px 1fr;
-  gap: 22px;
-  max-width: 1280px;
-  margin: 22px auto;
-  padding: 0 16px;
-}
-
-/* como agora a .container fica dentro do grid, removemos a margem externa anterior */
-.layout .container{
-  max-width: 100%;
-  margin: 0;              /* substitui o 26px auto antigo */
-  padding: 0;             /* o padding já vem do .layout */
-}
-
-/* ===== Sidebar do app (esquerda) ===== */
-/* sidebar fixa na esquerda */
+/* ================ SIDEBAR ================= */
 .app-sidenav{
-  position: absolute;
-  top: 62px;                 /* altura do seu header */
-  left: 0px;
-  width: 200px;
-  height: calc(100% - 64px); /* ocupa o resto da tela */
-  background: var(--card-alt);
-  border-right: 1px solid var(--card-outline);
-  padding: 18px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  box-shadow: var(--shadow);
-  overflow-y: auto;          /* rolagem se tiver muitos itens */
-  z-index: 100;              /* acima do conteúdo */
+  position: fixed;
+  top:64px; left:0;
+  height: calc(100vh - 64px);
+  width: var(--w-collapsed);
+  background: linear-gradient(180deg, var(--nav-bg), var(--nav-bg-2));
+  border-right:1px solid var(--nav-border);
+  padding:12px 10px;
+  overflow:hidden;
+  transition: width .18s ease;
+  z-index:100;
+  box-shadow: 0 20px 50px rgba(0,0,0,.25);
 }
 
-.sidenav-title{
-  font-weight: 700;
-  margin-bottom: 10px;
-  font-size: 14px;
-  color: var(--muted);
+/* conteúdo acompanha quando a sidebar expande */
+body.sidebar-open .app-sidenav{ width: var(--w-expanded); }
+body.sidebar-open .content{ margin-left: var(--w-expanded); }
+
+/* fallback: também expande no hover para mouse/desktop */
+@media (pointer:fine){
+  .app-sidenav:hover{ width: var(--w-expanded); }
+  .app-sidenav:hover ~ .content{ margin-left: var(--w-expanded); }
 }
+
+.app-sidenav nav{ display:flex; flex-direction:column; gap:6px; }
 
 .sidenav-link{
-  display: block;
-  padding: 10px 12px;
-  border-radius: 10px;
-  color: var(--text);
-  text-decoration: none;
-  border: 1px solid transparent;
+  position:relative;
+  display:flex; align-items:center; gap:10px;
+  height:44px; padding:0 12px 0 26px;   /* espaço pro ::before */
+  color:var(--nav-link); text-decoration:none;
+  border-radius:12px; border:1px solid transparent;
+  transition: background .12s, border-color .12s, color .12s;
+  white-space:nowrap;
 }
-.sidenav-link:hover{
-  background: #0e1628;
+.sidenav-link .ico{ flex:0 0 24px; width:24px; height:24px; display:grid; place-items:center; color:#9fb4d7; }
+.sidenav-link .ico svg{ width:18px; height:18px; }
+.sidenav-link .label{ overflow:hidden; text-overflow:ellipsis; opacity:.95; }
+
+.sidenav-link::before{
+  content:"";
+  position:absolute; left:10px; top:50%; transform:translateY(-50%);
+  width:4px; height:22px; border-radius:4px;
+  background: transparent;             /* só mostra no hover/active */
 }
+.sidenav-link:hover{ background: var(--nav-hover); }
 .sidenav-link.active{
-  border-color: rgba(34,197,247,.35);
-  background: rgba(34,197,247,.07);
+  background: rgba(46,144,255,.08);
+  border-color: rgba(46,144,255,.35);
+}
+.sidenav-link:hover::before,
+.sidenav-link.active::before{ background: var(--nav-active); }
+
+/* colapso: esconde só o texto da label (desktop) */
+@media (pointer:fine){
+  .app-sidenav:not(:hover) .label{ width:0; opacity:0; }
 }
 
-/* empurrar o conteúdo pra não ficar embaixo da sidebar */
-.content{
-  margin-left: 240px;   /* um pouco maior que o width da sidebar */
-  padding: 20px;
-}
-
-/* responsivo: sidebar vira topo/oculta */
-@media (max-width: 980px){
+/* Mobile: abre/fecha por slide ao clicar no hamburger */
+@media (max-width:980px){
   .app-sidenav{
-    position: static;
-    width: auto;
-    height: auto;
-    flex-direction: row;
-    border-right: 0;
-    border-bottom: 1px solid var(--card-outline);
+    transform: translateX(-100%);
+    width: var(--w-expanded);
+    transition: transform .22s ease;
   }
-  .content{
-    margin-left: 0;
-  }
-  .sidenav-link{ white-space: nowrap; }
+  body.nav-open .app-sidenav{ transform: translateX(0); }
+  .content{ margin-left:0; padding:16px; }
 }
 
-[data-view][hidden] { display: none !important; }
+/* ================ TABELAS (se usar) ================= */
+.table{ width:100%; border-collapse: collapse; }
+.table th, .table td{ padding: 10px 12px; text-align:left; border-bottom:1px solid var(--border); }
 
-/* ===========================
-   🔧 PATCH RESPONSIVO (append)
-   =========================== */
+/* ================ UTIL ================= */
+.muted{ color: var(--muted); }
+[data-view][hidden]{ display:none !important; }
 
-/* 1) variáveis faltantes / ajustes sutis */
-:root{
-  /* você usa var(--field-border) mas não definiu — reaproveitei a de card */
-  --field-border: var(--card-border);
-}
+h1{ font-size: 26px; margin: 4px 0 8px; }
+h2{ font-size: 22px; margin: 2px 0 8px; }
+h3{ font-size: 18px; margin: 2px 0 8px; }
 
-/* 2) correção de bug: no seu CSS está "row-gap:px" (valor inválido) */
-.form-grid{ row-gap: 12px; }     /* mantém seu grid, só corrige o gap */
-
-/* 3) sidebar no mobile: vira faixa rolável horizontal e ocupa menos espaço */
-@media (max-width: 980px){
-  .app-sidenav{
-    position: static;            /* tira absolute */
-    width: auto;
-    height: auto;
-    flex-direction: row;         /* horizontal */
-    gap: 8px;
-    padding: 10px 12px;
-    border-right: 0;
-    border-bottom: 1px solid var(--card-outline);
-    overflow-x: auto;            /* rolagem horizontal se precisar */
-    -webkit-overflow-scrolling: touch;
-  }
-  .sidenav-title{                /* economiza espaço no topo */
-    display: none;
-  }
-  .sidenav-link{
-    white-space: nowrap;         /* não quebra os itens do menu */
-    flex: 0 0 auto;              /* deixam de “espremer” */
-  }
-  .content{
-    margin-left: 0;              /* não empurra o conteúdo no mobile */
-    padding: 16px;               /* um pouco menos de padding */
-  }
-}
-
-/* 4) cards & grids: já estão bem — só deixo a grade do topo mais elástica em telas médias */
-@media (min-width: 720px) and (max-width: 979.98px){
-  .cards{
-    grid-template-columns: repeat(2, minmax(0,1fr)); /* 2 colunas entre 720 e 980 */
-  }
-}
-
-/* 5) tabelas responsivas: evitam “estourar” tela pequena */
-@media (max-width: 720px){
-  .table{
-    display: block;              /* permite overflow funcionar */
-    width: 100%;
-    overflow-x: auto;
-    white-space: nowrap;         /* cabeçalhos sem quebrar */
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* 6) header no mobile: compacta um pouco a área do topo */
-@media (max-width: 480px){
-  header{
-    padding: 8px 12px;
-  }
-  .logo-img1{
-    max-width: 120px;            /* evita logo grande demais */
-    height: auto;
-  }
-}
-
-/* 7) inputs/áreas no mobile: mesmo visual, menos “ar” lateral */
-@media (max-width: 480px){
-  .card{ padding: 22px; }
-  label{ margin: 10px 0 6px; }
-  .btn{ height: 50px; }
-}
-
-/* 8) acessibilidade de toque nos itens do menu (todas as larguras) */
-.sidenav-link{
-  min-height: 40px;              /* alvo mínimo confortável */
-  display: inline-flex;
-  align-items: center;
-}
-
-/* Centralizar o card do cadastro + título dentro do card */
-.form-wrapper{
-  display:flex;
-  justify-content:center;
-  margin-top: 6px;
-}
-section[data-view="cadastrar-personal"] .card{
-  margin-left:auto;
-  margin-right:auto;
-  width:min(92vw, 640px);
-}
-.card-title{
-  margin:0 0 12px;
-  font-size:20px;
-}
-
-/* Observações com a mesma largura do form e centralizadas */
-.notes-card{
-  width:min(92vw, 640px);
-  margin:14px auto 0;
-}
-
-/* (Opcional) Força o cadastro a ficar 1 coluna */
-section[data-view="cadastrar-personal"] .form-grid{
-  grid-template-columns: 1fr;
+/* mobile tweaks */
+@media (max-width:480px){
+  .logo-img1{ max-height:32px; }
+  .btn{ height:48px; }
 }

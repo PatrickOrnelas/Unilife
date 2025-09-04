@@ -5,70 +5,78 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Login | Unilife</title>
-  <link rel="stylesheet" href="{% static 'global/css/style.css' %}">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'global/css/login-neo.css' %}">
 </head>
+<body class="login-split">
 
-<body class="login-page">
+  <main class="shell">
+    <section class="card-split">
 
-  <!-- LOGO -->
-  <div class="logo-container">
-    <img src="{% static 'global/img/logo-unilife.png' %}" alt="Unilife" class="logo-img">
-  </div>
+      <!-- LADO ESQUERDO -->
+      <aside class="hero">
+        <!-- fundo SVG animado vem via CSS -->
+        <header class="brand">
+          <img src="{% static 'global/img/logo-unilife.png' %}" alt="Unilife">
+        </header>
 
-  <!-- CARD -->
-  <form class="card card-login" method="post" action="">
-    {% csrf_token %}
+        <div class="hero-copy">
+          <h1>Olá, Bem-vindo!</h1>
+          <p>Faça login para acessar o painel da academia</p>
+        </div>
+      </aside>
 
-    <h2 class="title">Bem-vindo(a)</h2>
-    <p class="subtitle">Faça login para acessar o painel da academia</p>
+      <!-- LADO DIREITO -->
+      <section class="panel">
+        <div class="panel-inner">
+          <h2>Login</h2>
 
-    {% if form and form.errors %}
-    <div class="error">CPF ou senha inválidos.</div>
-    {% endif %}
+          {% if form and form.errors %}
+            <div class="err">CPF ou senha inválidos.</div>
+          {% endif %}
 
-    <label for="id_username">CPF</label>
-    <input type="text" name="username" id="id_username" placeholder="000.000.000-00" required>
+          <form method="post" action="">
+            {% csrf_token %}
 
-    <label for="id_password">Senha</label>
-    
-    {% load static %}
+            <label class="field">
+              <span class="label">Email</span>
+              <input type="text" id="id_username" name="username" placeholder="000.000.000-00" autocomplete="username" required>
+            </label>
 
-  <div class="input-password" style="position:relative;">
-    <input type="password" name="password" id="id_password" required
-         placeholder="••••••••" autocomplete="current-password"
-         style="padding-right:40px;">
-  
-    <button type="button"
-          aria-label="Mostrar senha"
-          style="position:absolute; right:8px; top:50%; transform:translateY(-50%);
-                 background:none; border:0; padding:4px; cursor:pointer;"
-          data-open="{% static 'global/img/olho-aberto.png' %}"
-          data-closed="{% static 'global/img/olho-fechado.png' %}"
-          onclick="
-            const input = document.getElementById('id_password');
-            const img   = this.querySelector('img');
-            const mostrar = (input.type === 'password');
-            input.type = mostrar ? 'text' : 'password';
-            img.src    = mostrar ? this.dataset.open : this.dataset.closed;
-            this.setAttribute('aria-label', mostrar ? 'Ocultar senha' : 'Mostrar senha');
-          ">
-        <img src="{% static 'global/img/olho-fechado.png' %}" alt="" width="26" height="20" draggable="false" style="pointer-events:none;">
-      </button>
-    </div>
+            <label class="field">
+              <span class="label">Senha</span>
+              <div class="input-wrap">
+                <input type="password" id="id_password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+                <button type="button" class="peek" aria-label="Mostrar/ocultar senha">👁</button>
+              </div>
+            </label>
 
-    <div class="row row-links">
-      <span>Esqueceu a senha? <a href="{% url "recuperar-senha" %}" class="muted link">Recuperar</a></span>
-      <a href="{% url "registrar" %}" class="link">Cadastrar-se</a>
-    </div>
+            <div class="row">
+              <label class="check">
+                <input type="checkbox" name="remember" value="1">
+                <span>Lembrar de mim</span>
+              </label>
+              <a class="link" href="{% url 'recuperar-senha' %}">Esqueceu a senha?</a>
+            </div>
 
-    <button class="btn" type="submit">Entrar</button>
-  </form>
+            <button class="btn-primary" type="submit">Login</button>
+
+            <div class="cta">
+              <span>Ainda não é cadastrado?</span>
+              <a class="btn-secondary" href="{% url 'registrar' %}">Cadastrar</a>
+            </div>
+          </form>
+        </div>
+      </section>
+
+    </section>
+  </main>
 
   <script>
-    // máscara de CPF
+    // máscara CPF
     document.addEventListener("input", (e) => {
       if (e.target.id === "id_username") {
         e.target.value = e.target.value.replace(/\D/g,'').slice(0,11)
@@ -77,17 +85,11 @@
           .replace(/(\d{3})(\d{1,2})$/,'$1-$2');
       }
     });
+    // mostrar/ocultar senha
+    (function(){
+      const btn=document.querySelector('.peek'), input=document.getElementById('id_password');
+      if(btn&&input){ btn.addEventListener('click', ()=>{ input.type = input.type==='password'?'text':'password'; }); }
+    })();
   </script>
-
-  <div class="bg-blob1" style="--x:78%; --y:22%; --w:1000px; --h:280px; --blur:93.4px; --opacity:0.1; --color:#D9D9D9; filter: blur(93.4000015258789px); flex-shrink: 0;">
-  <div class="wrap" role="main">
-
-  <div class="bg-blob" style="--x:78%; --y:22%; --w:370px; --h:280px; --blur:93.4px; --opacity:0.12; --color:#D9D9D9; filter: blur(93.4000015258789px);">
-  </div>
-
-    
-
-</div></div>
-  
 </body>
 </html>
