@@ -32,91 +32,183 @@
   --w-collapsed: 76px;
   --w-expanded: 220px;
   --content-max: 1240px;
+
+  /* espaçamentos */
+  --sp-1: 8px;
+  --sp-2: 12px;
+  --sp-3: 16px;
+  --sp-4: 24px;
+  --sp-5: 32px;
 }
 
 /* ================ RESET ================= */
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ height:100%; }
 body{
+  min-height:100%;
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color: var(--text);
-  background: var(--bg);
+  background:#fff;       /* painel sempre branco */
+  overflow-x: hidden;     /* evita “puxar” lateral */
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
 }
+img, svg{ max-width:100%; height:auto; }
 
 /* ================ HEADER ================= */
 header{
+  position:sticky; top:0; z-index:1000;
   display:flex; align-items:center; justify-content:space-between;
   height:64px; padding:10px 16px;
   background: linear-gradient(90deg, var(--degrade2), var(--degrade1));
   border-bottom: 1px solid rgba(255,255,255,.06);
 }
 .logo-img1{ max-height:38px; width:auto; }
-.logout-btn{ background:none; border:none; color:#f97316; cursor:pointer; font-size:18px; }
 .nav-toggle{
-  display:none;                 /* aparece só no mobile */
-  background:none; border:0; color:#fff;
-  font-size:22px; cursor:pointer;
-  margin:0 10px 0 0;            /* espaço à direita da logo */
-  line-height:1;
+  display:none; background:none; border:0; color:#fff;
+  font-size:22px; cursor:pointer; margin:0 10px 0 0; line-height:1; order:-1;
 }
 @media (max-width:980px){ .nav-toggle{ display:inline; } }
-header .sidebar{ margin-left:auto; }
 
 .nav-backdrop{
   position: fixed;
-  left:0; right:0; top:64px; bottom:0;   /* começa abaixo do header */
+  left:0; right:0; top:64px; bottom:0;
   background: rgba(0,0,0,.35);
   opacity:0; pointer-events:none;
   transition: opacity .22s ease;
-  z-index: 95;                           /* abaixo da sidebar (100) */
+  z-index:95; /* abaixo da sidebar (100) */
+}
+@media (max-width:980px){
+  body.nav-open .nav-backdrop{ opacity:1; pointer-events:auto; }
 }
 
-/* só precisa aparecer no mobile */
+/* ===== USER MENU (header) ===== */
+.user-menu{ position: relative; margin-left: auto; }
+.user-trigger{
+  display:inline-flex; align-items:center; gap:8px;
+  background:transparent; border:1px solid transparent; color:#fff;
+  padding:6px 10px; border-radius:999px; cursor:pointer;
+}
+.user-trigger:hover{ background: rgba(255,255,255,.08); }
+.user-trigger:focus-visible{ outline:2px solid #9dc1ff; outline-offset:2px; }
+.user-trigger .avatar{
+  width:28px; height:28px; border-radius:999px; object-fit:cover;
+  background: linear-gradient(135deg, #000000, #205fa7);
+  box-shadow: 0 1px 0 rgba(0,0,0,.12) inset;
+}
+.user-trigger .user-name{ font-weight:700; font-size:.95rem; display:none; }
+.user-trigger .chev{ width:18px; height:18px; opacity:.85; }
+@media (min-width:760px){ .user-trigger .user-name{ display:inline; } }
+
+.user-dropdown{
+  position:absolute; right:0; top:calc(100% + 10px);
+  width:min(280px, 92vw);
+  background:#fff; color:var(--text);
+  border:1px solid rgba(30,58,138,.08);
+  border-radius:16px;
+  box-shadow: 0 18px 48px rgba(3,10,40,.25);
+  padding:10px; z-index:9999;
+}
+.user-dropdown[hidden]{ display:none !important; }
+.user-welcome{
+  font-size:.78rem; letter-spacing:.04em; text-transform:uppercase;
+  color:#64748b; padding:6px 10px 8px;
+}
+.user-item{
+  width:100%; display:flex; align-items:center; gap:10px;
+  padding:10px 12px; border-radius:10px;
+  color:#0f1b2e; text-decoration:none; border:0; background:transparent;
+}
+.user-item svg{ width:18px; height:18px; color:#6b7280; }
+.user-item:hover{ background:#f1f5ff; }
+.user-item.danger{ color:#b91c1c; }
+.user-item.danger svg{ color:#b91c1c; }
+
+/* ================ SIDEBAR ================= */
+.app-sidenav{
+  position: fixed; top:64px; left:0; z-index:100;
+  height: calc(100vh - 64px);
+  width: var(--w-collapsed);
+  background: linear-gradient(180deg, var(--nav-bg), var(--nav-bg-2));
+  border-right:1px solid var(--nav-border);
+  padding:12px 10px;
+  overflow:hidden;
+  transition: width .18s ease;
+  box-shadow: 0 20px 50px rgba(0,0,0,.25);
+}
+body.sidebar-open .app-sidenav{ width: var(--w-expanded); }
+body.sidebar-open .content{ margin-left: var(--w-expanded); }
+
+/* hover expand (desktop com mouse) */
+@media (pointer:fine){
+  .app-sidenav:hover{ width: var(--w-expanded); }
+  .app-sidenav:hover ~ .content{ margin-left: var(--w-expanded); }
+}
+
+.app-sidenav nav{ display:flex; flex-direction:column; gap:6px; }
+.sidenav-link{
+  position:relative;
+  display:flex; align-items:center; gap:10px;
+  height:44px; padding:0 12px 0 26px;
+  color:var(--nav-link); text-decoration:none;
+  border-radius:12px; border:1px solid transparent;
+  transition: background .12s, border-color .12s, color .12s;
+  white-space:nowrap;
+}
+.sidenav-link .ico{ flex:0 0 24px; width:24px; height:24px; display:grid; place-items:center; color:#9fb4d7; }
+.sidenav-link .ico svg{ width:18px; height:18px; }
+.sidenav-link .label{ overflow:hidden; text-overflow:ellipsis; opacity:.95; }
+.sidenav-link::before{
+  content:""; position:absolute; left:10px; top:50%; transform:translateY(-50%);
+  width:4px; height:22px; border-radius:4px; background: transparent;
+}
+.sidenav-link:hover{ background: var(--nav-hover); }
+.sidenav-link.active{
+  background: rgba(46,144,255,.08);
+  border-color: rgba(46,144,255,.35);
+}
+.sidenav-link:hover::before,
+.sidenav-link.active::before{ background: var(--nav-active); }
+@media (pointer:fine){ .app-sidenav:not(:hover) .label{ width:0; opacity:0; } }
+
+/* Mobile slide */
 @media (max-width:980px){
-  body.nav-open .nav-backdrop{
-    opacity:1; pointer-events:auto;
+  .app-sidenav{
+    transform: translateX(-100%);
+    width: var(--w-expanded);
+    transition: transform .22s ease;
   }
+  body.nav-open .app-sidenav{ transform: translateX(0); }
 }
 
 /* ================ BASE / CARDS ================= */
 .content{
   margin-left: var(--w-collapsed);
-  padding: 24px;
+  padding: 24px 28px;
+  background:#fff;
+  min-height: calc(100svh - 64px);
   transition: margin-left .2s ease;
 }
 .content > .section{
   max-width: var(--content-max);
   margin: 0 auto;
+  padding-block: var(--sp-3) var(--sp-5);
 }
-
-.cards{
-  display:grid; gap:16px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 18px 0 24px;
-}
-@media (max-width:980px){ .cards{ grid-template-columns:1fr; } }
+.section > * + *{ margin-top: var(--sp-4); }
 
 .card{
-  background: var(--card);
-  border: 1px solid var(--card-outline);
-  border-radius: 16px;
-  box-shadow: var(--card-shadow);
-  padding: 18px;
+  background:#fff;
+  border:1px solid var(--card-outline);
+  border-radius:14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+  padding:18px;
 }
-.glass{ /* visual do seu dashboard claro */
-  background: #fff;
-}
-
-/* badges */
-.badge{
-  display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px;
-}
+.badge{ display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px; }
 .badge.ok{ background: rgba(34,197,94,.15); color:#34d399; }
 
 /* botões */
 a.btn{
-  display:inline-block;
-  color:#fff;
+  display:inline-block; color:#fff;
   background: linear-gradient(90deg, var(--accent), var(--accent2));
   padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:700; border:0;
 }
@@ -135,8 +227,7 @@ a.btn{
 /* ================ FORM FIELDS ================= */
 label{ display:block; margin:12px 0 6px; font-size:.92rem; color:#3a4763; }
 .field{
-  width:100%; height:46px;
-  padding:0 14px; border-radius:10px;
+  width:100%; height:46px; padding:0 14px; border-radius:10px;
   border:1px solid var(--border); background:var(--field); color:var(--text);
   outline:none; font-size:15px;
   transition:border-color .15s ease, box-shadow .15s ease;
@@ -145,111 +236,371 @@ label{ display:block; margin:12px 0 6px; font-size:.92rem; color:#3a4763; }
 .field:focus{ border-color:var(--focus); box-shadow:0 0 0 3px rgba(157,183,255,.35); }
 
 /* grid do form */
-.form-grid{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:14px 14px; margin-top:8px; }
+.form-grid{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--sp-4); margin-top:8px; }
 .field-group{ display:flex; flex-direction:column; }
 .span-2{ grid-column: 1 / -1; }
-@media (max-width:720px){ .form-grid{ grid-template-columns:1fr; } }
-
 .form-actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:6px; }
 .form-wrapper{ display:flex; justify-content:center; margin-top:6px; }
 section[data-view="cadastrar-personal"] .card{ margin:0 auto; width:min(92vw, 640px); }
 .notes-card{ width:min(92vw, 640px); margin:14px auto 0; }
 .card-title{ margin:0 0 12px; font-size:20px; }
 
-/* ================ SIDEBAR ================= */
-.app-sidenav{
-  position: fixed;
-  top:64px; left:0;
-  height: calc(100vh - 64px);
-  width: var(--w-collapsed);
-  background: linear-gradient(180deg, var(--nav-bg), var(--nav-bg-2));
-  border-right:1px solid var(--nav-border);
-  padding:12px 10px;
-  overflow:hidden;
-  transition: width .18s ease;
-  z-index:100;
-  box-shadow: 0 20px 50px rgba(0,0,0,.25);
-}
-
-/* conteúdo acompanha quando a sidebar expande */
-body.sidebar-open .app-sidenav{ width: var(--w-expanded); }
-body.sidebar-open .content{ margin-left: var(--w-expanded); }
-
-/* fallback: também expande no hover para mouse/desktop */
-@media (pointer:fine){
-  .app-sidenav:hover{ width: var(--w-expanded); }
-  .app-sidenav:hover ~ .content{ margin-left: var(--w-expanded); }
-}
-
-.app-sidenav nav{ display:flex; flex-direction:column; gap:6px; }
-
-.sidenav-link{
-  position:relative;
-  display:flex; align-items:center; gap:10px;
-  height:44px; padding:0 12px 0 26px;   /* espaço pro ::before */
-  color:var(--nav-link); text-decoration:none;
-  border-radius:12px; border:1px solid transparent;
-  transition: background .12s, border-color .12s, color .12s;
-  white-space:nowrap;
-}
-.sidenav-link .ico{ flex:0 0 24px; width:24px; height:24px; display:grid; place-items:center; color:#9fb4d7; }
-.sidenav-link .ico svg{ width:18px; height:18px; }
-.sidenav-link .label{ overflow:hidden; text-overflow:ellipsis; opacity:.95; }
-
-.sidenav-link::before{
-  content:"";
-  position:absolute; left:10px; top:50%; transform:translateY(-50%);
-  width:4px; height:22px; border-radius:4px;
-  background: transparent;             /* só mostra no hover/active */
-}
-.sidenav-link:hover{ background: var(--nav-hover); }
-.sidenav-link.active{
-  background: rgba(46,144,255,.08);
-  border-color: rgba(46,144,255,.35);
-}
-.sidenav-link:hover::before,
-.sidenav-link.active::before{ background: var(--nav-active); }
-
-/* colapso: esconde só o texto da label (desktop) */
-@media (pointer:fine){
-  .app-sidenav:not(:hover) .label{ width:0; opacity:0; }
-}
-
-/* Mobile: abre/fecha por slide ao clicar no hamburger */
-@media (max-width:980px){
-  .app-sidenav{
-    transform: translateX(-100%);
-    width: var(--w-expanded);
-    transition: transform .22s ease;
-  }
-  body.nav-open .app-sidenav{ transform: translateX(0); }
-  .content{ margin-left:0; padding:16px; }
-}
-
 /* ================ TABELAS (se usar) ================= */
 .table{ width:100%; border-collapse: collapse; }
 .table th, .table td{ padding: 10px 12px; text-align:left; border-bottom:1px solid var(--border); }
 
-/* ================ UTIL ================= */
+/* ================ TIPOGRAFIA ================= */
 .muted{ color: var(--muted); }
 [data-view][hidden]{ display:none !important; }
-
 h1{ font-size: 26px; margin: 4px 0 8px; }
 h2{ font-size: 22px; margin: 2px 0 8px; }
 h3{ font-size: 18px; margin: 2px 0 8px; }
-
-/* mobile tweaks */
 @media (max-width:480px){
   .logo-img1{ max-height:32px; }
   .btn{ height:48px; }
 }
 
+/* =============== GRIDS AUXILIARES ================= */
+.grid-4{ display:grid; gap: var(--sp-4); grid-template-columns: repeat(4, minmax(0,1fr)); }
+.grid-3{ display:grid; gap: var(--sp-4); grid-template-columns: repeat(3, minmax(0,1fr)); }
+.grid-2{ display:grid; gap: var(--sp-4); grid-template-columns: repeat(2, minmax(0,1fr)); }
 
-html{ background:#0a1c5a; height:100%; }
-body{
-  min-height:100%;
-  overflow-x: clip;
-  overscroll-behavior-y: contain;
-  touch-action: pan-y;
+@media (max-width:1100px){ .grid-4{ grid-template-columns: repeat(2,1fr);} }
+@media (max-width:980px){  .grid-3{ grid-template-columns: 1fr; } }
+@media (max-width:720px){  .grid-4,.grid-3,.grid-2{ grid-template-columns: 1fr; } }
+
+/* KPI cards */
+.kpi{ display:flex; flex-direction:column; gap:6px; }
+.kpi-label{ color:var(--muted); font-size:.9rem;}
+.kpi-value{ font-size:28px; font-weight:800; color:#0f1b2e; line-height:1;}
+.kpi-delta{ font-size:.85rem; }
+.kpi-delta.up{ color:#16a34a; }
+.kpi-delta.down{ color:#dc2626; }
+.kpi-delta.steady{ color:#64748b; }
+.kpi-foot{ color:var(--muted); font-size:.8rem; }
+.progress{ height:8px; background:#eef2f7; border-radius:999px; overflow:hidden; }
+.progress-bar{ height:100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+
+/* listas */
+.list{ list-style:none; padding-left:0; margin:8px 0 0; display:grid; gap:10px; }
+.list.agenda li{ display:grid; grid-template-columns: 70px 1fr; align-items:center; }
+.list.agenda time{ font-weight:700; color:#0f1b2e; }
+.list.alerts li{ display:flex; gap:8px; align-items:center; }
+.list.feed li{ line-height:1.3; }
+
+/* quick actions */
+.quick .quick-btn{
+  text-decoration:none; display:flex; align-items:center; justify-content:center;
+  min-height:68px; font-weight:700;
 }
-img, svg{ max-width:100%; height:auto; }
+.quick .quick-btn:hover{ transform: translateY(-1px); transition:.06s; }
+
+/* ====== HOME: linha do meio com cards do mesmo tamanho ====== */
+.section[data-view="inicio"] .grid-home{
+  display:flex;
+  gap:16px;
+  align-items:stretch;              /* mesma altura */
+}
+.section[data-view="inicio"] .grid-home > .card{
+  flex:1 1 0;
+  display:flex;
+  flex-direction:column;
+  min-height:240px;                 /* ajuste a gosto */
+}
+@media (max-width:980px){
+  .section[data-view="inicio"] .grid-home{ flex-direction:column; }
+  .section[data-view="inicio"] .grid-home > .card{ min-height:auto; }
+}
+
+/* ===== Ajuda ===== */
+.help h1{ margin-bottom: var(--sp-4); }
+.support-card{
+  display:flex; flex-direction:column; gap:6px;
+  text-decoration:none; color:inherit;
+  transition: transform .06s ease, box-shadow .15s ease;
+}
+.support-card:hover{ transform: translateY(-1px); }
+.support-icon{
+  width:42px; height:42px; border-radius:12px; display:grid; place-items:center; font-size:22px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  color:#fff; box-shadow: 0 8px 20px rgba(46,144,255,.25);
+}
+/* FAQ */
+.faq h2{ margin-bottom: var(--sp-3); }
+.faq .faq-item{ border-top:1px solid var(--card-outline); padding:10px 0; }
+.faq .faq-item:first-of-type{ border-top:0; }
+.faq .faq-item summary{
+  cursor:pointer; list-style:none; outline:none; font-weight:700; color:#0f1b2e;
+}
+.faq .faq-item summary::-webkit-details-marker{ display:none; }
+.faq .faq-item[open] summary{ color:#0b49c8; }
+.faq .answer{ margin-top:8px; color:var(--muted); }
+
+/* Switch */
+.switch{ position:relative; display:inline-block; width:44px; height:24px; }
+.switch input{ display:none; }
+.slider{
+  position:absolute; inset:0; background:#d1d9e6; border-radius:999px;
+  transition:.2s ease; box-shadow: inset 0 1px 3px rgba(0,0,0,.08);
+}
+.slider::before{
+  content:""; position:absolute; height:18px; width:18px; left:3px; top:3px;
+  background:#fff; border-radius:50%; transition:.2s ease; box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+.switch input:checked + .slider{ background: linear-gradient(90deg, #2e90ff, #1dd1ff); }
+.switch input:checked + .slider::before{ transform: translateX(20px); }
+
+/* Preferência por menos animações */
+@media (prefers-reduced-motion: reduce){
+  *{ animation: none !important; transition: none !important; }
+}
+
+
+/* --- Perfil: nome e e-mail AO LADO da foto --- */
+.profile-card .profile-row{
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: nowrap;           /* evita quebrar pra baixo */
+}
+
+/* bloco da foto */
+.profile-card .avatar-wrap{
+  flex: 0 0 140px;             /* largura fixa do bloco da foto */
+  text-align: center;
+}
+
+/* tamanho do avatar (mantém o que já fizemos) */
+.profile-card #avatar-preview{
+  width: 120px !important;
+  height: 120px !important;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin-inline: auto;
+}
+
+/* bloco de textos (nome + e-mail) ocupa o restante da linha */
+.profile-card .profile-meta{
+  flex: 1 1 auto;
+  min-width: 0;                /* evita empurrar pra baixo em telas menores */
+}
+.profile-card .profile-meta h2{
+  margin: 0 0 4px;
+  font-weight: 800;
+  font-size: 22px;
+}
+.profile-card .profile-meta .muted{ margin: 0; }
+
+/* botão "Remover": vermelho e sublinhado */
+.btn-link{ background: none; border: 0; padding: 0; }
+.btn-link.danger{
+  color: #dc2626 !important;          /* vermelho */
+  text-decoration: underline;         /* sublinhado */
+  text-underline-offset: 2px;
+  font-weight: 700;
+}
+.btn-link.danger:hover{ color:#b91c1c; }
+
+/* empilha no mobile, se preferir */
+@media (max-width: 700px){
+  .profile-card .profile-row{ flex-direction: column; align-items: flex-start; }
+  .profile-card .avatar-wrap{ flex-basis: auto; }
+}
+
+/* Notificações: alinhar os switches com o texto */
+.pref-row{
+  display:flex;
+  align-items:center;       /* centraliza na linha */
+  justify-content:space-between;
+  gap:12px;
+}
+
+/* Deixa a linha do texto com a mesma altura do switch (24px) */
+.pref-row > span{
+  line-height: 24px;
+}
+
+/* Garante que o switch fique centralizado “de verdade” */
+.pref-row .switch{
+  display:inline-flex;
+  align-items:center;
+}
+
+/* Se ainda parecer 1px acima/abaixo no seu SO, ajuste aqui: */
+/* .pref-row .switch { transform: translateY(1px); } */
+
+
+/* ===== CADASTRO COM O MESMO FUNDO DA TELA DE LOGIN ===== */
+body.auth-page{
+  /* ocupa a tela toda e centraliza o card */
+  min-height: 100svh;
+  display: grid;
+  place-items: start center;
+  padding-top: 28px;
+
+  /* mesmo fundo da login (degrade + brilho suave) */
+  background:
+    radial-gradient(900px 420px at 50% -140px, rgba(255,255,255,.06), transparent 60%),
+    linear-gradient(180deg, var(--degrade1), var(--degrade2));
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* marca d’água grande “unilife” no fundo (igual vibe da login) */
+body.auth-page::after{
+  content: "unilife";
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  letter-spacing: .02em;
+  font-size: clamp(120px, 22vw, 420px);
+  color: rgba(255,255,255,.06);
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+/* logo do topo */
+.auth-page .logo-container{
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin: 6px 0 14px;
+}
+.auth-page .logo-container .logo-img{
+  height: 42px; width: auto;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.25));
+}
+
+/* card com “vidrado” e sombra como na login */
+.auth-page form.card{
+  position: relative;
+  z-index: 1;
+  width: min(92vw, 820px);
+  margin: 0 auto;
+  padding: 18px;
+
+  background: rgba(255,255,255,.96);
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 30px 70px rgba(2,16,54,.45);
+}
+
+/* grid (2 colunas desktop / 1 no mobile) */
+.auth-page .form-grid{ display:grid; gap:14px 16px; grid-template-columns:1fr 1fr; }
+.auth-page .span-2{ grid-column:1 / -1; }
+@media (max-width:720px){ .auth-page .form-grid{ grid-template-columns:1fr; } }
+
+/* campos / foco iguais ao painel (mantém o visual clean) */
+.auth-page form.card input,
+.auth-page form.card select,
+.auth-page form.card textarea{
+  width:100%; height:46px; padding:0 14px;
+  border-radius:10px; border:1px solid var(--border);
+  background:#fff; color:var(--text); font-size:15px;
+  transition:border-color .15s, box-shadow .15s;
+}
+.auth-page form.card textarea{ padding:10px 14px; min-height:120px; }
+.auth-page form.card input:focus,
+.auth-page form.card select:focus,
+.auth-page form.card textarea:focus{
+  border-color:var(--focus);
+  box-shadow:0 0 0 3px rgba(157,183,255,.35);
+}
+
+/* botão primário */
+.auth-page .btn{
+  width:100%; height:48px; border:0; border-radius:12px;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  color:#00233a; font-weight:800;
+  box-shadow:0 10px 24px rgba(39,142,255,.25);
+  cursor:pointer; transition:transform .05s, filter .15s;
+}
+.auth-page .btn:hover{ transform: translateY(-1px); filter: brightness(1.03); }
+
+/* links do rodapé sobre fundo escuro ficam mais visíveis */
+.auth-page .footer .link{ color:#1dd1ff; font-weight:700; }
+.auth-page .footer .link:hover{ text-decoration:underline; }
+
+/* ===== AUTENTICAÇÃO (login/cadastro) ===== */
+
+/* Garante o gradiente em TODA a página e cobre o !important do painel */
+body.auth-page{
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(255,255,255,.06), transparent),
+    linear-gradient(180deg, #0e37a6, #0a1c5a) fixed !important;
+  min-height: 100svh;
+}
+
+/* Se o usuário “puxar” a página no mobile, não aparece branco */
+
+/* Caso exista algum wrapper com fundo herdado, zera no contexto de auth */
+body.auth-page .content,
+body.auth-page .page,
+body.auth-page .wrapper{ background: transparent; }
+
+/* ===== Mobile fix: conteúdo deve ocupar 100% e sidebar não reserva espaço ===== */
+@media (max-width: 980px){
+  /* sidebar sempre fora da tela até abrir o menu */
+  .app-sidenav{
+    transform: translateX(-100%);
+    width: var(--w-expanded);
+  }
+
+  /* conteúdo ocupa a tela toda */
+  .content{
+    margin-left: 0 !important;
+    padding: 16px;                    /* já tinha; garantimos aqui */
+    background: #fff;                 /* fundo branco por toda a página */
+    min-height: calc(100svh - 64px);  /* abaixo do header */
+  }
+
+  /* anula QUALQUER regra que tente empurrar o conteúdo no mobile */
+  body.sidebar-open .content{ margin-left: 0 !important; }
+  .app-sidenav:hover ~ .content{ margin-left: 0 !important; } /* touch devices */
+  body.nav-open .content{ margin-left: 0 !important; }
+}
+
+/* segurança extra: o body fica branco em qualquer viewport */
+html, body{ background:#fff; }
+
+@media (max-width: 480px){
+  .card{ box-shadow: 0 6px 18px rgba(0,0,0,.06); }
+}
+
+/* ===== Fundo branco só no painel (quando NÃO é página de auth) ===== */
+body:not(.auth-page){ background:#fff !important; }
+
+/* ===== Login/Cadastro (auth-page) – fundo gradiente full-bleed no mobile ===== */
+body.auth-page{
+  /* mesmo degradê do login */
+  background: linear-gradient(180deg, var(--degrade2), var(--degrade1)) fixed !important;
+  min-height: 100svh;            /* cobre a viewport inteira */
+  padding: 24px 16px;
+  overflow-x: hidden;            /* evita qualquer faixa lateral */
+}
+
+/* o <html> não deve forçar branco nas páginas de auth */
+html{ background: transparent !important; }
+
+/* garante que nenhum pseudo-decorativo atrapalhe */
+body.auth-page::before,
+body.auth-page::after{ content:none !important; display:none !important; }
+
+/* card ocupa bem a largura no mobile */
+body.auth-page .card{
+  width: min(880px, 92vw);
+  margin: 0 auto;
+  border-radius: 16px;
+  box-shadow: 0 18px 48px rgba(3,10,40,.22);
+}
+
+@media (max-width: 480px){
+  body.auth-page{ padding: 20px 12px; }
+  body.auth-page .card{ width: 100%; border-radius: 14px; }
+}

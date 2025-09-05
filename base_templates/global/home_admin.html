@@ -11,16 +11,51 @@
 
   <!-- HEADER ---------------------------------------------------->
   <header>
-  <!-- hamburger à esquerda -->
+  <!-- botão hamburguer (já existia) -->
   <button class="nav-toggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
 
+  <!-- logo -->
   <img src="{% static 'global/img/logo-unilife.png' %}" alt="Unilife" class="logo-img1">
 
-  <nav class="sidebar">
-    <form method="post" action="{% url 'logout' %}">
-      {% csrf_token %}
-      <button type="submit" class="logout-btn">Sair</button>
-    </form>
+  <!-- menu do usuário -->
+  <nav class="user-menu">
+    <button class="user-trigger" aria-haspopup="menu" aria-expanded="false">
+      <img
+        class="avatar"
+        src="{% static 'global/img/avatar.png' %}"
+        alt="Avatar"
+        onerror="this.src='#'"
+      >
+      <span class="user-name">{{ request.user.first_name|default:request.user.username }}</span>
+      <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 10l5 5 5-5z"/></svg>
+    </button>
+
+    <div class="user-dropdown" role="menu" hidden>
+      <div class="user-welcome">Bem-vindo(a)</div>
+
+      <a class="user-item" href="#perfil" data-go="perfil" role="menuitem">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5m0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z"/></svg>
+        <span>Meu perfil</span>
+      </a>
+
+      <a class="user-item" href="#configuracoes" data-go="configuracoes">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 8a4 4 0 1 0 4 4a4 4 0 0 0-4-4m8.94 3a7.6 7.6 0 0 0-.5-1.2l2.06-1.61l-2-3.46l-2.45 1a7.6 7.6 0 0 0-1.06-.62L16.5 1h-4L11 4.11a7.6 7.6 0 0 0-1.06.62l-2.45-1l-2 3.46L7.53 9.8a7.6 7.6 0 0 0-.5 1.2L4 12.5v4l3 .7a7.6 7.6 0 0 0 .62 1.06L6.6 20.7l3.46 2l1.61-2.06c.39.19.79.35 1.2.5L14.5 24h4l.7-3a7.6 7.6 0 0 0 1.06-.62l2.45 1l2-3.46L20.47 16a7.6 7.6 0 0 0 .5-1.2l3.03-.7v-4z"/></svg>
+        <span>Configurações</span>
+      </a>
+
+      <a class="user-item" href="#ajuda" data-go="ajuda">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M10 19h4v-2h-4m2-14A10 10 0 1 0 22 12A10 10 0 0 0 12 3m1 14h-2v-2h2m1.07-7.75l-.9.92A3 3 0 0 0 12 12h-2v-.5a4 4 0 0 1 1.17-2.83l1.24-1.26a1.5 1.5 0 1 0-2.12-2.12A5 5 0 0 0 8 9.5V10H6v2h6a2 2 0 0 0 2-2a2 2 0 0 0-.93-1.68Z"/></svg>
+        <span>Ajuda</span>
+      </a>
+
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="user-item danger">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14.08 15.59L16.67 13H7v-2h9.67l-2.59-2.59L15.5 7l5 5l-5 5l-1.42-1.41ZM3 5h8V3H3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8v-2H3Z"/></svg>
+          <span>Sair</span>
+        </button>
+      </form>
+    </div>
   </nav>
 </header>
 
@@ -78,25 +113,371 @@
   <main class="content">
     <!-- INÍCIO -->
     <section class="section" data-view="inicio" aria-labelledby="titulo-inicio">
-      <h1 id="titulo-inicio">Olá, {{ request.user.first_name|default:request.user.username }}!</h1>
+  <h1 id="titulo-inicio">Olá, {{ request.user.first_name|default:request.user.username }}!</h1>
 
-      <div class="cards">
-        <div class="card glass">
-          <h3>Bem-vindo!</h3>
-          <p class="muted">Use o menu ao lado para gerenciar treinos, personais e alunos.</p>
+  <p class="muted">Seu Painel ADM</p>
+
+  <!-- Linha 1: KPIs (4 colunas) -->
+  <div class="grid-4 kpi-row">
+    <div class="card kpi">
+      <div class="kpi-label">Alunos ativos</div>
+      <div class="kpi-value">128</div>
+      <div class="kpi-delta up">+5% vs. mês passado</div>
+    </div>
+
+    <div class="card kpi">
+      <div class="kpi-label">Novos (30d)</div>
+      <div class="kpi-value">18</div>
+      <div class="kpi-delta up">+2</div>
+    </div>
+
+    <div class="card kpi">
+      <div class="kpi-label">Personais ativos</div>
+      <div class="kpi-value">7</div>
+      <div class="kpi-delta steady">=</div>
+    </div>
+
+    <div class="card kpi">
+      <div class="kpi-label">Treinos no mês</div>
+      <div class="kpi-value">54</div>
+      <div class="progress" aria-hidden="true">
+        <div class="progress-bar" style="width: 68%"></div>
+      </div>
+      <div class="kpi-foot">Meta: 80</div>
+    </div>
+  </div>
+
+  <!-- Linha 2: os 3 cards que precisam ter a MESMA altura -->
+  <!-- IMPORTANTE: use APENAS grid-home aqui (não use .cards) -->
+  <div class="grid-home">
+    <div class="card agenda">
+      <h3>Agenda de hoje</h3>
+      <p class="muted">Sem eventos hoje.</p>
+    </div>
+
+    <div class="card">
+      <h3>Alertas</h3>
+      <ul class="list alerts">
+        <li><strong>7 dias</strong> &nbsp; Planos vencendo: <strong>4</strong></li>
+        <li><strong>Pendente</strong> &nbsp; Anamneses: <strong>3</strong></li>
+        <li><strong>Vencido</strong> &nbsp; Atestados: <strong>2</strong></li>
+        <li><strong>Info</strong> &nbsp; CREF a vencer: <strong>1</strong></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Atividade recente</h3>
+      <p class="muted">Sem atividades por aqui.</p>
+    </div>
+  </div>
+
+</section>
+
+    <!-- PERFIL-->
+    <section class="section profile" data-view="perfil" hidden aria-labelledby="titulo-perfil">
+
+  <h1 id="titulo-perfil">Meu perfil</h1>
+
+  <!-- Cabeçalho do perfil -->
+  <div class="card glass profile-card">
+    <div class="profile-row">
+      <div class="avatar-wrap">
+        <img id="avatar-preview"
+             src="{% static 'global/img/avatar.png' %}"
+             alt="Foto do perfil"
+             onerror="this.src=''">
+        <!-- estes botões acionam o input do formulário abaixo -->
+        <label class="btn-sm" for="id_avatar">Trocar foto</label>
+        <button type="button" class="btn-link danger" id="avatar-clear">Remover</button>
+      </div>
+
+      <div class="profile-meta">
+        <h2>{{ request.user.get_full_name|default:request.user.username }}</h2>
+        <p class="muted">{{ request.user.email }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Formulário: informações básicas + avatar -->
+    <form class="card glass" method="post" action="" enctype="multipart/form-data" autocomplete="on">
+      {% csrf_token %}
+      <h3 style="margin-bottom:8px;">Informações básicas</h3>
+
+      <!-- input do avatar fica no form (label acima clica nele) -->
+      <input type="file" id="id_avatar" name="avatar" accept="image/*" hidden>
+      <input type="hidden" id="avatar_clear" name="avatar_clear" value="">
+
+      <div class="form-grid">
+        <div class="field-group">
+          <label for="first_name">Nome</label>
+          <input class="field" id="first_name" name="first_name" type="text"
+                 value="{{ request.user.first_name }}">
         </div>
 
-        <div class="card glass">
-          <h3>Ações rápidas</h3>
-          <a class="btn" href="#cadastrar-personal" data-go="cadastrar-personal" style="display:inline-block;margin-top:8px;">Cadastrar Personal</a>
+        <div class="field-group">
+          <label for="last_name">Sobrenome</label>
+          <input class="field" id="last_name" name="last_name" type="text"
+                 value="{{ request.user.last_name }}">
         </div>
 
-        <div class="card glass">
-          <h3>Status</h3>
-          <span class="badge ok" aria-live="polite">Online</span>
+        <div class="field-group span-2">
+          <label for="email">E-mail</label>
+          <input class="field" id="email" name="email" type="email"
+                 value="{{ request.user.email }}">
+        </div>
+
+        <div class="field-group">
+          <label for="phone">Telefone</label>
+          <input class="field" id="phone" name="phone" type="tel"
+                 value="{{ request.user.profile.tel|default:'' }}"
+                 placeholder="{{ request.user.tel }}">
+        </div>
+
+        <div class="field-group">
+          <label for="birth">Data de nascimento</label>
+          <input class="field" id="birth" name="date_of_birth" type="date"
+                 value="{{ request.user.profile.date_of_birth|date:'Y-m-d' }}">
+        </div>
+
+        <div class="span-2 form-actions">
+          <button class="btn" type="submit" name="intent" value="save_profile">Salvar alterações</button>
         </div>
       </div>
-    </section>
+    </form>
+
+    <!-- Formulário: segurança -->
+    <form class="card glass" method="post" action="">
+      {% csrf_token %}
+      <h3 style="margin-bottom:8px;">Segurança</h3>
+
+      <div class="form-grid">
+        <div class="field-group span-2">
+          <label for="password1">Nova senha</label>
+          <input class="field" id="password1" type="password" name="password1" autocomplete="new-password" placeholder="••••••••">
+        </div>
+
+        <div class="field-group span-2">
+          <label for="password2">Confirmar nova senha</label>
+          <input class="field" id="password2" type="password" name="password2" autocomplete="new-password" placeholder="••••••••">
+        </div>
+
+        <div class="span-2 form-actions">
+          <button class="btn" type="submit" name="intent" value="change_password">Atualizar senha</button>
+        </div>
+      </div>
+
+      <p class="muted" style="margin-top:8px;">
+        Esqueceu a sua senha? <a class="link" href="#">Recuperar Senha</a>
+      </p>
+    </form>
+  </div>
+</section>
+
+
+<!-- CONFIGURACOES-->
+
+<section class="section" data-view="configuracoes" hidden aria-labelledby="titulo-config">
+  <h1 id="titulo-config">Configurações</h1>
+
+  <div class="grid-2 prefs">
+    <!-- Aparência -->
+    <form class="card glass" method="post" action="">
+      {% csrf_token %}
+      <h3 style="margin-bottom:8px;">Aparência</h3>
+
+      <div class="pref-row">
+        <label class="radio-row">
+          <input type="radio" name="theme" value="system" checked>
+          <span>Seguir o sistema</span>
+        </label>
+        <label class="radio-row">
+          <input type="radio" name="theme" value="light">
+          <span>Claro</span>
+        </label>
+        <label class="radio-row">
+          <input type="radio" name="theme" value="dark">
+          <span>Escuro</span>
+        </label>
+      </div>
+
+      <div class="form-actions" style="justify-content:flex-end;margin-top:12px;">
+        <button class="btn" type="submit" name="intent" value="save_theme">Salvar</button>
+      </div>
+    </form>
+
+    <!-- Notificações -->
+    <form class="card glass" method="post" action="">
+      {% csrf_token %}
+      <h3 style="margin-bottom:8px;">Notificações</h3>
+
+      <label class="pref-row">
+        <span>Receber e-mails</span>
+        <label class="switch">
+          <input type="checkbox" name="notif_email" checked>
+          <span class="slider"></span>
+        </label>
+      </label>
+
+      <label class="pref-row">
+        <span>Receber notificações push</span>
+        <label class="switch">
+          <input type="checkbox" name="notif_push">
+          <span class="slider"></span>
+        </label>
+      </label>
+
+      <div class="form-actions" style="justify-content:flex-end;margin-top:12px;">
+        <button class="btn" type="submit" name="intent" value="save_notifications">Salvar</button>
+      </div>
+    </form>
+
+    <!-- Idioma -->
+    <form class="card glass" method="post" action="">
+      {% csrf_token %}
+      <h3 style="margin-bottom:8px;">Idioma e região</h3>
+
+      <div class="form-grid">
+        <div class="field-group">
+          <label for="lang">Idioma</label>
+          <select id="lang" name="lang" class="field">
+            <option value="pt-BR">Português (Brasil)</option>
+            <option value="es-ES">Español</option>
+            <option value="en-US">English</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label for="tz">Fuso horário</label>
+          <select id="tz" name="tz" class="field">
+            <option value="America/Sao_Paulo">America/Sao_Paulo</option>
+            <option value="UTC">UTC</option>
+          </select>
+        </div>
+        <div class="span-2 form-actions" style="justify-content:flex-end;margin-top:4px;">
+          <button class="btn" type="submit" name="intent" value="save_locale">Salvar</button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Sessões & segurança -->
+    <div class="card glass">
+      <h3 style="margin-bottom:8px;">Sessões & segurança</h3>
+
+      <div class="pref-row">
+        <div>
+          <strong>Encerrar outras sessões</strong>
+          <p class="muted" style="margin-top:4px;">Desloga sua conta em outros dispositivos.</p>
+        </div>
+        <form method="post" action="">
+          {% csrf_token %}
+          <button class="btn-ghost" type="submit" name="intent" value="logout_others">Encerrar</button>
+        </form>
+      </div>
+
+      <div class="pref-row">
+        <span>Autenticação em 2 etapas (2FA)</span>
+        <label class="switch">
+          <input type="checkbox" name="two_factor">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!--SESSAO AJUDA-->
+
+<section class="section help" data-view="ajuda" hidden aria-labelledby="titulo-ajuda">
+  <h1 id="titulo-ajuda">Ajuda</h1>
+
+  <!-- atalhos rápidos -->
+  <div class="grid-3 quick">
+    <a class="card glass support-card" target="_blank" rel="noopener" href="https://wa.me/5599999999999?text=Olá%20preciso%20de%20ajuda%20no%20Unilife">
+      <div class="support-icon">💬</div>
+      <h3>Falar no WhatsApp</h3>
+      <p class="muted">Atendimento em horário comercial.</p>
+    </a>
+
+    <a class="card glass support-card" href="mailto:suporte@unilife.com?subject=Ajuda%20no%20painel">
+      <div class="support-icon">✉️</div>
+      <h3>Enviar e-mail</h3>
+      <p class="muted">suporte@unilife.com</p>
+    </a>
+
+    <a class="card glass support-card" target="_blank" rel="noopener" href="https://seu-dominio.com/docs">
+      <div class="support-icon">📚</div>
+      <h3>Documentação</h3>
+      <p class="muted">Passo a passo e respostas comuns.</p>
+    </a>
+  </div>
+
+  <!-- FAQ + Formulário -->
+  <div class="grid-2">
+    <!-- FAQ -->
+    <div class="card glass faq">
+      <h2>Perguntas frequentes</h2>
+
+      <details class="faq-item" open>
+        <summary>Não consigo fazer login</summary>
+        <div class="answer">
+          <p>Confira se o CPF está no formato <b>000.000.000-00</b> (a máscara ajuda). Se esqueceu a senha, use <b>“Esqueceu a senha?”</b> na tela de login.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Como redefinir a senha?</summary>
+        <div class="answer">
+          <p>Na tela de login, clique em <b>“Esqueceu a senha?”</b> e siga as instruções enviadas por e-mail.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Onde cadastro um Personal?</summary>
+        <div class="answer">
+          <p>Pelo menu lateral, abra <b>“Cadastrar Personal”</b> e preencha os dados. O CREF precisa estar ativo.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Como falar com o suporte?</summary>
+        <div class="answer">
+          <p>Use um dos atalhos acima (WhatsApp ou e-mail). Se possível, envie prints do erro.</p>
+        </div>
+      </details>
+    </div>
+
+    <!-- Reportar problema -->
+    <form class="card glass" method="post" action="" enctype="multipart/form-data" autocomplete="on">
+      {% csrf_token %}
+      <h2>Reportar um problema</h2>
+
+      <div class="form-grid">
+        <div class="field-group span-2">
+          <label for="ajuda_assunto">Assunto</label>
+          <input id="ajuda_assunto" name="ajuda_assunto" class="field" type="text" placeholder="Ex.: Erro ao salvar treino">
+        </div>
+
+        <div class="field-group span-2">
+          <label for="ajuda_descricao">Descrição</label>
+          <textarea id="ajuda_descricao" name="ajuda_descricao" class="field" placeholder="Explique o que aconteceu, o que tentou fazer e se aparece alguma mensagem."></textarea>
+        </div>
+
+        <div class="field-group">
+          <label for="ajuda_anexo">Anexo (print opcional)</label>
+          <input id="ajuda_anexo" name="ajuda_anexo" class="field" type="file" accept="image/*">
+        </div>
+
+        <div class="span-2 form-actions">
+          <button class="btn" type="submit" name="intent" value="report_issue">Enviar</button>
+        </div>
+      </div>
+      <p class="muted" style="margin-top:8px;">Dica: informe data/hora aproximada do problema.</p>
+    </form>
+  </div>
+</section>
+
 
     <!-- CADASTRAR PERSONAL -->
     <section class="section" data-view="cadastrar-personal" hidden aria-labelledby="titulo-cadastrar-personal">
@@ -271,7 +652,120 @@
       }
     });
   }
+
+  // --- User menu (dropdown no header) ---
+const userTrig  = document.querySelector('.user-trigger');
+const userDrop  = document.querySelector('.user-dropdown');
+
+function closeUserMenu(){
+  if (!userDrop || userDrop.hidden) return;
+  userDrop.hidden = true;
+  userTrig?.setAttribute('aria-expanded','false');
+  document.removeEventListener('click', onUserOutside, true);
+  document.removeEventListener('keydown', onUserEsc, true);
+}
+
+function openUserMenu(){
+  if (!userDrop) return;
+  userDrop.hidden = false;
+  userTrig?.setAttribute('aria-expanded','true');
+  // usa captura pra fechar mesmo se houver stopPropagation em filhos
+  document.addEventListener('click', onUserOutside, true);
+  document.addEventListener('keydown', onUserEsc, true);
+}
+
+function onUserOutside(e){
+  if (!userDrop.contains(e.target) && !userTrig.contains(e.target)){
+    closeUserMenu();
+  }
+}
+function onUserEsc(e){
+  if (e.key === 'Escape') closeUserMenu();
+}
+
+userTrig?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (userDrop.hidden) openUserMenu(); else closeUserMenu();
+});
+
+// fecha ao trocar de view (clicou num item do menu lateral etc.)
+window.addEventListener('hashchange', closeUserMenu);
+
+// segurança extra em rolagem
+window.addEventListener('scroll', () => {
+  if (!userDrop?.hidden) closeUserMenu();
+}, { passive: true });
+
+// ===== Meu Perfil: preview/remover avatar =====
+const avatarInput   = document.getElementById('id_avatar');
+const avatarPreview = document.getElementById('avatar-preview');
+const avatarClearBt = document.getElementById('avatar-clear');
+const avatarClearHd = document.getElementById('avatar_clear');
+
+if (avatarInput && avatarPreview){
+  avatarInput.addEventListener('change', () => {
+    const file = avatarInput.files && avatarInput.files[0];
+    if (file){
+      const url = URL.createObjectURL(file);
+      avatarPreview.src = url;
+      if (avatarClearHd) avatarClearHd.value = '';
+    }
+  });
+}
+if (avatarClearBt){
+  avatarClearBt.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (avatarPreview){
+      avatarPreview.src = "{% static 'global/img/avatar-default.png' %}";
+    }
+    if (avatarInput) avatarInput.value = '';
+    if (avatarClearHd) avatarClearHd.value = '1'; // backend usa isso p/ apagar
+  });
+}
+
+// máscara simples de telefone no perfil
+(function(){
+  const tel = document.getElementById('phone');
+  if (!tel) return;
+  tel.addEventListener('input', () => {
+    let v = tel.value.replace(/\D/g,'').slice(0,11);
+    if (v.length > 2 && v.length <= 6) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+    else if (v.length > 6 && v.length <= 10) v = `(${v.slice(0,2)}) ${v.slice(2,6)}-${v.slice(6)}`;
+    else if (v.length > 10) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+    tel.value = v;
+  });
+  })();
+
+
 })();
+
+// Tema: system/light/dark com persistência
+(function(){
+  const root = document.documentElement; // <html>
+  const radios = document.querySelectorAll('input[name="theme"]');
+
+  function applyTheme(mode){
+    // mode: 'system' | 'light' | 'dark'
+    if (mode === 'system'){
+      root.removeAttribute('data-theme');
+      localStorage.removeItem('theme');
+    } else {
+      root.setAttribute('data-theme', mode);
+      localStorage.setItem('theme', mode);
+    }
+  }
+
+  // carregar preferido
+  const saved = localStorage.getItem('theme');
+  if (saved){ applyTheme(saved);
+    const r = document.querySelector(`input[name="theme"][value="${saved}"]`);
+    r && (r.checked = true);
+  }
+
+  radios.forEach(r => r.addEventListener('change', () => applyTheme(r.value)));
+})();
+
+
 </script>
 
 
