@@ -243,3 +243,13 @@ h3{ font-size: 18px; margin: 2px 0 8px; }
   .logo-img1{ max-height:32px; }
   .btn{ height:48px; }
 }
+
+
+html{ background:#0a1c5a; height:100%; }
+body{
+  min-height:100%;
+  overflow-x: clip;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+}
+img, svg{ max-width:100%; height:auto; }

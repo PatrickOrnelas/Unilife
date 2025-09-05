@@ -217,3 +217,22 @@ body.login-split { overflow-x: hidden; }              /* evita “empurrões” 
   .panel-inner{ padding: 20px; }
   .btn-primary, .btn-secondary{ height: 46px; }
 }
+
+body.login-split{
+  min-height: 100svh;
+  position: relative;
+}
+body.login-split::before{
+  content:"";
+  position: fixed; inset:0;
+  z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(600px 400px at 82% 24%, rgba(255,255,255,.06), transparent 60%),
+    linear-gradient(90deg, #0a1c5a, #123caa); /* seu degradê */
+}
+.shell{               /* o wrapper que centraliza o card */
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: clamp(12px, 4vw, 32px);
+}
