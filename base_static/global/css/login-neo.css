@@ -20,6 +20,7 @@
   --grad-deep2:#1e9bff;
 }
 
+
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body.login-split{
@@ -117,6 +118,7 @@ body.login-split{
 .input-wrap .peek:hover{ color:#6c7790; }
 
 .field input{
+  margin-bottom: 10px;
   width:100%; height:46px; border-radius: 10px;
   border: 1px solid var(--border);
   background: #fff;
@@ -237,3 +239,35 @@ body.login-split::before{
   padding: clamp(12px, 4vw, 32px);
 }
 
+/* garante espaço pro botão dentro do input */
+.input-wrap input{
+  padding-right: 56px; /* era 40px */
+}
+
+/* posiciona e “zera” o estilo do botão do olho */
+.input-wrap .peek{
+  position:absolute;
+  right:8px;
+  top:41%;
+  transform: translateY(-50%);
+  width:36px;
+  height:36px;
+  display:grid;
+  place-items:center;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  border-radius:8px;
+  color:#96a1b6;
+}
+.input-wrap .peek:hover{ color:#6c7790; }
+.input-wrap .peek:focus-visible{
+  outline:2px solid #5992ff;
+  outline-offset:2px;
+}
+
+/* tamanho do ícone dentro do botão */
+.input-wrap .peek img{
+  width:25px;
+  height:20px;
+}

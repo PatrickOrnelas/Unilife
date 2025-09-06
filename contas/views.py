@@ -6,6 +6,14 @@ from django.urls import reverse_lazy
 
 from .forms import LoginForm, RegistroAlunoForm
 
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.views.decorators.http import require_GET, require_POST
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
+import json
+from .models import Personal
+
 
 def destino_por_perfil(user):
     if hasattr(user, "admin"):
@@ -84,3 +92,108 @@ def cadastrar_personal(request):
         form.save()
         return redirect('admin:index')  # ou sua home de admin
     return render(request, 'global/admin_painel.html', {'form_personal': form})
+
+# ========= GERENCIAR PERSONAL (API) =========
+
+@login_required
+@user_passes_test(is_admin)
+@require_GET
+def api_personals(request):
+    """Lista filtrada/paginada para a tabela"""
+    q         = request.GET.get('q', '').strip()
+    sex       = request.GET.get('sex')        # 'M' | 'F' | 'O' | ''
+    status    = request.GET.get('status')     # 'active' | 'inactive' | ''
+    ordering  = request.GET.get('ordering', '-created_at')
+    page      = int(request.GET.get('page', 1))
+    page_size = min(int(request.GET.get('page_size', 10)), 100)
+
+    qs = Personal.objects.all()
+
+    if q:
+        qs = qs.filter(
+            Q(first_name__icontains=q) |
+            Q(last_name__icontains=q)  |
+            Q(email__icontains=q)      |
+            Q(cpf__icontains=q)        |
+            Q(tel__icontains=q)
+        )
+    if sex in ('M','F','O'):
+        qs = qs.filter(sex=sex)
+    if status in ('active','inactive'):
+        qs = qs.filter(is_active=(status == 'active'))
+
+    # se não existir created_at no model, troque por '-id'
+    try:
+        qs = qs.order_by(ordering)
+    except Exception:
+        qs = qs.order_by('-id')
+
+    paginator = Paginator(qs, page_size)
+    page_obj  = paginator.get_page(page)
+
+    def row(p):
+        return {
+            'id': p.id,
+            'first_name': getattr(p, 'first_name', '') or '',
+            'last_name':  getattr(p, 'last_name', '')  or '',
+            'cpf':        getattr(p, 'cpf', '')        or '',
+            'cref':       getattr(p, 'cref', '')       or '',
+            'tel':        getattr(p, 'tel', '')        or '',
+            'sex':        getattr(p, 'sex', '')        or '',
+            'email':      getattr(p, 'email', '')      or '',
+            'is_active':  getattr(p, 'is_active', True),
+            'created_at': getattr(p, 'created_at', None).isoformat() if getattr(p, 'created_at', None) else '',
+        }
+
+    return JsonResponse({
+        'results': [row(p) for p in page_obj.object_list],
+        'page': page_obj.number,
+        'num_pages': paginator.num_pages,
+        'count': paginator.count,
+    })
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def api_personals_bulk(request):
+    """Ações em massa: activate | deactivate | delete"""
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest('JSON inválido.')
+
+    action = payload.get('action')
+    ids    = payload.get('ids') or []
+    qs     = Personal.objects.filter(id__in=ids)
+
+    if action == 'activate':
+        qs.update(is_active=True)
+    elif action == 'deactivate':
+        qs.update(is_active=False)
+    elif action == 'delete':
+        qs.delete()
+    else:
+        return HttpResponseBadRequest('Ação inválida.')
+
+    return JsonResponse({'ok': True})
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def api_personal_toggle(request, pk:int):
+    """Ativa/desativa um registro"""
+    p = get_object_or_404(Personal, pk=pk)
+    p.is_active = not p.is_active
+    p.save(update_fields=['is_active'])
+    return JsonResponse({'ok': True, 'is_active': p.is_active})
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def api_personal_delete(request, pk:int):
+    """Remove um registro"""
+    p = get_object_or_404(Personal, pk=pk)
+    p.delete()
+    return JsonResponse({'ok': True})
+
+

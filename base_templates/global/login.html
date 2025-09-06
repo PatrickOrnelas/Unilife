@@ -24,8 +24,8 @@
         </header>
 
         <div class="hero-copy">
-          <h1>Olá, Bem-vindo!</h1>
-          <p>Faça login para acessar o painel da academia</p>
+          <h1>Olá, bem-vindo!</h1>
+          <p>Faça login para acessar o painel da academia.</p>
         </div>
       </aside>
 
@@ -47,12 +47,20 @@
             </label>
 
             <label class="field">
-              <span class="label">Senha</span>
-              <div class="input-wrap">
-                <input type="password" id="id_password" name="password" placeholder="••••••••" autocomplete="current-password" required>
-                <button type="button" class="peek" aria-label="Mostrar/ocultar senha">👁</button>
-              </div>
-            </label>
+  <span class="label">Senha</span>
+  <div class="input-wrap">
+    <input type="password" id="id_password" name="password"
+           placeholder="••••••••" autocomplete="current-password" required>
+
+    <!-- botão com a classe .peek e sem onclick inline -->
+    <button type="button" class="peek" aria-label="Mostrar senha"
+            data-open="{% static 'global/img/olho_aberto1.png' %}"
+            data-closed="{% static 'global/img/olho_fechado.png' %}">
+      <img src="{% static 'global/img/olho_fechado.png' %}" alt=""
+           width="20" height="20" draggable="false" style="pointer-events:none;">
+    </button>
+  </div>
+</label>
 
             <div class="row">
               <label class="check">
@@ -87,9 +95,21 @@
     });
     // mostrar/ocultar senha
     (function(){
-      const btn=document.querySelector('.peek'), input=document.getElementById('id_password');
-      if(btn&&input){ btn.addEventListener('click', ()=>{ input.type = input.type==='password'?'text':'password'; }); }
-    })();
+    const btn   = document.querySelector('.peek');
+    const input = document.getElementById('id_password');
+    if(!btn || !input) return;
+
+    const img    = btn.querySelector('img');
+    const open   = btn.dataset.open;
+    const closed = btn.dataset.closed;
+
+    btn.addEventListener('click', () => {
+      const mostrar = (input.type === 'password');
+      input.type = mostrar ? 'text' : 'password';
+      img.src    = mostrar ? open : closed;
+      btn.setAttribute('aria-label', mostrar ? 'Ocultar senha' : 'Mostrar senha');
+    });
+  })();
   </script>
 </body>
 </html>

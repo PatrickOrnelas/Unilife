@@ -72,7 +72,7 @@
       <div class="field-group span-2">
         <label for="id_email">E-mail</label>
         <input type="email" name="email" id="id_email" required autocomplete="email"
-               value="{{ form.email.value|default:'' }}" placeholder="voce@exemplo.com" />
+               value="{{ form.email.value|default:'' }}" placeholder="seu@email.com" />
         {% if form.email.errors %}
           <div class="error">
             {% for e in form.email.errors %}
@@ -99,8 +99,7 @@
       <!-- Telefone -->
       <div class="field-group">
         <label for="id_tel">Telefone (com DDD)</label>
-        <input type="text" name="tel" id="id_tel" required inputmode="tel" autocomplete="tel"
-               value="{{ form.tel.value|default:'' }}" placeholder="(11) 99999-9999" />
+        <input type="tel" name="tel" id="id_tel" required inputmode="numeric" pattern="\d*" maxlength="15" autocomplete="tel-national" placeholder="(11) 99999-9999"value="{{ form.tel.value|default:'' }}">
         {% if form.tel.errors %}
           <div class="error">
             {% for e in form.tel.errors %}
@@ -150,8 +149,8 @@
                  style="padding-right:40px;">
           <button type="button" class="toggle-password" aria-label="Mostrar senha"
                   data-target="id_password1"
-                  data-open="{% static 'global/img/olho-aberto.png' %}"
-                  data-closed="{% static 'global/img/olho-fechado.png' %}"
+                  data-open="{% static 'global/img/olho_aberto1.png' %}"
+                  data-closed="{% static 'global/img/olho_fechado.png' %}"
                   style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:0; padding:4px; cursor:pointer;"
                   onclick="
                     const input = document.getElementById(this.dataset.target);
@@ -161,7 +160,7 @@
                     img.src     = show ? this.dataset.open : this.dataset.closed;
                     this.setAttribute('aria-label', show ? 'Ocultar senha' : 'Mostrar senha');
                   ">
-            <img src="{% static 'global/img/olho-fechado.png' %}" alt="" width="22" height="22" draggable="false" style="pointer-events:none;">
+            <img src="{% static 'global/img/olho_fechado.png' %}" alt="" width="22" height="22" draggable="false" style="pointer-events:none;">
           </button>
         </div>
         {% if form.password1.errors %}
@@ -181,8 +180,8 @@
                  style="padding-right:40px;">
           <button type="button" class="toggle-password" aria-label="Mostrar senha"
                   data-target="id_password2"
-                  data-open="{% static 'global/img/olho-aberto.png' %}"
-                  data-closed="{% static 'global/img/olho-fechado.png' %}"
+                  data-open="{% static 'global/img/olho_aberto1.png' %}"
+                  data-closed="{% static 'global/img/olho_fechado.png' %}"
                   style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:0; padding:4px; cursor:pointer;"
                   onclick="
                     const input = document.getElementById(this.dataset.target);
@@ -192,7 +191,7 @@
                     img.src     = show ? this.dataset.open : this.dataset.closed;
                     this.setAttribute('aria-label', show ? 'Ocultar senha' : 'Mostrar senha');
                   ">
-            <img src="{% static 'global/img/olho-fechado.png' %}" alt="" width="22" height="22" draggable="false" style="pointer-events:none;">
+            <img src="{% static 'global/img/olho_fechado.png' %}" alt="" width="22" height="22" draggable="false" style="pointer-events:none;">
           </button>
         </div>
         {% if form.password2.errors %}

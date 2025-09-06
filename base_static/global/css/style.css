@@ -31,7 +31,7 @@
   /* dimensões */
   --w-collapsed: 76px;
   --w-expanded: 220px;
-  --content-max: 1240px;
+  --content-max: 1600px;
 
   /* espaçamentos */
   --sp-1: 8px;
@@ -604,3 +604,235 @@ body.auth-page .card{
   body.auth-page{ padding: 20px 12px; }
   body.auth-page .card{ width: 100%; border-radius: 14px; }
 }
+
+
+/* ====== Cadastrar Personal: layout em 2 colunas ====== */
+.section[data-view="cadastrar-personal"]{
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;  /* esquerda maior que direita */
+  gap: var(--sp-4);
+  align-items: start;
+}
+
+/* tira centralização/largura fixa do form para ele ocupar a coluna */
+.section[data-view="cadastrar-personal"] .form-wrapper{
+  margin: 0;                /* remove centralização */
+}
+.section[data-view="cadastrar-personal"] .form-wrapper > .card{
+  width: 100%;              /* em vez de width:min(92vw, 640px) */
+}
+
+/* card de observações vira a coluna da direita */
+.section[data-view="cadastrar-personal"] .notes-card{
+  width: 100%;
+  margin: 0;
+  height: fit-content;
+  position: sticky;                     /* fica visível ao rolar */
+  top: calc(64px + var(--sp-4));        /* abaixo do header + espaçamento */
+}
+
+/* responsivo: empilha em 1 coluna no tablet/celular */
+@media (max-width: 980px){
+  .section[data-view="cadastrar-personal"]{
+    grid-template-columns: 1fr;
+  }
+  .section[data-view="cadastrar-personal"] .notes-card{
+    position: static;    /* desliga o sticky no mobile */
+  }
+}
+
+/* ===== Gerenciar Personal ===== */
+.gp-toolbar{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px; margin: 10px 0 14px;
+}
+.gp-left{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.gp-right{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+
+.gp-search{ min-width:280px; }
+.gp-search .field{ width:100%; }
+
+.table-wrap{ overflow:auto; }
+
+#gp-table th, #gp-table td{ white-space:nowrap; }
+#gp-table td .muted{ font-size:.9em; }
+
+.gp-status{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:2px 8px; border-radius:999px; font-size:.82rem; font-weight:700;
+}
+.gp-status.active{ background:rgba(34,197,94,.12); color:#16a34a; }
+.gp-status.inactive{ background:rgba(239,68,68,.12); color:#dc2626; }
+
+.gp-actions{ display:flex; gap:6px; }
+.gp-actions .btn-ghost{ padding:6px 8px; height:auto; }
+
+.gp-pager{
+  display:flex; align-items:center; justify-content:flex-end; gap:8px;
+  margin-top:12px;
+}
+.gp-pagebtn{
+  border:1px solid var(--border); background:#fff; padding:6px 10px; border-radius:8px; cursor:pointer;
+}
+.gp-pagebtn[disabled]{ opacity:.45; cursor:not-allowed; }
+.gp-pageinfo{ color:var(--muted); font-size:.9rem; }
+
+@media (max-width:980px){
+  .gp-toolbar{ flex-direction:column; align-items:stretch; }
+  .gp-right{ justify-content:flex-end; }
+}
+
+
+/* ===== Criar Treino ===== */
+.tb-builder{
+  display:grid; grid-template-columns: 1fr 2fr; gap: var(--sp-4);
+  align-items:start;
+}
+@media (max-width: 980px){ .tb-builder{ grid-template-columns:1fr; } }
+
+.tb-catalog{ display:flex; flex-direction:column; gap:10px; }
+.tb-tools{ display:flex; gap:10px; flex-wrap:wrap; }
+.tb-tools .field{ flex:1 1 180px; }
+
+.tb-list{ list-style:none; padding:0; margin:0; display:grid; gap:10px;
+  max-height:60vh; overflow:auto; }
+.tb-item{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px; border:1px solid var(--border); border-radius:12px; background:#fff;
+}
+.tb-item h4{ font-size:15px; margin:0; }
+.tb-tags{ font-size:.82rem; color:var(--muted); }
+.tb-item .btn-ghost{ padding:6px 10px; height:auto; }
+
+.tb-plan{ display:flex; flex-direction:column; gap:10px; }
+.tb-head{ display:flex; gap:10px; }
+.tb-head .field{ flex:1; }
+.tb-table th, .tb-table td{ white-space:nowrap; vertical-align:middle; }
+.tb-table input[type="number"], .tb-table input[type="text"]{
+  width:100%; height:36px; padding:0 8px; border:1px solid var(--border); border-radius:8px;
+}
+.tb-order{
+  display:inline-flex; gap:4px;
+}
+.tb-order button, .tb-row-del{
+  border:1px solid var(--border); background:#fff; padding:6px 8px; border-radius:8px; cursor:pointer;
+}
+.tb-row-del{ color:#b91c1c; }
+
+/* ===== Gerenciar Treinos ===== */
+.wt-toolbar{
+  display:flex; align-items:center; justify-content:space-between; gap:12px; margin:10px 0 14px;
+}
+.wt-left,.wt-right{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+#wt-table th,#wt-table td{ white-space:nowrap; vertical-align:middle; }
+
+.wt-status{ padding:2px 8px; border-radius:999px; font-size:.82rem; font-weight:700; display:inline-block; }
+.wt-status.active{ background:rgba(34,197,94,.12); color:#16a34a; }
+.wt-status.inactive{ background:rgba(239,68,68,.12); color:#dc2626; }
+
+.wt-actions{ display:flex; gap:6px; }
+.wt-actions .btn-ghost{ padding:6px 8px; height:auto; }
+
+.wt-pager{ display:flex; justify-content:flex-end; align-items:center; gap:8px; margin-top:12px; }
+.wt-pagebtn{ border:1px solid var(--border); background:#fff; padding:6px 10px; border-radius:8px; cursor:pointer; }
+.wt-pagebtn[disabled]{ opacity:.45; cursor:not-allowed; }
+.wt-pageinfo{ color:var(--muted); font-size:.9rem; }
+
+.wt-students{ list-style:none; padding:0; margin:.5rem 0 0; max-height:50vh; overflow:auto; display:grid; gap:8px; }
+.wt-students li{ display:flex; justify-content:space-between; gap:10px; padding:10px; border:1px solid var(--border); border-radius:10px; }
+@media (max-width:980px){ .wt-toolbar{ flex-direction:column; align-items:stretch; } }
+
+/* ======== Anamnese: layout ======== */
+.ana-toolbar{
+  display:flex; gap:12px; justify-content:space-between; align-items:center;
+  margin: 8px 0 14px;
+  flex-wrap: wrap;
+}
+.ana-toolbar .ana-left{ display:flex; gap:10px; align-items:center; flex:1 1 520px; }
+.ana-toolbar .ana-right{ display:flex; gap:10px; align-items:center; }
+
+.table-wrap{ overflow:auto; border-radius:12px; border:1px solid var(--card-outline); }
+.ana-table th{ white-space:nowrap; font-weight:700; color:#334155; }
+.ana-table td{ vertical-align:middle; }
+.ana-table .small{ font-size:.80rem; }
+
+/* ações da tabela */
+.ana-actions{ display:flex; gap:6px; flex-wrap:wrap; }
+.btn-sm{
+  display:inline-flex; align-items:center; justify-content:center;
+  height:34px; padding:0 10px; border-radius:10px; border:1px solid var(--border);
+  background:#fff; color:var(--text); font-weight:700; text-decoration:none; cursor:pointer;
+  transition:background .15s, border-color .15s;
+}
+.btn-sm:hover{ background:#f7f9fc; border-color:#dfe5f1; }
+.btn-sm.danger{ color:#b91c1c; border-color:#f1c9c9; }
+.btn-sm.danger:hover{ background:#fff1f1; }
+
+/* chips/badges */
+.chip{
+  display:inline-block; background:#eef2ff; color:#1e3a8a; border:1px solid #dbe1ff;
+  padding:4px 8px; border-radius:999px; font-weight:700; font-size:.85rem;
+}
+.badge{ display:inline-block; padding:4px 8px; border-radius:999px; font-weight:800; font-size:.82rem; }
+.badge.draft{ background:#e5e7eb; color:#374151; }
+.badge.sent{ background:rgba(46,144,255,.15); color:#2563eb; }
+.badge.answered{ background:rgba(34,197,94,.15); color:#16a34a; }
+.badge.archived{ background:#f1f5f9; color:#475569; }
+
+/* rodapé da tabela */
+.table-foot{
+  display:flex; align-items:center; justify-content:space-between;
+  padding-top:10px;
+}
+
+/* ======== Modal (CSS-only :target) ======== */
+.modal{
+  position: fixed; inset:0; z-index: 9999;
+  display: grid; place-items: center;
+  background: rgba(2,16,54,.35);
+  opacity:0; pointer-events:none;
+  transition: opacity .18s ease;
+  backdrop-filter: blur(2px);
+}
+.modal:target{ opacity:1; pointer-events:auto; }
+.modal-bg{ position:absolute; inset:0; }
+
+.modal-dialog{
+  position: relative;
+  width: min(720px, 92vw);
+  background: #fff;
+  border:1px solid var(--card-outline);
+  border-radius: 16px;
+  box-shadow: 0 30px 70px rgba(2,16,54,.35);
+  padding: 16px;
+}
+.modal-dialog.small{ width:min(520px, 92vw); }
+.modal-dialog h3{ margin: 0 0 8px; font-size: 20px; }
+.modal-body{ margin-top: 8px; }
+.modal-actions{
+  display:flex; gap:10px; justify-content:flex-end; margin-top:12px;
+}
+.modal-close{
+  position:absolute; right:10px; top:8px;
+  text-decoration:none; font-size:22px; color:#475569; font-weight:800;
+}
+.modal-close:hover{ color:#0f172a; }
+
+/* file input bonitinho */
+.file{
+  display:inline-flex; align-items:center; gap:10px;
+  height:46px; padding:0 14px; border:1px dashed var(--border); border-radius:10px;
+  background:#fff; color:var(--text); cursor:pointer; font-weight:700;
+}
+.file input{ display:none; }
+
+/* lista de pick (vincular aluno) */
+.pick-list{ margin-top:10px; }
+.pick{
+  width:100%; text-align:left; border:1px solid var(--border); background:#fff;
+  padding:10px 12px; border-radius:10px; cursor:pointer;
+}
+.pick:hover{ background:#f7f9fc; }
+
+/* utilitários */
+.muted.small{ font-size:.82rem; }
