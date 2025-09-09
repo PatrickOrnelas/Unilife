@@ -109,25 +109,35 @@ class RegistroAlunoForm(forms.Form):
 
 class RegistroPersonalForm(forms.Form):
     # --- Dados importantes ---
-    first_name     = forms.CharField(max_length=254, label="Nome", required=True)  # corrigido label
+    first_name     = forms.CharField(max_length=254, label="Nome", required=True)
     last_name      = forms.CharField(max_length=254, label="Sobrenome", required=False)
     email          = forms.EmailField(label="E-mail", required=True)
-    cpf            = forms.CharField(max_length=14, label="CPF", required=True)  # aceita com/sem máscara
-    cref           = forms.CharField(max_length=20, label="CREF", required=True) # alinhado ao model (20)
+    cpf            = forms.CharField(max_length=14, label="CPF", required=True)      # aceita com/sem máscara
+    cref           = forms.CharField(max_length=20, label="CREF", required=True)     # alinhado ao model (20)
     tel            = forms.CharField(max_length=16, label="Telefone (DDD + número)", required=True)
     SEX_CHOICES    = [('M', 'Masculino'), ('F', 'Feminino'), ('O', 'Outro')]
     sex            = forms.ChoiceField(choices=SEX_CHOICES, label="Sexo", required=True)
     date_of_birth  = forms.DateField(label="Data de nascimento",
                                      widget=forms.DateInput(attrs={"type": "date"}), required=True)
-    password1      = forms.CharField(label="Senha", widget=forms.PasswordInput)
-    password2      = forms.CharField(label="Confirmar senha", widget=forms.PasswordInput)
+
+    # >>> Removidos password1/password2: senha será gerada no save() <<<
 
     # --- Validações ----
     def clean_cpf(self):
         cpf = validate_cpf(self.cleaned_data.get("cpf"))
+        # username = cpf só dígitos; garante unicidade no User
         if User.objects.filter(username=cpf).exists():
             raise ValidationError("Já existe um usuário com esse CPF.")
         return cpf
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email", "").strip().lower()
+        if User.objects.filter(email=email).exists():
+            raise ValidationError("Já existe um usuário com este e-mail.")
+        # evita duplicidade também no perfil
+        if Personal.objects.filter(email=email).exists():
+            raise ValidationError("Já existe um cadastro com este e-mail.")
+        return email
 
     def clean_tel(self):
         return validate_tel(self.cleaned_data.get("tel"))
@@ -136,30 +146,34 @@ class RegistroPersonalForm(forms.Form):
         cref = normalize_cref(self.cleaned_data.get("cref"))
         if len(cref) > 20:
             raise ValidationError("CREF muito longo (máx. 20 caracteres).")
+        # garante que não duplica CREF entre personais
+        if Personal.objects.filter(cref=cref).exists():
+            raise ValidationError("Já existe um cadastro com este CREF.")
         return cref
-
-    def clean(self):
-        data = super().clean()
-        p1, p2 = data.get("password1"), data.get("password2")
-        if p1 and p2 and p1 != p2:
-            self.add_error("password2", "As senhas não conferem.")
-        return data
 
     # --- Persistência ---
     def save(self, commit=True):
         first_name    = self.cleaned_data["first_name"].strip()
         last_name     = self.cleaned_data.get("last_name", "").strip()
-        email         = self.cleaned_data["email"].strip()
-        cpf_digits    = self.cleaned_data["cpf"]      # já só dígitos
-        cref_code     = self.cleaned_data["cref"]     # normalizado (pode ter letras/ /-)
-        tel_digits    = self.cleaned_data["tel"]      # já só dígitos
+        email         = self.cleaned_data["email"].strip().lower()
+        cpf_digits    = self.cleaned_data["cpf"]          # já só dígitos (validate_cpf)
+        cref_code     = self.cleaned_data["cref"]         # normalizado
+        tel_digits    = self.cleaned_data["tel"]          # já só dígitos (validate_tel)
         sex           = self.cleaned_data["sex"]
         date_of_birth = self.cleaned_data["date_of_birth"]
-        password      = self.cleaned_data["password1"]
+
+        # === Senha padronizada: <PrimeiroNome>123 ===
+        primeiro_nome = first_name.split()[0].title() if first_name else "User"
+        initial_password = f"{primeiro_nome}123"
 
         # cria o User com username = CPF
-        user = User(username=cpf_digits, first_name=first_name, last_name=last_name, email=email)
-        user.set_password(password)
+        user = User(
+            username=cpf_digits,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+        )
+        user.set_password(initial_password)
 
         if commit:
             user.save()
@@ -171,7 +185,10 @@ class RegistroPersonalForm(forms.Form):
                 sex=sex,
                 email=email,
                 date_of_birth=date_of_birth,
-                cref=cref_code,           # <== AGORA salvando o CREF!
-                # ativo usa default=True
+                cref=cref_code,   # salva o CREF
+                # ativo = default True no model
             )
-        return user
+
+        # Retorne a senha gerada para exibir uma única vez (messages)
+        return user, initial_password
+

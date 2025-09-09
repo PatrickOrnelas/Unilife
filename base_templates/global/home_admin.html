@@ -479,193 +479,151 @@
 </section>
 
 
-    <!-- CADASTRAR PERSONAL -->
-    <section class="section" data-view="cadastrar-personal" hidden aria-labelledby="titulo-cadastrar-personal">
-      <div class="form-wrapper" style="margin-bottom: 6px;">
-        <div class="card glass">
-          <h2 class="card-title" id="titulo-cadastrar-personal">Cadastrar Personal</h2>
+<!-- CADASTRAR PERSONAL -->
+{% if messages %}
+  <div style="margin-bottom:10px;">
+    {% for message in messages %}
+      <div class="card glass" style="padding:12px; border-left:4px solid #22c55e; margin-bottom:8px;">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
 
-          <form method="post" action="" autocomplete="on" novalidate>
-            {% csrf_token %}
-            
-            
+<section class="section" data-view="cadastrar-personal" hidden aria-labelledby="titulo-cadastrar-personal">
+  <div class="form-wrapper" style="margin-bottom: 6px;">
+    <div class="card glass">
+      <h2 class="card-title" id="titulo-cadastrar-personal">Cadastrar Personal</h2>
+
+      <!-- importante: envia para a view Django -->
+      <form method="post" action="{% url 'cadastrar-personal' %}" autocomplete="on" novalidate>
+        {% csrf_token %}
+
         <!-- Nome -->
-            <div class="field-group">
-        <label for="id_first_name">Nome</label>
-        <input type="text" name="first_name" id="id_first_name" class="field" required autocomplete="given-name"
-               value="{{ form.first_name.value|default:'' }}" placeholder="Seu nome" />
-        {% if form.first_name.errors %}
-          <div class="error">
-            {% for e in form.first_name.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
-        {% endif %}
-      </div>
-
-      <!-- Sobrenome -->
-      <div class="field-group">
-        <label for="id_last_name">Sobrenome</label>
-        <input type="text" name="last_name" id="id_last_name" class="field" autocomplete="family-name"
-               value="{{ form.last_name.value|default:'' }}" placeholder="Seu sobrenome" />
-        {% if form.last_name.errors %}
-          <div class="error">
-            {% for e in form.last_name.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
-        {% endif %}
-      </div>
-
-
-      <!-- CPF -->
-      <div class="field-group">
-        <label for="id_cpf">CPF</label>
-        <input type="text" name="cpf" id="id_cpf" class="field" inputmode="numeric" autocomplete="off"
-               value="{{ form.cpf.value|default:'' }}" placeholder="000.000.000-00" />
-        {% if form.cpf.errors %}
-          <div class="error">
-            {% for e in form.cpf.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
-        {% endif %}
-      </div>
-
-
-              <!-- E-mail -->
-      <div class="field-group">
-        <label for="id_email">E-mail</label>
-        <input type="email" name="email" id="id_email" class="field" required autocomplete="email"
-               value="{{ form.email.value|default:'' }}" placeholder="seu@email.com" />
-        {% if form.email.errors %}
-          <div class="error">
-            {% for e in form.email.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
-        {% endif %}
-      </div>
-
-              <!-- Telefone -->
-      <div class="field-group">
-        <label for="id_tel">Telefone (com DDD)</label>
-        <input type="tel" name="tel" id="id_tel" class="field" required inputmode="numeric" pattern="\d*" maxlength="15" autocomplete="tel-national" placeholder="(11) 99999-9999"value="{{ form.tel.value|default:'' }}">
-        {% if form.tel.errors %}
-          <div class="error">
-            {% for e in form.tel.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
-        {% endif %}
-      </div>
-
-              <!-- Sexo -->
-      <div class="field-group">
-        <label for="id_sex">Sexo</label>
-        <select name="sex" id="id_sex" required class="field">
-          <option value="">Selecione</option>
-          <option value="M" {% if form.sex.value == 'M' %}selected{% endif %}>Masculino</option>
-          <option value="F" {% if form.sex.value == 'F' %}selected{% endif %}>Feminino</option>
-          <option value="O" {% if form.sex.value == 'O' %}selected{% endif %}>Outro</option>
-        </select>
-        {% if form.sex.errors %}
-          <div class="error">
-            {% for e in form.sex.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
-        {% endif %}
-      </div>
-
-              <!-- Data de nascimento -->
-      <div class="field-group">
-        <label for="id_date_of_birth">Data de nascimento</label>
-        <input type="date" name="date_of_birth" id="id_date_of_birth" required class="field" value="{{ form.date_of_birth.value|default:'' }}" />
-        {% if form.date_of_birth.errors %}
-          <div class="error">
-            {% for e in form.date_of_birth.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
-        {% endif %}
-      </div>
-
-      <!-- Senha -->
-      <div class="field-group">
-        <label for="id_password1">Senha</label>
-        <div class="input-password" style="position:relative;">
-          <input type="password" name="password1" id="id_password1" class="field" required autocomplete="new-password" placeholder="••••••••"
-                 style="padding-right:40px;">
-          <button type="button" class="toggle-password" aria-label="Mostrar senha"
-                  data-target="id_password1"
-                  data-open="{% static 'global/img/olho_aberto1.png' %}"
-                  data-closed="{% static 'global/img/olho_fechado.png' %}"
-                  style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:0; padding:4px; cursor:pointer;"
-                  onclick="
-                    const input = document.getElementById(this.dataset.target);
-                    const img   = this.querySelector('img');
-                    const show  = (input.type === 'password');
-                    input.type  = show ? 'text' : 'password';
-                    img.src     = show ? this.dataset.open : this.dataset.closed;
-                    this.setAttribute('aria-label', show ? 'Ocultar senha' : 'Mostrar senha');
-                  ">
-            <img src="{% static 'global/img/olho_fechado.png' %}" alt="" width="22" height="22" draggable="false" style="pointer-events:none;">
-          </button>
-        </div>
-        {% if form.password1.errors %}
-          <div class="error">
-            {% for e in form.password1.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
-        {% endif %}
-      </div>
-
-      <!-- Confirmar senha -->
-      <div class="field-group">
-        <label for="id_password2">Confirmar senha</label>
-        <div class="input-password" style="position:relative;">
-          <input type="password" name="password2" id="id_password2" class="field" required autocomplete="new-password" placeholder="••••••••"
-                 style="padding-right:40px;">
-          <button type="button" class="toggle-password" aria-label="Mostrar senha"
-                  data-target="id_password2"
-                  data-open="{% static 'global/img/olho_aberto1.png' %}"
-                  data-closed="{% static 'global/img/olho_fechado.png' %}"
-                  style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:0; padding:4px; cursor:pointer;"
-                  onclick="
-                    const input = document.getElementById(this.dataset.target);
-                    const img   = this.querySelector('img');
-                    const show  = (input.type === 'password');
-                    input.type  = show ? 'text' : 'password';
-                    img.src     = show ? this.dataset.open : this.dataset.closed;
-                    this.setAttribute('aria-label', show ? 'Ocultar senha' : 'Mostrar senha');
-                  ">
-            <img src="{% static 'global/img/olho_fechado.png' %}" alt="" width="22" height="22" draggable="false" style="pointer-events:none;">
-          </button>
-        </div>
-        {% if form.password2.errors %}
-          <div class="error">
-            {% for e in form.password2.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
-        {% endif %}
-      </div>
-
-              <div class="field-group span-2">
-                <label for="id_cref"><b>CREF</b></label>
-                <input id="id_cref" name="cref" type="text" class="field" placeholder="Ex.: CREF 123456-G/SP" required title="Use algo como: CREF 123456-G/SP ou 123456-SP" style="margin-bottom: 20px;">
-              </div>
-
-              <div class="span-2 form-actions">
-                <button type="reset" class="btn-ghost">Limpar</button>
-                <button type="submit" class="btn">Salvar cadastro</button>
-              </div>
+        <div class="field-group">
+          <label for="id_first_name">Nome</label>
+          <input type="text" name="first_name" id="id_first_name" class="field" required
+                 autocomplete="given-name"
+                 value="{{ form.first_name.value|default:'' }}" placeholder="Seu nome" />
+          {% if form.first_name.errors %}
+            <div class="error">
+              {% for e in form.first_name.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
             </div>
-          </form>
+          {% endif %}
         </div>
-      </div>
+
+        <!-- Sobrenome -->
+        <div class="field-group">
+          <label for="id_last_name">Sobrenome</label>
+          <input type="text" name="last_name" id="id_last_name" class="field"
+                 autocomplete="family-name"
+                 value="{{ form.last_name.value|default:'' }}" placeholder="Seu sobrenome" />
+          {% if form.last_name.errors %}
+            <div class="error">
+              {% for e in form.last_name.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- CPF -->
+        <div class="field-group">
+          <label for="id_cpf">CPF</label>
+          <input type="text" name="cpf" id="id_cpf" class="field"
+                 inputmode="numeric" autocomplete="off"
+                 value="{{ form.cpf.value|default:'' }}" placeholder="000.000.000-00" />
+          {% if form.cpf.errors %}
+            <div class="error">
+              {% for e in form.cpf.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- E-mail -->
+        <div class="field-group">
+          <label for="id_email">E-mail</label>
+          <input type="email" name="email" id="id_email" class="field" required
+                 autocomplete="email"
+                 value="{{ form.email.value|default:'' }}" placeholder="seu@email.com" />
+          {% if form.email.errors %}
+            <div class="error">
+              {% for e in form.email.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Telefone -->
+        <div class="field-group">
+          <label for="id_tel">Telefone (com DDD)</label>
+          <input type="tel" name="tel" id="id_tel" class="field" required
+                 inputmode="numeric" maxlength="15" autocomplete="tel-national"
+                 placeholder="(11) 99999-9999" value="{{ form.tel.value|default:'' }}">
+          {% if form.tel.errors %}
+            <div class="error">
+              {% for e in form.tel.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Sexo -->
+        <div class="field-group">
+          <label for="id_sex">Sexo</label>
+          <select name="sex" id="id_sex" required class="field">
+            <option value="">Selecione</option>
+            <option value="M" {% if form.sex.value == 'M' %}selected{% endif %}>Masculino</option>
+            <option value="F" {% if form.sex.value == 'F' %}selected{% endif %}>Feminino</option>
+            <option value="O" {% if form.sex.value == 'O' %}selected{% endif %}>Outro</option>
+          </select>
+          {% if form.sex.errors %}
+            <div class="error">
+              {% for e in form.sex.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Data de nascimento -->
+        <div class="field-group">
+          <label for="id_date_of_birth">Data de nascimento</label>
+          <input type="date" name="date_of_birth" id="id_date_of_birth" required class="field"
+                 value="{{ form.date_of_birth.value|default:'' }}" />
+          {% if form.date_of_birth.errors %}
+            <div class="error">
+              {% for e in form.date_of_birth.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- CREF -->
+        <div class="field-group span-2">
+          <label for="id_cref"><b>CREF</b></label>
+          <input id="id_cref" name="cref" type="text" class="field"
+                 placeholder="Ex.: CREF 123456-G/SP" required
+                 title="Use algo como: CREF 123456-G/SP ou 123456-SP"
+                 style="margin-bottom: 20px;">
+          {% if form.cref.errors %}
+            <div class="error">
+              {% for e in form.cref.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="span-2 form-actions">
+          <button type="reset" class="btn-ghost">Limpar</button>
+          <button type="submit" class="btn">Salvar cadastro</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card glass notes-card">
+    <h3 style="margin-bottom:6px;">Observações</h3>
+    <ul class="list muted">
+      <li>A senha inicial será gerada automaticamente (ex.: <b>Nome123</b>). Peça ao personal para trocar no primeiro acesso.</li>
+      <li>O CREF deve estar ativo para ativar o perfil do personal.</li>
+      <li>Documentos e foto podem ser anexados depois em “Gerenciar Personal”.</li>
+    </ul>
+  </div>
+</section>
+
 
       <div class="card glass notes-card">
         <h3 style="margin-bottom:6px;">Observações</h3>
