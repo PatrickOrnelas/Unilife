@@ -2,10 +2,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.views import LoginView
-from django.urls import reverse_lazy
-
-from .forms import LoginForm, RegistroAlunoForm
-
+from django.urls import reverse_lazy, reverse
+from .forms import LoginForm, RegistroAlunoForm, RegistroPersonalForm
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_GET, require_POST
 from django.core.paginator import Paginator
@@ -13,6 +11,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 import json
 from .models import Personal
+from django.contrib import messages
 
 
 def destino_por_perfil(user):
@@ -196,4 +195,21 @@ def api_personal_delete(request, pk:int):
     p.delete()
     return JsonResponse({'ok': True})
 
+@login_required
+def cadastrar_personal(request):
+    if request.method == "POST":
+        form = RegistroPersonalForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Personal cadastrado com sucesso!")
+            return redirect("home-admin")  # ou para onde preferir
+    else:
+        form = RegistroPersonalForm()
+
+    # use o caminho onde o template realmente está
+    return render(
+        request,
+        "global/home_admin.html",         # <<<< AQUI é o ajuste
+        {"form": form, "view": "cadastrar-personal"}  # (opcional: indica a aba)
+    )
 
