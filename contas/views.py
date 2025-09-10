@@ -12,6 +12,8 @@ from django.shortcuts import get_object_or_404
 import json
 from .models import Personal
 from django.contrib import messages
+from django.views.decorators.http import require_http_methods, require_POST
+
 
 
 def destino_por_perfil(user):
@@ -213,3 +215,76 @@ def cadastrar_personal(request):
         {"form": form, "view": "cadastrar-personal"}  # (opcional: indica a aba)
     )
 
+@login_required
+@require_http_methods(["GET", "POST"])
+def gerenciar_personal(request):
+    # --- Ações em massa (POST) ---
+    if request.method == "POST":
+        action = request.POST.get("action")
+        ids = request.POST.getlist("ids")
+        qs = Personal.objects.filter(pk__in=ids)
+
+        if not ids:
+            messages.error(request, "Selecione pelo menos um registro.")
+            return redirect("gerenciar-personal")
+
+        if action == "activate":
+            qs.update(is_active=True)
+            messages.success(request, f"{qs.count()} personal(is) ativado(s).")
+        elif action == "deactivate":
+            qs.update(is_active=False)
+            messages.success(request, f"{qs.count()} personal(is) desativado(s).")
+        elif action == "delete":
+            n = qs.count()
+            qs.delete()
+            messages.success(request, f"{n} personal(is) removido(s).")
+        else:
+            messages.error(request, "Ação inválida.")
+
+        # volta mantendo filtros da URL
+        return redirect(request.get_full_path())
+
+    # --- Lista com filtros/paginação (GET) ---
+    q      = request.GET.get("q", "").strip()
+    sex    = request.GET.get("sex", "")        # 'M' | 'F' | 'O' | ''
+    status = request.GET.get("status", "")     # 'active' | 'inactive' | ''
+
+    people = Personal.objects.all().order_by("-id")
+
+    if q:
+        people = people.filter(
+            Q(first_name__icontains=q) |
+            Q(last_name__icontains=q)  |
+            Q(email__icontains=q)      |
+            Q(cpf__icontains=q)        |
+            Q(cref__icontains=q)
+        )
+    if sex:
+        people = people.filter(sex=sex)
+    if status == "active":
+        people = people.filter(is_active=True)
+    elif status == "inactive":
+        people = people.filter(is_active=False)
+
+    paginator = Paginator(people, 10)  # 10 por página
+    page_obj = paginator.get_page(request.GET.get("page"))
+
+    ctx = {"page_obj": page_obj, "q": q, "sex": sex, "status": status}
+    return render(request, "global/gerenciar_personal.html", ctx)
+
+@login_required
+@require_POST
+def personal_toggle(request, pk):
+    p = get_object_or_404(Personal, pk=pk)
+    p.is_active = not p.is_active
+    p.save(update_fields=["is_active"])
+    messages.success(request, f'{p.first_name} {"ativado" if p.is_active else "desativado"}.')
+    return redirect(request.META.get("HTTP_REFERER", "gerenciar-personal"))
+
+@login_required
+@require_POST
+def personal_delete(request, pk):
+    p = get_object_or_404(Personal, pk=pk)
+    p.delete()
+    messages.success(request, "Personal removido.")
+    return redirect(request.META.get("HTTP_REFERER", "gerenciar-personal"))

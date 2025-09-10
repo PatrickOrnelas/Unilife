@@ -13,9 +13,21 @@
       gap: 12px;
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .field-group label { display: block; margin: 8px 0 6px; }
-    .span-2 { grid-column: 1 / -1; }
-    .form-grid input, .form-grid select, .form-grid textarea { width: 100%; }
+
+    .field-group label {
+      display: block;
+      margin: 8px 0 6px;
+    }
+
+    .span-2 {
+      grid-column: 1 / -1;
+    }
+
+    .form-grid input,
+    .form-grid select,
+    .form-grid textarea {
+      width: 100%;
+    }
   </style>
 </head>
 
@@ -32,11 +44,11 @@
     <p class="subtitle">Preencha seus dados para criar uma conta.</p>
 
     {% if form.non_field_errors %}
-      <div class="error">
-        {% for e in form.non_field_errors %}
-          {{ e }}{% if not forloop.last %}<br>{% endif %}
-        {% endfor %}
-      </div>
+    <div class="error">
+      {% for e in form.non_field_errors %}
+      {{ e }}{% if not forloop.last %}<br>{% endif %}
+      {% endfor %}
+    </div>
     {% endif %}
 
     <div class="form-grid">
@@ -44,13 +56,13 @@
       <div class="field-group">
         <label for="id_first_name">Nome</label>
         <input type="text" name="first_name" id="id_first_name" required autocomplete="given-name"
-               value="{{ form.first_name.value|default:'' }}" placeholder="Seu nome" />
+          value="{{ form.first_name.value|default:'' }}" placeholder="Seu nome" />
         {% if form.first_name.errors %}
-          <div class="error">
-            {% for e in form.first_name.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
+        <div class="error">
+          {% for e in form.first_name.errors %}
+          {{ e }}{% if not forloop.last %}<br>{% endif %}
+          {% endfor %}
+        </div>
         {% endif %}
       </div>
 
@@ -58,13 +70,13 @@
       <div class="field-group">
         <label for="id_last_name">Sobrenome</label>
         <input type="text" name="last_name" id="id_last_name" autocomplete="family-name"
-               value="{{ form.last_name.value|default:'' }}" placeholder="Seu sobrenome" />
+          value="{{ form.last_name.value|default:'' }}" placeholder="Seu sobrenome" />
         {% if form.last_name.errors %}
-          <div class="error">
-            {% for e in form.last_name.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
+        <div class="error">
+          {% for e in form.last_name.errors %}
+          {{ e }}{% if not forloop.last %}<br>{% endif %}
+          {% endfor %}
+        </div>
         {% endif %}
       </div>
 
@@ -72,13 +84,13 @@
       <div class="field-group span-2">
         <label for="id_email">E-mail</label>
         <input type="email" name="email" id="id_email" required autocomplete="email"
-               value="{{ form.email.value|default:'' }}" placeholder="seu@email.com" />
+          value="{{ form.email.value|default:'' }}" placeholder="seu@email.com" />
         {% if form.email.errors %}
-          <div class="error">
-            {% for e in form.email.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
+        <div class="error">
+          {% for e in form.email.errors %}
+          {{ e }}{% if not forloop.last %}<br>{% endif %}
+          {% endfor %}
+        </div>
         {% endif %}
       </div>
 
@@ -86,28 +98,29 @@
       <div class="field-group">
         <label for="id_cpf">CPF</label>
         <input type="text" name="cpf" id="id_cpf" required inputmode="numeric" autocomplete="off"
-               value="{{ form.cpf.value|default:'' }}" placeholder="000.000.000-00" />
+          value="{{ form.cpf.value|default:'' }}" placeholder="000.000.000-00" />
         {% if form.cpf.errors %}
-          <div class="error">
-            {% for e in form.cpf.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
+        <div class="error">
+          {% for e in form.cpf.errors %}
+          {{ e }}{% if not forloop.last %}<br>{% endif %}
+          {% endfor %}
+        </div>
         {% endif %}
       </div>
 
       <!-- Telefone -->
       <div class="field-group">
         <label for="id_tel">Telefone (com DDD)</label>
-        <input type="tel" name="tel" id="id_tel" required inputmode="numeric" pattern="\d*" maxlength="15" autocomplete="tel-national" placeholder="(11) 99999-9999"value="{{ form.tel.value|default:'' }}">
+        <input type="tel" name="tel" id="id_tel" required inputmode="numeric" autocomplete="tel-national" maxlength="15"
+          placeholder="(11) 99999-9999" pattern="^\(\d{2}\)\s?\d{4,5}-\d{4}$"
+          title="Use o formato (DD) 99999-9999 ou (DD) 9999-9999" value="{{ form.tel.value|default:'' }}">
         {% if form.tel.errors %}
-          <div class="error">
-            {% for e in form.tel.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
+        <div class="error">
+          {% for e in form.tel.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+        </div>
         {% endif %}
       </div>
+
 
       <!-- Sexo -->
       <div class="field-group">
@@ -119,11 +132,11 @@
           <option value="O" {% if form.sex.value == 'O' %}selected{% endif %}>Outro</option>
         </select>
         {% if form.sex.errors %}
-          <div class="error">
-            {% for e in form.sex.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
+        <div class="error">
+          {% for e in form.sex.errors %}
+          {{ e }}{% if not forloop.last %}<br>{% endif %}
+          {% endfor %}
+        </div>
         {% endif %}
       </div>
 
@@ -131,13 +144,13 @@
       <div class="field-group">
         <label for="id_date_of_birth">Data de nascimento</label>
         <input type="date" name="date_of_birth" id="id_date_of_birth" required
-               value="{{ form.date_of_birth.value|default:'' }}" />
+          value="{{ form.date_of_birth.value|default:'' }}" />
         {% if form.date_of_birth.errors %}
-          <div class="error">
-            {% for e in form.date_of_birth.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
+        <div class="error">
+          {% for e in form.date_of_birth.errors %}
+          {{ e }}{% if not forloop.last %}<br>{% endif %}
+          {% endfor %}
+        </div>
         {% endif %}
       </div>
 
@@ -145,14 +158,13 @@
       <div class="field-group">
         <label for="id_password1">Senha</label>
         <div class="input-password" style="position:relative;">
-          <input type="password" name="password1" id="id_password1" required autocomplete="new-password" placeholder="••••••••"
-                 style="padding-right:40px;">
-          <button type="button" class="toggle-password" aria-label="Mostrar senha"
-                  data-target="id_password1"
-                  data-open="{% static 'global/img/olho_aberto1.png' %}"
-                  data-closed="{% static 'global/img/olho_fechado.png' %}"
-                  style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:0; padding:4px; cursor:pointer;"
-                  onclick="
+          <input type="password" name="password1" id="id_password1" required autocomplete="new-password"
+            placeholder="••••••••" style="padding-right:40px;">
+          <button type="button" class="toggle-password" aria-label="Mostrar senha" data-target="id_password1"
+            data-open="{% static 'global/img/olho_aberto1.png' %}"
+            data-closed="{% static 'global/img/olho_fechado.png' %}"
+            style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:0; padding:4px; cursor:pointer;"
+            onclick="
                     const input = document.getElementById(this.dataset.target);
                     const img   = this.querySelector('img');
                     const show  = (input.type === 'password');
@@ -160,15 +172,16 @@
                     img.src     = show ? this.dataset.open : this.dataset.closed;
                     this.setAttribute('aria-label', show ? 'Ocultar senha' : 'Mostrar senha');
                   ">
-            <img src="{% static 'global/img/olho_fechado.png' %}" alt="" width="22" height="22" draggable="false" style="pointer-events:none;">
+            <img src="{% static 'global/img/olho_fechado.png' %}" alt="" width="22" height="22" draggable="false"
+              style="pointer-events:none;">
           </button>
         </div>
         {% if form.password1.errors %}
-          <div class="error">
-            {% for e in form.password1.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
+        <div class="error">
+          {% for e in form.password1.errors %}
+          {{ e }}{% if not forloop.last %}<br>{% endif %}
+          {% endfor %}
+        </div>
         {% endif %}
       </div>
 
@@ -176,14 +189,13 @@
       <div class="field-group">
         <label for="id_password2">Confirmar senha</label>
         <div class="input-password" style="position:relative;">
-          <input type="password" name="password2" id="id_password2" required autocomplete="new-password" placeholder="••••••••"
-                 style="padding-right:40px;">
-          <button type="button" class="toggle-password" aria-label="Mostrar senha"
-                  data-target="id_password2"
-                  data-open="{% static 'global/img/olho_aberto1.png' %}"
-                  data-closed="{% static 'global/img/olho_fechado.png' %}"
-                  style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:0; padding:4px; cursor:pointer;"
-                  onclick="
+          <input type="password" name="password2" id="id_password2" required autocomplete="new-password"
+            placeholder="••••••••" style="padding-right:40px;">
+          <button type="button" class="toggle-password" aria-label="Mostrar senha" data-target="id_password2"
+            data-open="{% static 'global/img/olho_aberto1.png' %}"
+            data-closed="{% static 'global/img/olho_fechado.png' %}"
+            style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:0; padding:4px; cursor:pointer;"
+            onclick="
                     const input = document.getElementById(this.dataset.target);
                     const img   = this.querySelector('img');
                     const show  = (input.type === 'password');
@@ -191,15 +203,16 @@
                     img.src     = show ? this.dataset.open : this.dataset.closed;
                     this.setAttribute('aria-label', show ? 'Ocultar senha' : 'Mostrar senha');
                   ">
-            <img src="{% static 'global/img/olho_fechado.png' %}" alt="" width="22" height="22" draggable="false" style="pointer-events:none;">
+            <img src="{% static 'global/img/olho_fechado.png' %}" alt="" width="22" height="22" draggable="false"
+              style="pointer-events:none;">
           </button>
         </div>
         {% if form.password2.errors %}
-          <div class="error">
-            {% for e in form.password2.errors %}
-              {{ e }}{% if not forloop.last %}<br>{% endif %}
-            {% endfor %}
-          </div>
+        <div class="error">
+          {% for e in form.password2.errors %}
+          {{ e }}{% if not forloop.last %}<br>{% endif %}
+          {% endfor %}
+        </div>
         {% endif %}
       </div>
 
@@ -215,10 +228,10 @@
   <script>
     function maskCPF(v) {
       return v.replace(/\D/g, '')
-              .replace(/(\d{3})(\d)/, '$1.$2')
-              .replace(/(\d{3})(\d)/, '$1.$2')
-              .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
-              .substring(0, 14);
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+        .substring(0, 14);
     }
     function maskTel(v) {
       v = v.replace(/\D/g, '');
