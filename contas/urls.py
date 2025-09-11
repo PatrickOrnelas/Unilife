@@ -1,4 +1,3 @@
-# urls.py
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import (
@@ -6,7 +5,7 @@ from .views import (
     home_admin, home_aluno, home_personal, home_redirect,
     cadastrar_personal,
 )
-from . import views as api  # << endpoints JSON
+from . import views as api  # endpoints JSON
 
 urlpatterns = [
     path('', CPFLoginView.as_view(), name='login'),

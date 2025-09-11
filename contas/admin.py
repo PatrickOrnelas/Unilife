@@ -1,4 +1,3 @@
-# contas/admin.py
 from django.contrib import admin
 from django.contrib.auth.models import User
 from .models import Aluno, Personal, Admin as Proprietario, Treino, Anamnese
@@ -18,7 +17,7 @@ class SetResponsavelMixin:
             inst.save()
         formset.save_m2m()
 
-# --- Inline de Anamnese dentro do Aluno ---
+
 class AnamneseInline(SetResponsavelMixin, admin.StackedInline):
     model = Anamnese
     extra = 0
@@ -31,7 +30,7 @@ class AnamneseInline(SetResponsavelMixin, admin.StackedInline):
     readonly_fields = ("data", "atualizado_em")
     classes = ("collapse",)
 
-# --- Admins principais ---
+
 @admin.register(Aluno)
 class AlunoAdmin(admin.ModelAdmin):
     inlines = [AnamneseInline]
@@ -44,8 +43,10 @@ class AlunoAdmin(admin.ModelAdmin):
     def username_cpf(self, obj: Aluno):
         return obj.user.username
 
+
 @admin.register(Personal)
 class PersonalAdmin(admin.ModelAdmin):
+    # Usar 'ativo' (campo do model) — evita admin.E108/admin.E116
     list_display = ("id", "first_name", "last_name", "username_cpf", "cref", "tel", "sex", "email", "ativo", "created_at")
     search_fields = ("first_name", "last_name", "user__username", "cref", "email", "tel")
     list_filter = ("ativo", "sex", "created_at")
@@ -54,6 +55,7 @@ class PersonalAdmin(admin.ModelAdmin):
     @admin.display(description="CPF (username)")
     def username_cpf(self, obj: Personal):
         return obj.user.username
+
 
 @admin.register(Proprietario)
 class AdminPerfilAdmin(admin.ModelAdmin):
@@ -66,16 +68,17 @@ class AdminPerfilAdmin(admin.ModelAdmin):
     def username_cpf(self, obj: Proprietario):
         return obj.user.username
 
-# --- Admin de Treino ---
+
 @admin.register(Treino)
 class TreinoAdmin(admin.ModelAdmin):
     list_display = ("id", "titulo", "criado_por", "created_at")
     search_fields = ("titulo", "descricao", "criado_por__username", "criado_por__first_name", "criado_por__last_name")
     list_filter = ("created_at",)
+    # como o M2M é simples (sem through), podemos usar filter_horizontal
     filter_horizontal = ("alunos",)
     ordering = ("-created_at",)
 
-# --- Admin de Anamnese ---
+
 @admin.register(Anamnese)
 class AnamneseAdmin(SetResponsavelMixin, admin.ModelAdmin):
     list_display = ("id", "aluno", "responsavel", "data", "peso", "altura")
