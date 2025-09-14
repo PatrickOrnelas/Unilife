@@ -14,7 +14,7 @@ SECRET_KEY = 'django-insecure-ylw)ixz8wy6uinylae4*bsma@e9x(*4(s$1vnw_@qsmi)113g9
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "localhost", "127.0.0.1", "raspberrypi.local", "192.168.1.156",
+    "localhost:8000", "127.0.0.1:8000", "127.0.0.1", "raspberrypi.local", "192.168.1.156",
     ".trycloudflare.com",
     "unilife.darife.com", ".darife.com",
 ]
@@ -112,9 +112,11 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [ BASE_DIR / "base_static" ]
-
+SECURE_SSL_REDIRECT = True
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_DOMAIN = ".darife.com"
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
