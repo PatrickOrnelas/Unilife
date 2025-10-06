@@ -1,182 +1,187 @@
-import re
+# contas/forms.py
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UsernameField
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
 from .models import Aluno, Personal
 
-# utilitários
+# ----------------- utils -----------------
 def _digits(s: str) -> str:
-    return re.sub(r"\D+", "", s or "")
+    return "".join(ch for ch in (s or "") if ch.isdigit())
 
-def validate_cpf(cpf: str) -> str:
-    cpf = _digits(cpf)
-    # validação simples; troque por oficial se quiser
-    if len(cpf) != 11 or cpf == cpf[0] * 11:
-        raise ValidationError("CPF inválido.")
-    return cpf
-
-def validate_tel(tel: str) -> str:
-    tel = _digits(tel)
-    if len(tel) not in (10, 11):
+def _validate_tel_digits(tel_digits: str):
+    # Brasil: 10 (fixo) ou 11 (cel) dígitos com DDD
+    if len(tel_digits) not in (10, 11):
         raise ValidationError("Telefone deve ter DDD + número (10 ou 11 dígitos).")
-    return tel
 
-def normalize_cref(texto: str) -> str:
-    if not texto:
-        return ""
-    return re.sub(r"\s+", " ", texto.strip().upper())
+def _validate_cpf_digits(cpf_digits: str):
+    if len(cpf_digits) != 11:
+        raise ValidationError("CPF deve conter 11 dígitos.")
+    # (Opcional) aqui você poderia validar DV do CPF se quiser
 
 
+# ----------------- Login -----------------
 class LoginForm(AuthenticationForm):
-    username = forms.CharField(
+    """
+    Autentica usando 'username' do Django, mas permite digitar CPF com máscara.
+    O username efetivo será o CPF apenas com dígitos (como você salva no User.username).
+    """
+    username = UsernameField(
         label="CPF",
-        widget=forms.TextInput(attrs={"placeholder": "000.000.000-00", "autocomplete": "username"})
+        widget=forms.TextInput(attrs={"autofocus": True, "placeholder": "000.000.000-00"})
     )
-    password = forms.CharField(
-        label="Senha",
-        widget=forms.PasswordInput(attrs={"placeholder": "••••••••", "autocomplete": "current-password"})
-    )
-
-    def clean_username(self):
-        return _digits(self.cleaned_data.get("username", ""))
-
-
-class RegistroAlunoForm(forms.Form):
-    first_name     = forms.CharField(max_length=254, label="Nome", required=True)
-    last_name      = forms.CharField(max_length=254, label="Sobrenome", required=False)
-    email          = forms.EmailField(label="E-mail", required=True)
-    cpf            = forms.CharField(max_length=14, label="CPF", required=True)
-    tel            = forms.CharField(max_length=16, label="Telefone (DDD + número)", required=True)
-    SEX_CHOICES    = [('M', 'Masculino'), ('F', 'Feminino'), ('O', 'Outro')]
-    sex            = forms.ChoiceField(choices=SEX_CHOICES, label='Sexo', required=True)
-    date_of_birth  = forms.DateField(label='Data de nascimento',
-                                     widget=forms.DateInput(attrs={"type": "date"}), required=True)
-    password1      = forms.CharField(label="Senha", widget=forms.PasswordInput)
-    password2      = forms.CharField(label="Confirmar senha", widget=forms.PasswordInput)
-
-    # --- validações ---
-    def clean_cpf(self):
-        cpf = validate_cpf(self.cleaned_data.get("cpf"))
-        # Verifica duplicidade tanto no User quanto no Aluno (evita IntegrityError)
-        if User.objects.filter(username=cpf).exists():
-            raise ValidationError("Já existe um usuário com esse CPF.")
-        if Aluno.objects.filter(cpf=cpf).exists():
-            raise ValidationError("Já existe um aluno com esse CPF.")
-        return cpf
-
-    def clean_tel(self):
-        return validate_tel(self.cleaned_data.get("tel"))
 
     def clean(self):
-        data = super().clean()
-        p1, p2 = data.get("password1"), data.get("password2")
-        if p1 and p2 and p1 != p2:
-            self.add_error("password2", "As senhas não conferem.")
-        return data
+        # normaliza CPF antes da autenticação
+        data = self.data.copy()
+        data["username"] = _digits(data.get("username", ""))
+        self.data = data
+        return super().clean()
 
-    # --- persistência ---
-    def save(self, commit=True):
-        first_name    = self.cleaned_data["first_name"].strip()
-        last_name     = self.cleaned_data.get("last_name", "").strip()
-        email         = self.cleaned_data["email"].strip()
-        cpf_digits    = self.cleaned_data["cpf"]      # já só dígitos (validate_cpf)
-        tel_digits    = self.cleaned_data["tel"]      # já só dígitos (validate_tel)
-        sex           = self.cleaned_data["sex"]
-        date_of_birth = self.cleaned_data["date_of_birth"]
-        password      = self.cleaned_data["password1"]
 
+# ----------------- Registro de Aluno -----------------
+class RegistroAlunoForm(forms.Form):
+    first_name = forms.CharField(label="Nome", max_length=254)
+    last_name  = forms.CharField(label="Sobrenome", max_length=254, required=False)
+    email      = forms.EmailField(label="E-mail")
+    cpf        = forms.CharField(label="CPF", max_length=14, help_text="Ex.: 000.000.000-00")
+    tel        = forms.CharField(label="Telefone (com DDD)", max_length=15)
+    sex        = forms.ChoiceField(label="Sexo", choices=[("M","Masculino"), ("F","Feminino"), ("O","Outro")])
+    date_of_birth = forms.DateField(label="Data de nascimento", widget=forms.DateInput(attrs={"type": "date"}))
+    password1  = forms.CharField(label="Senha", widget=forms.PasswordInput)
+    password2  = forms.CharField(label="Confirmar senha", widget=forms.PasswordInput)
+
+    def clean_cpf(self):
+        raw = self.cleaned_data.get("cpf", "")
+        digits = _digits(raw)
+        _validate_cpf_digits(digits)
+
+        # Garante unicidade tanto no User.username quanto no Aluno.cpf
+        if User.objects.filter(username=digits).exists():
+            raise ValidationError("Já existe um usuário com este CPF.")
+        if Aluno.objects.filter(cpf__iexact=raw).exists() or Aluno.objects.filter(cpf=digits).exists():
+            # protege contra registros antigos com/sem máscara
+            raise ValidationError("Já existe um aluno com este CPF.")
+        return digits  # retornamos só dígitos; salvaremos assim no User.username
+
+    def clean_tel(self):
+        raw = self.cleaned_data.get("tel", "")
+        digits = _digits(raw)
+        _validate_tel_digits(digits)
+        return digits
+
+    def clean(self):
+        cleaned = super().clean()
+        p1 = cleaned.get("password1") or ""
+        p2 = cleaned.get("password2") or ""
+        if p1 != p2:
+            raise ValidationError("As senhas não conferem.")
+        # valida pelos validadores do Django (complexidade, tamanho etc.)
+        validate_password(p1)
+        return cleaned
+
+    def save(self):
+        first_name = self.cleaned_data["first_name"].strip()
+        last_name  = self.cleaned_data.get("last_name", "").strip()
+        email      = self.cleaned_data["email"].strip()
+        cpf_digits = self.cleaned_data["cpf"]          # já vem só dígitos do clean_cpf
+        tel_digits = self.cleaned_data["tel"]          # já vem só dígitos do clean_tel
+        sex        = self.cleaned_data["sex"]
+        dob        = self.cleaned_data["date_of_birth"]
+        password   = self.cleaned_data["password1"]
+
+        # Cria o usuário base (username = CPF dígitos)
         user = User(username=cpf_digits, first_name=first_name, last_name=last_name, email=email)
         user.set_password(password)
+        user.save()
 
-        if commit:
-            user.save()
-            Aluno.objects.create(
-                user=user,
-                first_name=first_name,
-                last_name=last_name,
-                tel=tel_digits,
-                sex=sex,
-                email=email,
-                date_of_birth=date_of_birth,
-                cpf=cpf_digits,
-            )
+        # Cria o perfil Aluno (armazenando cpf com máscara ou não? aqui, salvo só dígitos)
+        Aluno.objects.create(
+            user=user,
+            cpf=cpf_digits,
+            first_name=first_name,
+            last_name=last_name,
+            tel=tel_digits,
+            sex=sex,
+            email=email,
+            date_of_birth=dob,
+        )
         return user
 
 
+# ----------------- Registro de Personal -----------------
 class RegistroPersonalForm(forms.Form):
-    first_name     = forms.CharField(max_length=254, label="Nome", required=True)
-    last_name      = forms.CharField(max_length=254, label="Sobrenome", required=False)
-    email          = forms.EmailField(label="E-mail", required=True)
-    cpf            = forms.CharField(max_length=14, label="CPF", required=True)
-    cref           = forms.CharField(max_length=20, label="CREF", required=True)
-    tel            = forms.CharField(max_length=16, label="Telefone (DDD + número)", required=True)
-    SEX_CHOICES    = [('M', 'Masculino'), ('F', 'Feminino'), ('O', 'Outro')]
-    sex            = forms.ChoiceField(choices=SEX_CHOICES, label="Sexo", required=True)
-    date_of_birth  = forms.DateField(label="Data de nascimento",
-                                     widget=forms.DateInput(attrs={"type": "date"}), required=True)
+    first_name = forms.CharField(label="Nome", max_length=254)
+    last_name  = forms.CharField(label="Sobrenome", max_length=254, required=False)
+    email      = forms.EmailField(label="E-mail")
+    cpf        = forms.CharField(label="CPF", max_length=14, help_text="Ex.: 000.000.000-00")
+    tel        = forms.CharField(label="Telefone (com DDD)", max_length=15)
+    sex        = forms.ChoiceField(label="Sexo", choices=[("M","Masculino"), ("F","Feminino"), ("O","Outro")])
+    date_of_birth = forms.DateField(label="Data de nascimento", widget=forms.DateInput(attrs={"type": "date"}))
+    cref       = forms.CharField(label="CREF", max_length=20)
+    password1  = forms.CharField(label="Senha", widget=forms.PasswordInput)
+    password2  = forms.CharField(label="Confirmar senha", widget=forms.PasswordInput)
 
     def clean_cpf(self):
-        cpf = validate_cpf(self.cleaned_data.get("cpf"))
-        if User.objects.filter(username=cpf).exists():
-            raise ValidationError("Já existe um usuário com esse CPF.")
-        if Personal.objects.filter(cpf=cpf).exists():
-            raise ValidationError("Já existe um personal com esse CPF.")
-        return cpf
+        raw = self.cleaned_data.get("cpf", "")
+        digits = _digits(raw)
+        _validate_cpf_digits(digits)
 
-    def clean_email(self):
-        email = self.cleaned_data.get("email", "").strip().lower()
-        if User.objects.filter(email=email).exists():
-            raise ValidationError("Já existe um usuário com este e-mail.")
-        if Personal.objects.filter(email=email).exists():
-            raise ValidationError("Já existe um cadastro com este e-mail.")
-        return email
+        if User.objects.filter(username=digits).exists():
+            raise ValidationError("Já existe um usuário com este CPF.")
+        # protege contra dados antigos com/sem máscara
+        if Personal.objects.filter(cpf__iexact=raw).exists() or Personal.objects.filter(cpf=digits).exists():
+            raise ValidationError("Já existe um personal com este CPF.")
+        return digits
 
     def clean_tel(self):
-        return validate_tel(self.cleaned_data.get("tel"))
+        raw = self.cleaned_data.get("tel", "")
+        digits = _digits(raw)
+        _validate_tel_digits(digits)
+        return digits
 
     def clean_cref(self):
-        cref = normalize_cref(self.cleaned_data.get("cref"))
-        if len(cref) > 20:
-            raise ValidationError("CREF muito longo (máx. 20 caracteres).")
+        cref = (self.cleaned_data.get("cref") or "").strip().upper()
         if Personal.objects.filter(cref=cref).exists():
-            raise ValidationError("Já existe um cadastro com este CREF.")
+            raise ValidationError("Já existe um personal com este CREF.")
         return cref
 
-    def save(self, commit=True):
-        first_name    = self.cleaned_data["first_name"].strip()
-        last_name     = self.cleaned_data.get("last_name", "").strip()
-        email         = self.cleaned_data["email"].strip().lower()
-        cpf_digits    = self.cleaned_data["cpf"]
-        cref_code     = self.cleaned_data["cref"]
-        tel_digits    = self.cleaned_data["tel"]
-        sex           = self.cleaned_data["sex"]
-        date_of_birth = self.cleaned_data["date_of_birth"]
+    def clean(self):
+        cleaned = super().clean()
+        p1 = cleaned.get("password1") or ""
+        p2 = cleaned.get("password2") or ""
+        if p1 != p2:
+            raise ValidationError("As senhas não conferem.")
+        validate_password(p1)
+        return cleaned
 
-        primeiro_nome = first_name.split()[0].title() if first_name else "User"
-        initial_password = f"{primeiro_nome}123"
+    def save(self):
+        first_name = self.cleaned_data["first_name"].strip()
+        last_name  = self.cleaned_data.get("last_name", "").strip()
+        email      = self.cleaned_data["email"].strip()
+        cpf_digits = self.cleaned_data["cpf"]
+        tel_digits = self.cleaned_data["tel"]
+        sex        = self.cleaned_data["sex"]
+        dob        = self.cleaned_data["date_of_birth"]
+        cref       = self.cleaned_data["cref"]
+        password   = self.cleaned_data["password1"]
 
-        user = User(
-            username=cpf_digits,
+        user = User(username=cpf_digits, first_name=first_name, last_name=last_name, email=email)
+        user.set_password(password)
+        user.save()
+
+        Personal.objects.create(
+            user=user,
+            cpf=cpf_digits,
             first_name=first_name,
             last_name=last_name,
+            tel=tel_digits,
+            sex=sex,
             email=email,
+            date_of_birth=dob,
+            cref=cref,
+            ativo=True,
         )
-        user.set_password(initial_password)
-
-        if commit:
-            user.save()
-            Personal.objects.create(
-                user=user,
-                first_name=first_name,
-                last_name=last_name,
-                tel=tel_digits,
-                sex=sex,
-                email=email,
-                date_of_birth=date_of_birth,
-                cpf=cpf_digits,
-                cref=cref_code,
-            )
-
-        return user, initial_password
+        return user

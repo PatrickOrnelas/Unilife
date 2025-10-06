@@ -1,16 +1,20 @@
+# contas/views.py
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.views import LoginView
-from django.urls import reverse_lazy
-from .forms import LoginForm, RegistroAlunoForm, RegistroPersonalForm
-from django.http import JsonResponse, HttpResponseBadRequest
-from django.views.decorators.http import require_GET, require_POST, require_http_methods
+from django.urls import reverse_lazy, reverse
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.views.decorators.http import require_http_methods, require_POST
 from django.core.paginator import Paginator
 from django.db.models import Q
-import json
-from .models import Personal
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+
+from .forms import LoginForm, RegistroAlunoForm, RegistroPersonalForm
+from .models import Personal
 
 
 def destino_por_perfil(user):
@@ -48,10 +52,15 @@ def home_personal(request):
 
 @login_required
 def home_admin(request):
+    """
+    Renderiza o painel admin. Se quiser já abrir a aba 'perfil',
+    use /admin/home/#perfil no navegador.
+    """
     return render(request, "global/home_admin.html")
 
 
 def login_view(request):
+    # Mantido apenas se você ainda quiser uma view manual.
     from django.contrib.auth.forms import AuthenticationForm
     form = AuthenticationForm(request, data=request.POST or None)
     if request.method == 'POST' and form.is_valid():
@@ -78,6 +87,8 @@ def is_admin(user):
     return hasattr(user, "admin")
 
 
+# --------- Personais (views normais, sem API) ---------
+
 @login_required
 @user_passes_test(is_admin)
 def cadastrar_personal(request):
@@ -85,119 +96,25 @@ def cadastrar_personal(request):
     if request.method == 'POST' and form.is_valid():
         form.save()
         messages.success(request, "Personal cadastrado com sucesso!")
-        return redirect('home-admin')
-    return render(request, 'global/home_admin.html', {'form': form, 'view': 'cadastrar-personal'})
-
-
-# ========= GERENCIAR PERSONAL (API) =========
-
-@login_required
-@user_passes_test(is_admin)
-@require_GET
-def api_personals(request):
-    q         = request.GET.get('q', '').strip()
-    sex       = request.GET.get('sex')        # 'M' | 'F' | 'O' | ''
-    status    = request.GET.get('status')     # 'active' | 'inactive' | ''
-    ordering  = request.GET.get('ordering', '-created_at')
-    page      = int(request.GET.get('page', 1))
-    page_size = min(int(request.GET.get('page_size', 10)), 100)
-
-    qs = Personal.objects.all()
-
-    if q:
-        qs = qs.filter(
-            Q(first_name__icontains=q) |
-            Q(last_name__icontains=q)  |
-            Q(email__icontains=q)      |
-            Q(cpf__icontains=q)        |
-            Q(tel__icontains=q)
-        )
-    if sex in ('M','F','O'):
-        qs = qs.filter(sex=sex)
-    if status in ('active','inactive'):
-        qs = qs.filter(ativo=(status == 'active'))  # <== usa "ativo"
-
-    try:
-        qs = qs.order_by(ordering)
-    except Exception:
-        qs = qs.order_by('-id')
-
-    paginator = Paginator(qs, page_size)
-    page_obj  = paginator.get_page(page)
-
-    def row(p):
-        return {
-            'id': p.id,
-            'first_name': getattr(p, 'first_name', '') or '',
-            'last_name':  getattr(p, 'last_name', '')  or '',
-            'cpf':        getattr(p, 'cpf', '')        or '',
-            'cref':       getattr(p, 'cref', '')       or '',
-            'tel':        getattr(p, 'tel', '')        or '',
-            'sex':        getattr(p, 'sex', '')        or '',
-            'email':      getattr(p, 'email', '')      or '',
-            'is_active':  getattr(p, 'ativo', True),        # mantém chave da UI
-            'created_at': getattr(p, 'created_at', None).isoformat() if getattr(p, 'created_at', None) else '',
-        }
-
-    return JsonResponse({
-        'results': [row(p) for p in page_obj.object_list],
-        'page': page_obj.number,
-        'num_pages': paginator.num_pages,
-        'count': paginator.count,
+        # volta para a mesma tela abrindo a aba de cadastro
+        resp = redirect('home-admin')
+        resp['Location'] += "#cadastrar-personal"
+        return resp
+    # Mostra a mesma home com a aba "Cadastrar Personal" selecionada
+    return render(request, 'global/home_admin.html', {
+        'form': form,
+        'view': 'cadastrar-personal'
     })
 
 
 @login_required
 @user_passes_test(is_admin)
-@require_POST
-def api_personals_bulk(request):
-    try:
-        payload = json.loads(request.body or '{}')
-    except json.JSONDecodeError:
-        return HttpResponseBadRequest('JSON inválido.')
-
-    action = payload.get('action')
-    ids    = payload.get('ids') or []
-    qs     = Personal.objects.filter(id__in=ids)
-
-    if action == 'activate':
-        qs.update(ativo=True)
-    elif action == 'deactivate':
-        qs.update(ativo=False)
-    elif action == 'delete':
-        qs.delete()
-    else:
-        return HttpResponseBadRequest('Ação inválida.')
-
-    return JsonResponse({'ok': True})
-
-
-@login_required
-@user_passes_test(is_admin)
-@require_POST
-def api_personal_toggle(request, pk:int):
-    p = get_object_or_404(Personal, pk=pk)
-    p.ativo = not p.ativo
-    p.save(update_fields=['ativo'])
-    return JsonResponse({'ok': True, 'is_active': p.ativo})
-
-
-@login_required
-@user_passes_test(is_admin)
-@require_POST
-def api_personal_delete(request, pk:int):
-    p = get_object_or_404(Personal, pk=pk)
-    p.delete()
-    return JsonResponse({'ok': True})
-
-
-# ====== VIEWS “NORMAIS” para gerenciar personal (opcional) ======
-
-@login_required
 @require_http_methods(["GET", "POST"])
-@user_passes_test(is_admin)
 def gerenciar_personal(request):
-    # ações em massa
+    """
+    Lista/filtra em GET e aplica ações em massa via POST (ativar, desativar, deletar).
+    """
+    # --- Ações em massa (POST) ---
     if request.method == "POST":
         action = request.POST.get("action")
         ids = request.POST.getlist("ids")
@@ -222,10 +139,10 @@ def gerenciar_personal(request):
 
         return redirect(request.get_full_path())
 
-    # listagem
+    # --- Listagem (GET) ---
     q      = request.GET.get("q", "").strip()
-    sex    = request.GET.get("sex", "")
-    status = request.GET.get("status", "")
+    sex    = request.GET.get("sex", "")        # 'M' | 'F' | 'O' | ''
+    status = request.GET.get("status", "")     # 'active' | 'inactive' | ''
 
     people = Personal.objects.all().order_by("-id")
 
@@ -237,7 +154,7 @@ def gerenciar_personal(request):
             Q(cpf__icontains=q)        |
             Q(cref__icontains=q)
         )
-    if sex:
+    if sex in ("M", "F", "O"):
         people = people.filter(sex=sex)
     if status == "active":
         people = people.filter(ativo=True)
@@ -247,5 +164,79 @@ def gerenciar_personal(request):
     paginator = Paginator(people, 10)
     page_obj = paginator.get_page(request.GET.get("page"))
 
-    ctx = {"page_obj": page_obj, "q": q, "sex": sex, "status": status}
-    return render(request, "global/gerenciar_personal.html", ctx)
+    # Renderize sua própria página de “Gerenciar Personal” caso tenha um template dedicado.
+    # Se preferir usar a mesma home com a aba “gerenciar-personal”, também funciona.
+    return render(request, "global/gerenciar_personal.html", {
+        "page_obj": page_obj,
+        "q": q, "sex": sex, "status": status
+    })
+
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def personal_toggle(request, pk):
+    p = get_object_or_404(Personal, pk=pk)
+    p.ativo = not p.ativo
+    p.save(update_fields=["ativo"])
+    messages.success(request, f'{p.first_name} {"ativado" if p.ativo else "desativado"}.')
+    return redirect(request.META.get("HTTP_REFERER", "gerenciar-personal"))
+
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def personal_delete(request, pk):
+    p = get_object_or_404(Personal, pk=pk)
+    p.delete()
+    messages.success(request, "Personal removido.")
+    return redirect(request.META.get("HTTP_REFERER", "gerenciar-personal"))
+
+
+# --------- Alterar senha no perfil (funcionando) ---------
+
+@login_required
+@require_POST
+def change_password(request):
+    """
+    Troca a senha do usuário autenticado e mantém a sessão.
+    Essa view espera campos 'password1' e 'password2'.
+    """
+    p1 = (request.POST.get("password1") or "").strip()
+    p2 = (request.POST.get("password2") or "").strip()
+
+    if not p1 or not p2:
+        messages.error(request, "Preencha os dois campos de senha.")
+        return _redir_perfil(request)
+
+    if p1 != p2:
+        messages.error(request, "As senhas não conferem.")
+        return _redir_perfil(request)
+
+    try:
+        validate_password(p1, user=request.user)
+    except ValidationError as e:
+        for msg in e.messages:
+            messages.error(request, msg)
+        return _redir_perfil(request)
+
+    user = request.user
+    user.set_password(p1)
+    user.save(update_fields=["password"])
+    update_session_auth_hash(request, user)  # evita logout
+
+    messages.success(request, "Senha atualizada com sucesso!")
+    return _redir_perfil(request)
+
+
+def _redir_perfil(request):
+    """
+    Sempre volta para a home do admin com a aba de Perfil aberta.
+    Se o usuário não for admin, volte para a home adequada.
+    """
+    if hasattr(request.user, "admin"):
+        resp = redirect("home-admin")
+        resp["Location"] += "#perfil"
+        return resp
+    # fallback: volta para sua home padrão
+    return redirect("home")

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Treinos</title></head>
+<body>
+  <h1>Treinos</h1>
+  <p>
+    <a href="{% url 'treino-create' %}">+ Novo Treino</a>
+    <a href="{% url 'gerenciar-personal' %}">Gerenciar Personal</a>
+  </p>
+
+  <form method="get" action=".">
+    <input name="q" value="{{ q }}" placeholder="Buscar por título/aluno">
+    <button type="submit">Buscar</button>
+  </form>
+
+  <table border="1" cellspacing="0" cellpadding="6">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Título</th>
+        <th>Criado por</th>
+        <th>Alunos</th>
+        <th>Criado em</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in page_obj %}
+      <tr>
+        <td>{{ t.id }}</td>
+        <td>{{ t.titulo }}</td>
+        <td>{{ t.criado_por.get_full_name|default:t.criado_por.username }}</td>
+        <td>
+          {% for a in t.alunos.all %}
+            {{ a.first_name }}{% if not forloop.last %}, {% endif %}
+          {% empty %}
+            —
+          {% endfor %}
+        </td>
+        <td>{{ t.created_at }}</td>
+        <td>
+          <a href="{% url 'treino-edit' t.id %}">Editar</a>
+          <form method="post" action="{% url 'treino-delete' t.id %}" style="display:inline;" onsubmit="return confirm('Excluir treino?');">
+            {% csrf_token %}
+            <button type="submit">Excluir</button>
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+        <tr><td colspan="6">Nenhum treino.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div style="margin-top:10px;">
+    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&q={{ q }}">‹ Anterior</a>{% endif %}
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&q={{ q }}">Próxima ›</a>{% endif %}
+  </div>
+
+  {% for message in messages %}
+    <div>{{ message }}</div>
+  {% endfor %}
+</body>
+</html>

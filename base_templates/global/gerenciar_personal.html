@@ -1,0 +1,90 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Gerenciar Personal</title></head>
+<body>
+  <h1>Gerenciar Personal</h1>
+
+  <p>
+    <a href="{% url 'cadastrar-personal' %}">+ Novo Personal</a>
+  </p>
+
+  <form method="get" action=".">
+    <input name="q" value="{{ q }}" placeholder="Buscar (nome, e-mail, cpf, cref)">
+    <select name="sex">
+      <option value="">Sexo: todos</option>
+      <option value="M" {% if sex == 'M' %}selected{% endif %}>M</option>
+      <option value="F" {% if sex == 'F' %}selected{% endif %}>F</option>
+      <option value="O" {% if sex == 'O' %}selected{% endif %}>O</option>
+    </select>
+    <select name="status">
+      <option value="">Status: todos</option>
+      <option value="active" {% if status == 'active' %}selected{% endif %}>Ativo</option>
+      <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inativo</option>
+    </select>
+    <button type="submit">Filtrar</button>
+  </form>
+
+  <form method="post" action="">
+    {% csrf_token %}
+    <input type="hidden" name="action" id="bulk-action">
+    <table border="1" cellspacing="0" cellpadding="6">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nome</th>
+          <th>CPF</th>
+          <th>CREF</th>
+          <th>Telefone</th>
+          <th>Sexo</th>
+          <th>E-mail</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for p in page_obj %}
+        <tr>
+          <td><input type="checkbox" name="ids" value="{{ p.id }}"></td>
+          <td>{{ p.first_name }} {{ p.last_name }}</td>
+          <td>{{ p.cpf }}</td>
+          <td>{{ p.cref }}</td>
+          <td>{{ p.tel }}</td>
+          <td>{{ p.sex }}</td>
+          <td>{{ p.email }}</td>
+          <td>{{ p.ativo|yesno:"Ativo,Inativo" }}</td>
+          <td style="white-space:nowrap;">
+            <form method="post" action="{% url 'personal-toggle' p.id %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit">{{ p.ativo|yesno:"Desativar,Ativar" }}</button>
+            </form>
+            <form method="post" action="{% url 'personal-delete' p.id %}" style="display:inline;" onsubmit="return confirm('Remover este personal?');">
+              {% csrf_token %}
+              <button type="submit">Excluir</button>
+            </form>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="9">Nenhum registro.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+    <div style="margin-top:8px;">
+      <button type="submit" onclick="document.getElementById('bulk-action').value='activate'">Ativar selecionados</button>
+      <button type="submit" onclick="document.getElementById('bulk-action').value='deactivate'">Desativar selecionados</button>
+      <button type="submit" onclick="if(confirm('Excluir selecionados?')){document.getElementById('bulk-action').value='delete'} else {return false;}">Excluir selecionados</button>
+    </div>
+  </form>
+
+  <div style="margin-top:10px;">
+    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&q={{ q }}&sex={{ sex }}&status={{ status }}">‹ Anterior</a>{% endif %}
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&q={{ q }}&sex={{ sex }}&status={{ status }}">Próxima ›</a>{% endif %}
+  </div>
+
+  {% for message in messages %}
+    <div>{{ message }}</div>
+  {% endfor %}
+</body>
+</html>

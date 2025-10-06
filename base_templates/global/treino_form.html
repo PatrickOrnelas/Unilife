@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>{% if treino %}Editar{% else %}Novo{% endif %} Treino</title></head>
+<body>
+  <h1>{% if treino %}Editar{% else %}Novo{% endif %} Treino</h1>
+
+  <form method="post" action="">
+    {% csrf_token %}
+    <p>Título: <input type="text" name="titulo" value="{{ treino.titulo|default:'' }}" required></p>
+    <p>Descrição: <textarea name="descricao" rows="4">{{ treino.descricao|default:'' }}</textarea></p>
+    <button type="submit">Salvar</button>
+    <a href="{% url 'treino-list' %}">Voltar</a>
+  </form>
+
+  {% if treino %}
+    <hr>
+    <h2>Alunos vinculados</h2>
+    <ul>
+      {% for a in alunos_vinc %}
+        <li>
+          {{ a.first_name }} ({{ a.email }})
+          <form method="post" action="{% url 'treino-unassign' treino.id a.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">Desvincular</button>
+          </form>
+        </li>
+      {% empty %}
+        <li>— Nenhum aluno vinculado.</li>
+      {% endfor %}
+    </ul>
+
+    <h3>Vincular novo aluno</h3>
+    <form method="post" action="{% url 'treino-assign' treino.id %}">
+      {% csrf_token %}
+      <select name="aluno_id" required>
+        <option value="">Selecione…</option>
+        {% for a in alunos_livres %}
+          <option value="{{ a.id }}">{{ a.first_name }} — {{ a.email }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">Vincular</button>
+    </form>
+  {% endif %}
+
+  {% for message in messages %}
+    <div>{{ message }}</div>
+  {% endfor %}
+</body>
+</html>

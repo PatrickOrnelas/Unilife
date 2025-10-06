@@ -1,0 +1,25 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Novo Personal</title></head>
+<body>
+  <h1>Cadastrar Personal</h1>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <p>Nome: {{ form.first_name }}</p>
+    <p>Sobrenome: {{ form.last_name }}</p>
+    <p>E-mail: {{ form.email }}</p>
+    <p>CPF: {{ form.cpf }}</p>
+    <p>CREF: {{ form.cref }}</p>
+    <p>Telefone: {{ form.tel }}</p>
+    <p>Sexo: {{ form.sex }}</p>
+    <p>Nasc.: {{ form.date_of_birth }}</p>
+    <button type="submit">Salvar</button>
+    <a href="{% url 'gerenciar-personal' %}">Voltar</a>
+  </form>
+  {% for message in messages %}
+    <div>{{ message }}</div>
+  {% endfor %}
+</body>
+</html>

@@ -1,18 +1,20 @@
+# contas/urls.py
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import (
     CPFLoginView, registrar, recuperar_senha_view,
     home_admin, home_aluno, home_personal, home_redirect,
-    cadastrar_personal,
+    cadastrar_personal, gerenciar_personal,
+    personal_toggle, personal_delete,
+    change_password,  # <- nova rota
 )
-from . import views as api  # endpoints JSON
 
 urlpatterns = [
+    # Auth
     path('', CPFLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('registrar/', registrar, name='registrar'),
     path('senha/', recuperar_senha_view, name='recuperar-senha'),
-    path('admin/personais/novo/', cadastrar_personal, name='cadastrar-personal'),
 
     # Rota neutra que decide o destino por perfil
     path('home/', home_redirect, name='home'),
@@ -22,9 +24,12 @@ urlpatterns = [
     path("personal/home/", home_personal, name="home-personal"),
     path("admin/home/", home_admin, name="home-admin"),
 
-    # ---------- API: Gerenciar Personal ----------
-    path('api/personals/', api.api_personals, name='api_personals'),
-    path('api/personals/bulk/', api.api_personals_bulk, name='api_personals_bulk'),
-    path('api/personals/<int:pk>/toggle/', api.api_personal_toggle, name='api_personal_toggle'),
-    path('api/personals/<int:pk>/delete/', api.api_personal_delete, name='api_personal_delete'),
+    # Personais (views normais)
+    path('admin/personais/novo/', cadastrar_personal, name='cadastrar-personal'),
+    path('admin/personais/', gerenciar_personal, name='gerenciar-personal'),
+    path('admin/personais/<int:pk>/toggle/', personal_toggle, name='personal-toggle'),
+    path('admin/personais/<int:pk>/delete/', personal_delete, name='personal-delete'),
+
+    # Perfil / Segurança
+    path('conta/alterar-senha/', change_password, name='change-password'),
 ]
