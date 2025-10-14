@@ -575,9 +575,9 @@
               <label for="id_sex">Sexo</label>
               <select name="sex" id="id_sex" required class="field">
                 <option value="">Selecione</option>
-                <option value="M" {% if form.sex.value=='M' %}selected{% endif %}>Masculino</option>
-                <option value="F" {% if form.sex.value=='F' %}selected{% endif %}>Feminino</option>
-                <option value="O" {% if form.sex.value=='O' %}selected{% endif %}>Outro</option>
+                <option value="M" {% if form.sex.value == 'M' %}selected{% endif %}>Masculino</option>
+                <option value="F" {% if form.sex.value == 'F' %}selected{% endif %}>Feminino</option>
+                <option value="O" {% if form.sex.value == 'O' %}selected{% endif %}>Outro</option>
               </select>
               {% if form.sex.errors %}
               <div class="error">
