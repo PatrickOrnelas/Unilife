@@ -1,6 +1,6 @@
 # contas/admin.py
 from django.contrib import admin
-from .models import Aluno, Personal, Admin as Proprietario, Treino, Anamnese
+from .models import Aluno, Personal, Proprietario, Treino, Anamnese
 
 # --- Utilitário: auto-atribuir o responsável (usuário logado) ---
 class SetResponsavelMixin:

@@ -8,30 +8,10 @@
   <link rel="stylesheet" href="{% static 'global/css/style.css' %}">
 </head>
 <body>
-  <header>
-    <img src="{% static 'global/img/logo-unilife.png' %}" alt="Unilife" class="logo-img1">
-    <nav class="sidebar">
-      <form method="post" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button type="submit" style="background:none;border:none;color:#f97316;cursor:pointer;font-size:18px;">
-          Sair
-        </button>
-      </form>
-    </nav>
-  </header>
+  {% include "global/partials/_header.html" %}
 
-  <!-- LATERAL FIXA -->
-  <aside class="app-sidenav">
-    <div class="sidenav-title">Menu</div>
-    <nav>
-      <a class="sidenav-link active" data-target="inicio" href="#inicio">Início</a>
-      <a class="sidenav-link" data-target="criar-treinos" href="#">Criar treinos</a>
-      <a class="sidenav-link" data-target="gerenciar-treinos" href="#">Gerenciar treinos</a>
-      <a class="sidenav-link" data-target="cadastrar-personal" href="#cadastrar-personal">Cadastrar Personal</a>
-      <a class="sidenav-link" data-target="gerenciar-personal" href="#">Gerenciar Personal</a>
-      <a class="sidenav-link" data-target="anamnese" href="#">Anamnese</a>
-    </nav>
-  </aside>
+  {% comment %} Sidebar incluído como partial para reutilização em outras homes {% endcomment %}
+  {% include "global/partials/_sidebar.html" %}
   
   <!-- CONTEÚDO -->
   <main class="content">
@@ -128,66 +108,14 @@
       </div>
     </section>
 
-    <!-- outras views podem vir aqui: criar-treinos, gerenciar-treinos etc. -->
+    {% comment %} Includes dos partials para Perfil, Configurações e Ajuda {% endcomment %}
+    {% include "global/partials/_profile.html" %}
+    {% include "global/partials/_settings.html" %}
+    {% include "global/partials/_help.html" %}
+
   </main>
 
-  <!-- JS de navegação entre views + máscara simples de telefone + validação CREF -->
-  <script>
-    (function(){
-      const views = Array.from(document.querySelectorAll('[data-view]'));
-      const links = Array.from(document.querySelectorAll('.sidenav-link'));
-      const goBtns = Array.from(document.querySelectorAll('[data-go]'));
-
-      function show(view){
-        views.forEach(v => v.hidden = (v.dataset.view !== view));
-        links.forEach(a => a.classList.toggle('active', a.dataset.target === view));
-        if (view === 'cadastrar-personal') location.hash = '#cadastrar-personal';
-      }
-      function currentFromHash(){
-        const h = (location.hash || '').replace('#','');
-        return h && views.some(v => v.dataset.view === h) ? h : 'inicio';
-      }
-      links.forEach(a => a.addEventListener('click', (e) => {
-        e.preventDefault();
-        show(a.dataset.target);
-      }));
-      goBtns.forEach(b => b.addEventListener('click', (e) => {
-        e.preventDefault();
-        show(b.dataset.go);
-      }));
-      window.addEventListener('hashchange', () => show(currentFromHash()));
-      show(currentFromHash());
-
-      // máscara simples de telefone
-      const tel = document.getElementById('id_telefone');
-      if (tel){
-        tel.addEventListener('input', () => {
-          let v = tel.value.replace(/\D/g, '').slice(0, 11);
-          if (v.length > 2 && v.length <= 6) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
-          else if (v.length > 6 && v.length <= 10) v = `(${v.slice(0,2)}) ${v.slice(2,6)}-${v.slice(6)}`;
-          else if (v.length > 10) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
-          tel.value = v;
-        });
-      }
-
-      // validação simples de CREF antes de enviar (cliente)
-      const form = document.querySelector('section[data-view="cadastrar-personal"] form');
-      function validaCREF(text){
-        const t = String(text || '').trim().toUpperCase();
-        const re = /^(CREF\s*)?\d{4,7}(-?[A-Z])?(\/|-)?[A-Z]{2}$/; // ex.: CREF 123456-G/SP ou 123456-SP
-        return re.test(t);
-      }
-      if (form){
-        form.addEventListener('submit', (e) => {
-          const cref = document.getElementById('id_cref').value;
-          if(!validaCREF(cref)){
-            e.preventDefault();
-            alert('Verifique o formato do CREF (ex.: CREF 123456-G/SP ou 123456-SP).');
-            document.getElementById('id_cref').focus();
-          }
-        });
-      }
-    })();
-  </script>
+  </div>
+  {% include "global/partials/_scripts.html" %}
 </body>
 </html>

@@ -16,15 +16,24 @@ urlpatterns = [
     path('registrar/', registrar, name='registrar'),
     path('senha/', recuperar_senha_view, name='recuperar-senha'),
 
-    # Rota neutra que decide o destino por perfil
+# Rota neutra que decide o destino por perfil
     path('home/', home_redirect, name='home'),
 
-    # Homes específicas
-    path("aluno/home/", home_aluno, name="home-aluno"),
+# Personal URLs
     path("personal/home/", home_personal, name="home-personal"),
-    path("admin/home/", home_admin, name="home-admin"),
+    
+    path("personal/treinos/", home_personal, name="gerenciar-treinos"),
 
-    # Personais (views normais)
+ # Aluno URLs
+    path("aluno/home/", home_aluno, name="home-aluno"),
+
+# Proprietario URLs
+    path("admin/home/", home_admin, name="home-admin"),
+    path("admin/alunos/", home_admin, name="gerenciar-alunos"),
+    path("admin/treinos/", home_admin, name="gerenciar-treinos"),
+    path("admin/treinos/novo/", home_admin, name="criar-treinos"),
+
+    # Gerenciamento de Personais
     path('admin/personais/novo/', cadastrar_personal, name='cadastrar-personal'),
     path('admin/personais/', gerenciar_personal, name='gerenciar-personal'),
     path('admin/personais/<int:pk>/toggle/', personal_toggle, name='personal-toggle'),

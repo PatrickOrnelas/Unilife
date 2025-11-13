@@ -1,0 +1,50 @@
+{% load static %}
+<!-- HEADER -->
+  <header>
+    <!-- botão hamburguer (já existia) -->
+    <button class="nav-toggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
+
+    <!-- logo -->
+    <img src="{% static 'global/img/logo-unilife.png' %}" alt="Unilife" class="logo-img1">
+
+    <!-- menu do usuário -->
+    <nav class="user-menu">
+      <button class="user-trigger" aria-haspopup="menu" aria-expanded="false">
+        <img class="avatar" src="{% static 'global/img/avatar.png' %}" alt="Avatar" onerror="this.src='#'">
+        <span class="user-name">{{ request.user.first_name|default:request.user.username }}</span>
+        <svg class="chev" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="currentColor" d="M7 10l5 5 5-5z" />
+        </svg>
+      </button>
+
+      <div class="user-dropdown" role="menu" hidden>
+        <div class="user-welcome">Bem-vindo(a)</div>
+
+        <a class="user-item" href="#perfil" data-go="perfil" role="menuitem">
+          <img class="avatar" src="/static/global/img/avatar-mini.png" style="width: 20px;">
+          <span>Meu perfil</span>
+        </a>
+
+        <a class="user-item" href="#configuracoes" data-go="configuracoes">
+          <img class="avatar" src="/static/global/img/icone-config.png" style="width: 20px;">
+          <span>Configurações</span>
+        </a>
+
+        <a class="user-item" href="#ajuda" data-go="ajuda">
+          <img class="avatar" src="/static/global/img/icone-ajuda.png" style="width: 20px;">
+          <span>Ajuda</span>
+        </a>
+
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="user-item danger">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor"
+                d="M14.08 15.59L16.67 13H7v-2h9.67l-2.59-2.59L15.5 7l5 5l-5 5l-1.42-1.41ZM3 5h8V3H3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8v-2H3Z" />
+            </svg>
+            <span>Sair</span>
+          </button>
+        </form>
+      </div>
+    </nav>
+  </header>

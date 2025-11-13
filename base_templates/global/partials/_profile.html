@@ -1,0 +1,101 @@
+{% load static %}
+<section class="section profile" data-view="perfil" hidden aria-labelledby="titulo-perfil">
+
+  <h1 id="titulo-perfil">Meu perfil</h1>
+
+  <!-- Cabeçalho do perfil -->
+  <div class="card glass profile-card">
+    <div class="profile-row">
+      <div class="avatar-wrap">
+        <img id="avatar-preview" src="{% static 'global/img/avatar.png' %}" alt="Foto do perfil"
+          onerror="this.src=''">
+        <label class="btn-sm" for="id_avatar">Trocar foto</label>
+        <button type="button" class="btn-link danger" id="avatar-clear">Remover</button>
+      </div>
+
+      <div class="profile-meta">
+        <h2>{{ request.user.get_full_name|default:request.user.username }}</h2>
+        <p class="muted">{{ request.user.email }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Formulário: informações básicas + avatar -->
+    <form class="card glass" method="post" action="" enctype="multipart/form-data" autocomplete="on">
+      {% csrf_token %}
+      <h3 style="margin-bottom:8px;">Informações básicas</h3>
+
+      <input type="file" id="id_avatar" name="avatar" accept="image/*" hidden>
+      <input type="hidden" id="avatar_clear" name="avatar_clear" value="">
+
+      <div class="form-grid">
+        <div class="field-group">
+          <label for="first_name">Nome</label>
+          <input class="field" id="first_name" name="first_name" type="text" value="{{ request.user.first_name }}">
+        </div>
+
+        <div class="field-group">
+          <label for="last_name">Sobrenome</label>
+          <input class="field" id="last_name" name="last_name" type="text" value="{{ request.user.last_name }}">
+        </div>
+
+        <div class="field-group span-2">
+          <label for="email">E-mail</label>
+          <input class="field" id="email" name="email" type="email" value="{{ request.user.email }}">
+        </div>
+
+        <div class="field-group">
+          <label for="phone">Telefone</label>
+          <input class="field" id="phone" name="phone" type="tel" value="{{ request.user.profile.tel|default:'' }}"
+            placeholder="{{ request.user.tel }}">
+        </div>
+
+        <div class="field-group">
+          <label for="birth">Data de nascimento</label>
+          <input class="field" id="birth" name="date_of_birth" type="date"
+            value="{{ request.user.profile.date_of_birth|date:'Y-m-d' }}">
+        </div>
+
+        <div class="span-2 form-actions">
+          <button class="btn" type="submit" name="intent" value="save_profile">Salvar alterações</button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Formulário: segurança -->
+    <form class="card glass" method="post" action="{% url 'change-password' %}">
+      {% csrf_token %}
+      <h3 style="margin-bottom:8px;">Segurança</h3>
+
+      <div class="form-grid">
+        <div class="field-group span-2">
+          <label for="password1">Nova senha</label>
+          <input class="field" id="password1" type="password" name="password1" autocomplete="new-password"
+            placeholder="••••••••">
+        </div>
+
+        <div class="field-group span-2">
+          <label for="password2">Confirmar nova senha</label>
+          <input class="field" id="password2" type="password" name="password2" autocomplete="new-password"
+            placeholder="••••••••">
+        </div>
+
+        <div class="span-2 form-actions">
+          <button class="btn" type="submit">Atualizar senha</button>
+        </div>
+      </div>
+
+      {% if messages %}
+      <div style="margin-top:8px;">
+        {% for message in messages %}
+        <div class="card glass" style="padding:10px; border-left:4px solid #22c55e; margin-bottom:6px;">
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </form>
+
+  </div>
+</section>

@@ -1,0 +1,94 @@
+{% load static %}
+<section class="section help" data-view="ajuda" hidden aria-labelledby="titulo-ajuda">
+  <h1 id="titulo-ajuda">Ajuda</h1>
+
+  <!-- atalhos rápidos -->
+  <div class="grid-3 quick">
+    <a class="card glass support-card" target="_blank" rel="noopener"
+      href="https://wa.me/5599999999999?text=Olá%20preciso%20de%20ajuda%20no%20Unilife">
+      <div class="support-icon">💬</div>
+      <h3>Falar no WhatsApp</h3>
+      <p class="muted">Atendimento em horário comercial.</p>
+    </a>
+
+    <a class="card glass support-card" href="mailto:suporte@unilife.com?subject=Ajuda%20no%20painel">
+      <div class="support-icon">✉️</div>
+      <h3>Enviar e-mail</h3>
+      <p class="muted">suporte@unilife.com</p>
+    </a>
+
+    <a class="card glass support-card" target="_blank" rel="noopener" href="https://seu-dominio.com/docs">
+      <div class="support-icon">📚</div>
+      <h3>Documentação</h3>
+      <p class="muted">Passo a passo e respostas comuns.</p>
+    </a>
+  </div>
+
+  <!-- FAQ + Formulário -->
+  <div class="grid-2">
+    <!-- FAQ -->
+    <div class="card glass faq">
+      <h2>Perguntas frequentes</h2>
+
+      <details class="faq-item" open>
+        <summary>Não consigo fazer login</summary>
+        <div class="answer">
+          <p>Confira se o CPF está no formato <b>000.000.000-00</b> (a máscara ajuda). Se esqueceu a senha, use
+            <b>"Esqueceu a senha?"</b> na tela de login.
+          </p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Como redefinir a senha?</summary>
+        <div class="answer">
+          <p>Na tela de login, clique em <b>"Esqueceu a senha?"</b> e siga as instruções enviadas por e-mail.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Onde cadastro um Personal?</summary>
+        <div class="answer">
+          <p>Pelo menu lateral, abra <b>"Cadastrar Personal"</b> e preencha os dados. O CREF precisa estar ativo.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Como falar com o suporte?</summary>
+        <div class="answer">
+          <p>Use um dos atalhos acima (WhatsApp ou e-mail). Se possível, envie prints do erro.</p>
+        </div>
+      </details>
+    </div>
+
+    <!-- Reportar problema -->
+    <form class="card glass" method="post" action="" enctype="multipart/form-data" autocomplete="on">
+      {% csrf_token %}
+      <h2>Reportar um problema</h2>
+
+      <div class="form-grid">
+        <div class="field-group span-2">
+          <label for="ajuda_assunto">Assunto</label>
+          <input id="ajuda_assunto" name="ajuda_assunto" class="field" type="text"
+            placeholder="Ex.: Erro ao salvar treino">
+        </div>
+
+        <div class="field-group span-2">
+          <label for="ajuda_descricao">Descrição</label>
+          <textarea id="ajuda_descricao" name="ajuda_descricao" class="field"
+            placeholder="Explique o que aconteceu, o que tentou fazer e se aparece alguma mensagem."></textarea>
+        </div>
+
+        <div class="field-group">
+          <label for="ajuda_anexo">Anexo (print opcional)</label>
+          <input id="ajuda_anexo" name="ajuda_anexo" class="field" type="file" accept="image/*">
+        </div>
+
+        <div class="span-2 form-actions">
+          <button class="btn" type="submit" name="intent" value="report_issue">Enviar</button>
+        </div>
+      </div>
+      <p class="muted" style="margin-top:8px;">Dica: informe data/hora aproximada do problema.</p>
+    </form>
+  </div>
+</section>

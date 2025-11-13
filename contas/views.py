@@ -1,30 +1,31 @@
 # contas/views.py
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login as auth_login
-from django.contrib.auth.views import LoginView
-from django.urls import reverse_lazy, reverse
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.contrib.auth import authenticate, login as auth_login, update_session_auth_hash
+from django.urls import reverse_lazy
+from django.conf import settings
+from django.contrib import messages
 from django.views.decorators.http import require_http_methods, require_POST
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.contrib import messages
-from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.views import LoginView
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 
 from .forms import LoginForm, RegistroAlunoForm, RegistroPersonalForm
-from .models import Personal
+from .models import Personal, Aluno, Proprietario
 
 
 def destino_por_perfil(user):
-    if hasattr(user, "admin"):
+    # usa os relacionamentos OneToOne existentes nos modelos
+    if getattr(user, "proprietario", None) is not None or getattr(user, "is_proprietario", False):
         return reverse_lazy("home-admin")
-    if hasattr(user, "personal"):
+    if getattr(user, "personal", None) is not None or getattr(user, "is_treinador", False) or getattr(user, "is_personal", False):
         return reverse_lazy("home-personal")
-    if hasattr(user, "aluno"):
+    if getattr(user, "aluno", None) is not None or getattr(user, "is_aluno", False):
         return reverse_lazy("home-aluno")
-    return reverse_lazy("home")
+    return reverse_lazy("home")  # fallback
 
 
 class CPFLoginView(LoginView):
@@ -37,45 +38,54 @@ class CPFLoginView(LoginView):
 
 @login_required
 def home_redirect(request):
+    """Redireciona para a home correta com base no tipo do usuário."""
     return redirect(destino_por_perfil(request.user))
 
 
 @login_required
 def home_aluno(request):
-    return render(request, "global/home_aluno.html")
+    return render(request, "global/aluno/home_aluno.html")
 
 
 @login_required
 def home_personal(request):
-    return render(request, "global/home_personal.html")
+    return render(request, "global/personal/home_personal.html")
 
 
 @login_required
 def home_admin(request):
-    """
-    Renderiza o painel admin. Se quiser já abrir a aba 'perfil',
-    use /admin/home/#perfil no navegador.
-    """
-    return render(request, "global/home_admin.html")
+    return render(request, "global/proprietario/home_admin.html")
 
 
 def login_view(request):
-    # Mantido apenas se você ainda quiser uma view manual.
+    # Mantido apenas se você quiser uma view manual simples.
     from django.contrib.auth.forms import AuthenticationForm
     form = AuthenticationForm(request, data=request.POST or None)
     if request.method == 'POST' and form.is_valid():
         user = form.get_user()
+        # AuthenticationForm já autentica, então basta logar
         auth_login(request, user)
-        return redirect('home')
+        return redirect(destino_por_perfil(user))
     return render(request, 'global/login.html', {'form': form})
 
 
 def registrar(request):
     form = RegistroAlunoForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
-        user = form.save()
-        auth_login(request, user)
-        return redirect('home')
+        user = form.save()  # O form deve criar e retornar um User
+        raw_password = form.cleaned_data.get("password1")
+
+        # tente autenticar via backends configurados
+        user_auth = authenticate(request, username=getattr(user, "username", None), password=raw_password)
+        if user_auth:
+            auth_login(request, user_auth)
+        else:
+            # quando há múltiplos backends, defina explicitamente o backend no user antes de login
+            backend = settings.AUTHENTICATION_BACKENDS[0]
+            user.backend = backend
+            auth_login(request, user)
+
+        return redirect(destino_por_perfil(user))
     return render(request, 'global/registrar.html', {'form': form})
 
 
@@ -84,7 +94,8 @@ def recuperar_senha_view(request):
 
 
 def is_admin(user):
-    return hasattr(user, "admin")
+    # proprietario é o "admin" do sistema
+    return getattr(user, "proprietario", None) is not None or getattr(user, "is_proprietario", False)
 
 
 # --------- Personais (views normais, sem API) ---------
@@ -92,20 +103,35 @@ def is_admin(user):
 @login_required
 @user_passes_test(is_admin)
 def cadastrar_personal(request):
-    form = RegistroPersonalForm(request.POST or None)
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        messages.success(request, "Personal cadastrado com sucesso!")
-        # volta para a mesma tela abrindo a aba de cadastro
-        resp = redirect('home-admin')
-        resp['Location'] += "#cadastrar-personal"
-        return resp
-    # Mostra a mesma home com a aba "Cadastrar Personal" selecionada
-    return render(request, 'global/home_admin.html', {
-        'form': form,
-        'view': 'cadastrar-personal'
-    })
+    form_action = reverse('cadastrar-personal')
 
+    if request.method == "POST":
+        form = RegistroPersonalForm(request.POST)
+        context = {
+            'form': form,
+            'form_action': form_action,
+        }
+
+        if form.is_valid():
+            personal = form.save(commit=False)
+            personal.save()
+            messages.success(request, "Personal cadastrado com sucesso.")
+            return redirect('gerenciar-personal')
+    
+        return render(
+            request,
+            'global/proprietario/cadastrar_personal.html',
+            context
+        )
+    context = {
+        'form': RegistroPersonalForm(),
+        'form_action': form_action,
+    }
+
+    return render(request, 
+                  'global/proprietario/cadastrar_personal.html',
+                    context
+                )
 
 @login_required
 @user_passes_test(is_admin)
@@ -164,8 +190,6 @@ def gerenciar_personal(request):
     paginator = Paginator(people, 10)
     page_obj = paginator.get_page(request.GET.get("page"))
 
-    # Renderize sua própria página de “Gerenciar Personal” caso tenha um template dedicado.
-    # Se preferir usar a mesma home com a aba “gerenciar-personal”, também funciona.
     return render(request, "global/gerenciar_personal.html", {
         "page_obj": page_obj,
         "q": q, "sex": sex, "status": status
@@ -234,9 +258,13 @@ def _redir_perfil(request):
     Sempre volta para a home do admin com a aba de Perfil aberta.
     Se o usuário não for admin, volte para a home adequada.
     """
-    if hasattr(request.user, "admin"):
+    if getattr(request.user, "proprietario", None) is not None or getattr(request.user, "is_proprietario", False):
         resp = redirect("home-admin")
         resp["Location"] += "#perfil"
         return resp
     # fallback: volta para sua home padrão
     return redirect("home")
+
+def criar_treinos(request):
+    return render(request, "global/personal/home_personal.html")
+

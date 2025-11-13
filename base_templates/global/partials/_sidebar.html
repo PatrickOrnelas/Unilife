@@ -1,0 +1,81 @@
+{% load static %}
+<aside class="app-sidenav" aria-label="Navegação lateral">
+  <nav>
+    <a class="sidenav-link active" data-target="inicio" href="#inicio">
+      <span class="ico">
+        <img src="{% static 'global/img/icone-home.png' %}" style="width: 20px;margin-right: 10px;">
+      </span>
+      <span class="label">Início</span>
+    </a>
+
+    {# Proprietário: ver todos os botões #}
+    {% if user.proprietario or user.is_proprietario %}
+      <a class="sidenav-link" data-target="criar-treinos" href="#criar-treinos">
+        <span class="ico">
+          <img src="{% static 'global/img/icone-halter+.png' %}" style="width: 20px;margin-right: 10px;">
+        </span>
+        <span class="label">Criar treinos</span>
+      </a>
+
+      <a class="sidenav-link" data-target="gerenciar-treinos" href="#gerenciar-treinos">
+        <span class="ico">
+          <img src="{% static 'global/img/icone-halter.png' %}" style="width: 20px;margin-right: 10px;">
+        </span>
+        <span class="label">Gerenciar treinos</span>
+      </a>
+
+      <a class="sidenav-link" data-target="cadastrar-personal" href="{% url 'cadastrar-personal' %}">
+        <span class="ico">
+          <img src="{% static 'global/img/icone-user+.png' %}" style="width: 20px;margin-right: 10px;">
+        </span>
+        <span class="label">Novo Personal</span>
+      </a>
+
+      <a class="sidenav-link" data-target="gerenciar-personal" href="{% url 'gerenciar-personal' %}">
+        <span class="ico">
+          <img src="{% static 'global/img/icone-user.png' %}" style="width: 20px;margin-right: 10px;">
+        </span>
+        <span class="label">Editar Personal</span>
+      </a>
+
+      <a class="sidenav-link" data-target="anamnese" href="#anamnese">
+        <span class="ico">
+          <img src="{% static 'global/img/icone-anamnese.png' %}" style="width: 20px;margin-right: 10px;">
+        </span>
+        <span class="label">Anamnese</span>
+      </a>
+
+    {# Personal: opções reduzidas #}
+    {% elif user.personal or user.is_treinador or user.is_personal %}
+      <a class="sidenav-link" data-target="criar-treinos" href="#criar-treinos">
+        <span class="ico">
+          <img src="{% static 'global/img/icone-halter+.png' %}" style="width: 20px;margin-right: 10px;">
+        </span>
+        <span class="label">Criar treinos</span>
+      </a>
+
+      <a class="sidenav-link" data-target="gerenciar-treinos" href="#gerenciar-treinos">
+        <span class="ico">
+          <img src="{% static 'global/img/icone-halter.png' %}" style="width: 20px;margin-right: 10px;">
+        </span>
+        <span class="label">Gerenciar treinos</span>
+      </a>
+
+      <a class="sidenav-link" data-target="anamnese" href="#anamnese">
+        <span class="ico">
+          <img src="{% static 'global/img/icone-anamnese.png' %}" style="width: 20px;margin-right: 10px;">
+        </span>
+        <span class="label">Anamnese</span>
+      </a>
+
+    {# Outros usuários (aluno, etc.) - apenas o básico #}
+    {% else %}
+      <a class="sidenav-link" data-target="anamnese" href="#anamnese">
+        <span class="ico">
+          <img src="{% static 'global/img/icone-anamnese.png' %}" style="width: 20px;margin-right: 10px;">
+        </span>
+        <span class="label">Anamnese</span>
+      </a>
+    {% endif %}
+  </nav>
+</aside>

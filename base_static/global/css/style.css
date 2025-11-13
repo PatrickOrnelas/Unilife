@@ -836,3 +836,43 @@ body.auth-page .card{
 
 /* utilitários */
 .muted.small{ font-size:.82rem; }
+
+/* ===== SIDEBAR LABEL VISIBILITY FIX ===== */
+/* Desktop: keep hover behaviour, but do NOT hide labels when the sidebar has .open */
+@media (pointer: fine) {
+  /* collapsed (no hover and not explicitly opened) => hide labels */
+  .app-sidenav:not(.open):not(:hover) .sidenav-link .label {
+    width: 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-6px);
+  }
+
+  /* expanded/hover/open => show labels */
+  .app-sidenav.open .sidenav-link .label,
+  .app-sidenav:hover .sidenav-link .label {
+    width: auto;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+}
+
+/* Mobile / explicit open: always show labels when the menu is open via JS (body.nav-open) */
+body.nav-open .app-sidenav .sidenav-link .label,
+.app-sidenav.open .sidenav-link .label {
+  width: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+}
+
+/* Fallback: very small screens always show labels to avoid hover-only UX */
+@media (max-width: 640px) {
+  .app-sidenav .sidenav-link .label {
+    width: auto !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+  }
+}

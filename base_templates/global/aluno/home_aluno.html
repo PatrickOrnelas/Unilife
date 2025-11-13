@@ -7,29 +7,10 @@
   <link rel="stylesheet" href="{% static 'global/css/style.css' %}">
 </head>
 <body>
+  {% include "global/partials/_header.html" %}
 
-  <header>
-    <img src="{% static 'global/img/logo-unilife.png' %}" alt="Unilife" class="logo-img1">
-    <nav class="sidebar">
-      <form method="post" action="{% url "logout" %}">
-        {% csrf_token %}
-        <button type="submit" style="background:none;border:none;color:#f97316;cursor:pointer;font-size: 18px;">
-          Sair
-        </button>
-      </form>
-    </nav>
-  </header>
-
-  <!-- LATERAL FIXA -->
-  <aside class="app-sidenav">
-    <div class="sidenav-title">Menu</div>
-    <nav>
-      <a class="sidenav-link active" data-target="inicio" href="#inicio">Início</a>
-      <a class="sidenav-link" data-target="treinos" href="#treinos">Planos de treino</a>
-      <a class="sidenav-link" data-target="agenda" href="#agenda">Agenda</a>
-      <a class="sidenav-link" data-target="anamnese" href="#anamnese">Anamnese</a>
-    </nav>
-  </aside>
+  {% comment %} Sidebar incluído como partial para reutilização em outras homes {% endcomment %}
+  {% include "global/partials/_sidebar.html" %}
 
   <!-- CONTEÚDO -->
   <main class="content"><!-- note: usei .content pois temos sidebar fixa -->
@@ -144,44 +125,14 @@
       </div>
     </section>
 
+    {% comment %} Includes dos partials para Perfil, Configurações e Ajuda {% endcomment %}
+    {% include "global/partials/_profile.html" %}
+    {% include "global/partials/_settings.html" %}
+    {% include "global/partials/_help.html" %}
+
     <p class="muted">© 2025 Unilife</p>
   </main>
-
-  <!-- ===== Script DEPOIS do HTML ===== -->
-  <script>
-  (function(){
-  const views = Array.from(document.querySelectorAll('[data-view]'));
-  const navLinks = Array.from(document.querySelectorAll('.sidenav-link'));
-  const goButtons = Array.from(document.querySelectorAll('[data-go]'));
-
-  function show(view){
-    views.forEach(sec => sec.hidden = (sec.dataset.view !== view));
-    navLinks.forEach(a => a.classList.toggle('active', a.dataset.target === view));
-    document.querySelector('.content')?.scrollTo({top:0, behavior:'smooth'});
-  }
-
-  // navegação
-  navLinks.forEach(a => a.addEventListener('click', (e) => {
-    e.preventDefault();
-    const v = a.dataset.target;
-    history.pushState({v}, '', '#'+v);
-    show(v);
-  }));
-  goButtons.forEach(btn => btn.addEventListener('click', (e) => {
-    e.preventDefault();
-    const v = btn.dataset.go;
-    history.pushState({v}, '', '#'+v);
-    show(v);
-  }));
-  window.addEventListener('popstate', () => {
-    const v = (location.hash || '').replace('#','') || 'inicio';
-    show(v);
-  });
-    
-  const initial = (location.hash || '').replace('#','') || 'inicio';
-  show(initial);
-})();
-  </script>
-
-
-</body></html>
+  </div>
+  {% include "global/partials/_scripts.html" %}
+</body>
+</html>

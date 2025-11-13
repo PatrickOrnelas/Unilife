@@ -1,0 +1,108 @@
+{% load static %}
+<section class="section" data-view="configuracoes" hidden aria-labelledby="titulo-config">
+  <h1 id="titulo-config">Configurações</h1>
+
+  <div class="grid-2 prefs">
+    <!-- Aparência -->
+    <form class="card glass" method="post" action="">
+      {% csrf_token %}
+      <h3 style="margin-bottom:8px;">Aparência</h3>
+
+      <div class="pref-row">
+        <label class="radio-row">
+          <input type="radio" name="theme" value="system" checked>
+          <span>Seguir o sistema</span>
+        </label>
+        <label class="radio-row">
+          <input type="radio" name="theme" value="light">
+          <span>Claro</span>
+        </label>
+        <label class="radio-row">
+          <input type="radio" name="theme" value="dark">
+          <span>Escuro</span>
+        </label>
+      </div>
+
+      <div class="form-actions" style="justify-content:flex-end;margin-top:12px;">
+        <button class="btn" type="submit" name="intent" value="save_theme">Salvar</button>
+      </div>
+    </form>
+
+    <!-- Notificações -->
+    <form class="card glass" method="post" action="">
+      {% csrf_token %}
+      <h3 style="margin-bottom:8px;">Notificações</h3>
+
+      <label class="pref-row">
+        <span>Receber e-mails</span>
+        <label class="switch">
+          <input type="checkbox" name="notif_email" checked>
+          <span class="slider"></span>
+        </label>
+      </label>
+
+      <label class="pref-row">
+        <span>Receber notificações push</span>
+        <label class="switch">
+          <input type="checkbox" name="notif_push">
+          <span class="slider"></span>
+        </label>
+      </label>
+
+      <div class="form-actions" style="justify-content:flex-end;margin-top:12px;">
+        <button class="btn" type="submit" name="intent" value="save_notifications">Salvar</button>
+      </div>
+    </form>
+
+    <!-- Idioma -->
+    <form class="card glass" method="post" action="">
+      {% csrf_token %}
+      <h3 style="margin-bottom:8px;">Idioma e região</h3>
+
+      <div class="form-grid">
+        <div class="field-group">
+          <label for="lang">Idioma</label>
+          <select id="lang" name="lang" class="field">
+            <option value="pt-BR">Português (Brasil)</option>
+            <option value="es-ES">Español</option>
+            <option value="en-US">English</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label for="tz">Fuso horário</label>
+          <select id="tz" name="tz" class="field">
+            <option value="America/Sao_Paulo">America/Sao_Paulo</option>
+            <option value="UTC">UTC</option>
+          </select>
+        </div>
+        <div class="span-2 form-actions" style="justify-content:flex-end;margin-top:4px;">
+          <button class="btn" type="submit" name="intent" value="save_locale">Salvar</button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Sessões & segurança -->
+    <div class="card glass">
+      <h3 style="margin-bottom:8px;">Sessões & segurança</h3>
+
+      <div class="pref-row">
+        <div>
+          <strong>Encerrar outras sessões</strong>
+          <p class="muted" style="margin-top:4px;">Desloga sua conta em outros dispositivos.</p>
+        </div>
+        <form method="post" action="">
+          {% csrf_token %}
+          <button class="btn-ghost" type="submit" name="intent" value="logout_others">Encerrar</button>
+        </form>
+      </div>
+
+      <div class="pref-row">
+        <span>Autenticação em 2 etapas (2FA)</span>
+        <label class="switch">
+          <input type="checkbox" name="two_factor">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+</section>

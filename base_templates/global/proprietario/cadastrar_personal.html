@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cadastrar Personal | Academia</title>
+  <link rel="stylesheet" href="{% static 'global/css/style.css' %}">
+</head>
+<body>
+  <header>
+    <img src="{% static 'global/img/logo-unilife.png' %}" alt="Unilife" class="logo-img1">
+    <nav>
+      <a href="{% url 'home-admin' %}">← Voltar ao Painel</a>
+    </nav>
+  </header>
+
+  <main class="content">
+    <section class="section" aria-labelledby="titulo-cadastrar-personal">
+      <div class="form-wrapper" style="margin-bottom: 6px;">
+        <div class="card glass">
+          <h2 class="card-title" id="titulo-cadastrar-personal">Cadastrar Personal</h2>
+
+          <!-- importante: envia para a view Django -->
+          <form method="post" action="{% url 'cadastrar-personal' %}" autocomplete="on" novalidate>
+            {% csrf_token %}
+            {% if messages %}
+              <div style="margin-bottom:10px;">
+                {% for message in messages %}
+                  <div class="card glass" style="padding:12px; border-left:4px solid #22c55e; margin-bottom:8px;">
+                    {{ message }}
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <!-- Nome -->
+            <div class="field-group">
+              <label for="id_first_name">Nome</label>
+              <input type="text" name="first_name" id="id_first_name" class="field" required
+                value="{{ form.first_name.value|default:'' }}" placeholder="Seu nome" />
+              {% if form.first_name.errors %}
+                <div class="error">{% for e in form.first_name.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+              {% endif %}
+            </div>
+
+            <!-- (mantém aqui os demais campos tal como estavam: last_name, cpf, email, tel, sex, date_of_birth, cref) -->
+            <!-- Para brevidade: copie o markup dos inputs do home_admin.html original para este arquivo. -->
+
+            <div class="span-2 form-actions">
+              <button type="reset" class="btn-ghost">Limpar</button>
+              <button type="submit" class="btn">Salvar cadastro</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card glass notes-card">
+        <h3 style="margin-bottom:6px;">Observações</h3>
+        <ul class="list muted">
+          <li>A senha inicial será gerada automaticamente (ex.: <b>Nome123</b>). Peça ao personal para trocar no
+            primeiro acesso.</li>
+          <li>O CREF deve estar ativo para ativar o perfil do personal.</li>
+          <li>Documentos e foto podem ser anexados depois em “Gerenciar Personal”.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
