@@ -43,14 +43,26 @@
       function show(view) {
         views.forEach(v => v.hidden = (v.dataset.view !== view));
         links.forEach(a => a.classList.toggle('active', a.dataset.target === view));
-        if (view) location.hash = '#' + view;
+        // Só adiciona hash se não for a view 'inicio' (home)
+        if (view && view !== 'inicio') {
+          location.hash = '#' + view;
+        } else if (view === 'inicio') {
+          // Para a view 'inicio', limpa o hash da URL
+          history.replaceState(null, null, ' ');
+        }
       }
       function currentFromHash() {
         const h = (location.hash || '').replace('#', '');
-        return h && views.some(v => v.dataset.view === h) ? h : 'inicio';
+        // Se não houver hash, não retornar 'inicio' automaticamente
+        // Isso evita adicionar #inicio quando a página carrega sem hash
+        return h && views.some(v => v.dataset.view === h) ? h : '';
       }
 
       links.forEach(a => a.addEventListener('click', (e) => {
+        // Se o link tiver uma URL real (não apenas hash), permitir navegação normal
+        if (a.href && !a.href.includes('#')) {
+          return; // Permitir navegação padrão
+        }
         e.preventDefault();
         closeNav();
         show(a.dataset.target);
@@ -61,8 +73,23 @@
         show(b.dataset.go);
         closeNav();
       }));
-      window.addEventListener('hashchange', () => { show(currentFromHash()); closeNav(); });
-      show(currentFromHash());
+      window.addEventListener('hashchange', () => { 
+        const view = currentFromHash();
+        if (view) {
+          show(view); 
+        }
+        closeNav(); 
+      });
+      
+      // Inicialização: só mostra uma view se houver hash na URL
+      const initialView = currentFromHash();
+      if (initialView) {
+        show(initialView);
+      } else {
+        // Se não houver hash, mostra a view 'inicio' sem adicionar hash
+        views.forEach(v => v.hidden = (v.dataset.view !== 'inicio'));
+        links.forEach(a => a.classList.toggle('active', a.dataset.target === 'inicio'));
+      }
 
       // ===== Dropdown do usuário (header)
       const userTrig = document.querySelector('.user-trigger');
@@ -631,14 +658,14 @@
           <td><span class="wt-status ${status}">${r.is_active ? 'Ativo' : 'Inativo'}</span></td>
           <td><span class="muted">${fmtDateTime(r.updated_at || r.created_at)}</span></td>
           <td>
-            <div class="wt-actions">
-              <a class="btn-ghost" href="#criar-treinos" data-go="criar-treinos">Editar</a>
-              <button class="btn-ghost wt-assign" type="button">Vincular aluno</button>
-              <button class="btn-ghost wt-toggle" type="button">${r.is_active ? 'Desativar' : 'Ativar'}</button>
-              <button class="btn-ghost wt-dup" type="button">Duplicar</button>
-              <button class="btn-ghost wt-del" type="button" style="color:#b91c1c;">Excluir</button>
-            </div>
-          </td>
+              <div class="wt-actions">
+                <a class="btn-ghost" href="{% url 'criar-treinos' %}" data-go="criar-treinos">Editar</a>
+                <button class="btn-ghost wt-assign" type="button">Vincular aluno</button>
+                <button class="btn-ghost wt-toggle" type="button">${r.is_active ? 'Desativar' : 'Ativar'}</button>
+                <button class="btn-ghost wt-dup" type="button">Duplicar</button>
+                <button class="btn-ghost wt-del" type="button" style="color:#b91c1c;">Excluir</button>
+              </div>
+            </td>
         </tr>`;
         }).join('') || `<tr><td colspan="9" class="muted">Nenhum treino encontrado.</td></tr>`;
         bindRowEvents();

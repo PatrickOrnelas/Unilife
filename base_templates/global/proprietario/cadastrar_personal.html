@@ -6,6 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cadastrar Personal | Academia</title>
   <link rel="stylesheet" href="{% static 'global/css/style.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/vanilla-masker@1.2.0/build/vanilla-masker.min.js"></script>
+  <style>
+    .info-box {
+      background-color: #e3f2fd;
+      border: 1px solid #2196f3;
+      border-radius: 4px;
+      padding: 12px;
+      margin: 10px 0;
+      color: #1565c0;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -44,8 +56,87 @@
               {% endif %}
             </div>
 
-            <!-- (mantém aqui os demais campos tal como estavam: last_name, cpf, email, tel, sex, date_of_birth, cref) -->
-            <!-- Para brevidade: copie o markup dos inputs do home_admin.html original para este arquivo. -->
+            <!-- Sobrenome -->
+            <div class="field-group">
+              <label for="id_last_name">Sobrenome</label>
+              <input type="text" name="last_name" id="id_last_name" class="field"
+                value="{{ form.last_name.value|default:'' }}" placeholder="Sobrenome (opcional)" />
+              {% if form.last_name.errors %}
+                <div class="error">{% for e in form.last_name.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+              {% endif %}
+            </div>
+
+            <!-- Email -->
+            <div class="field-group">
+              <label for="id_email">E-mail</label>
+              <input type="email" name="email" id="id_email" class="field" required
+                value="{{ form.email.value|default:'' }}" placeholder="email@exemplo.com" />
+              {% if form.email.errors %}
+                <div class="error">{% for e in form.email.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+              {% endif %}
+            </div>
+
+            <!-- CPF -->
+            <div class="field-group">
+              <label for="id_cpf">CPF</label>
+              <input type="text" name="cpf" id="id_cpf" class="field cpf-mask" required
+                value="{{ form.cpf.value|default:'' }}" placeholder="000.000.000-00" />
+              {% if form.cpf.errors %}
+                <div class="error">{% for e in form.cpf.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+              {% endif %}
+            </div>
+
+            <!-- Telefone -->
+            <div class="field-group">
+              <label for="id_tel">Telefone (com DDD)</label>
+              <input type="text" name="tel" id="id_tel" class="field phone-mask" required
+                value="{{ form.tel.value|default:'' }}" placeholder="(00) 00000-0000" />
+              {% if form.tel.errors %}
+                <div class="error">{% for e in form.tel.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+              {% endif %}
+            </div>
+
+            <!-- Sexo -->
+            <div class="field-group">
+              <label for="id_sex">Sexo</label>
+              <select name="sex" id="id_sex" class="field" required>
+                <option value="">Selecione...</option>
+                {% for value, label in form.fields.sex.choices %}
+                  <option value="{{ value }}" {% if form.sex.value == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+              {% if form.sex.errors %}
+                <div class="error">{% for e in form.sex.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+              {% endif %}
+            </div>
+
+            <!-- Data de Nascimento -->
+            <div class="field-group">
+              <label for="id_date_of_birth">Data de nascimento</label>
+              <input type="date" name="date_of_birth" id="id_date_of_birth" class="field" required
+                value="{{ form.date_of_birth.value|default:'' }}" />
+              {% if form.date_of_birth.errors %}
+                <div class="error">{% for e in form.date_of_birth.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+              {% endif %}
+            </div>
+
+            <!-- CREF -->
+            <div class="field-group">
+              <label for="id_cref">CREF (opcional)</label>
+              <input type="text" name="cref" id="id_cref" class="field"
+                value="{{ form.cref.value|default:'' }}" placeholder="000000-G/SP" />
+              {% if form.cref.errors %}
+                <div class="error">{% for e in form.cref.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+              {% endif %}
+            </div>
+
+            <!-- Informação sobre senha -->
+            <div class="field-group span-2">
+              <div class="info-box">
+                <strong>ℹ️ Informação:</strong> A senha será gerada automaticamente como: <strong>NomeDoPersonal123</strong>
+                <br>O personal poderá alterar a senha no primeiro acesso.
+              </div>
+            </div>
 
             <div class="span-2 form-actions">
               <button type="reset" class="btn-ghost">Limpar</button>
@@ -66,5 +157,22 @@
       </div>
     </section>
   </main>
+
+  <script>
+    // Máscaras de CPF e Telefone
+    document.addEventListener('DOMContentLoaded', function() {
+      // Máscara de CPF
+      const cpfInput = document.getElementById('id_cpf');
+      if (cpfInput) {
+        VMasker(cpfInput).maskPattern("999.999.999-99");
+      }
+
+      // Máscara de Telefone (celular com 9 dígitos)
+      const telInput = document.getElementById('id_tel');
+      if (telInput) {
+        VMasker(telInput).maskPattern("(99) 99999-9999");
+      }
+    });
+  </script>
 </body>
 </html>

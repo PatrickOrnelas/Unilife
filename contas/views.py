@@ -103,35 +103,29 @@ def is_admin(user):
 @login_required
 @user_passes_test(is_admin)
 def cadastrar_personal(request):
+    """Cadastro de personal com senha automática - mantém na mesma página após sucesso"""
     form_action = reverse('cadastrar-personal')
 
     if request.method == "POST":
         form = RegistroPersonalForm(request.POST)
-        context = {
-            'form': form,
-            'form_action': form_action,
-        }
-
         if form.is_valid():
-            personal = form.save(commit=False)
-            personal.save()
-            messages.success(request, "Personal cadastrado com sucesso.")
-            return redirect('gerenciar-personal')
+            # Salvar e obter o personal criado
+            personal = form.save()
+            # Gerar a senha para mostrar na mensagem
+            senha_gerada = personal.first_name.capitalize() + "123"
+            messages.success(request, f"Personal cadastrado com sucesso! Senha gerada: {senha_gerada}")
+            
+            # Limpar o formulário criando um novo formulário vazio
+            form = RegistroPersonalForm()
+    else:
+        # GET: mostrar formulário vazio
+        form = RegistroPersonalForm()
     
-        return render(
-            request,
-            'global/proprietario/cadastrar_personal.html',
-            context
-        )
     context = {
-        'form': RegistroPersonalForm(),
+        'form': form,
         'form_action': form_action,
     }
-
-    return render(request, 
-                  'global/proprietario/cadastrar_personal.html',
-                    context
-                )
+    return render(request, "global/proprietario/cadastrar_personal.html", context)
 
 @login_required
 @user_passes_test(is_admin)
@@ -267,4 +261,3 @@ def _redir_perfil(request):
 
 def criar_treinos(request):
     return render(request, "global/personal/home_personal.html")
-
