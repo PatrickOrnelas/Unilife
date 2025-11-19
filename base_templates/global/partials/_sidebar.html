@@ -10,14 +10,14 @@
 
     {# Proprietário: ver todos os botões #}
     {% if user.proprietario or user.is_proprietario %}
-      <a class="sidenav-link" data-target="criar-treinos" href="{% url 'criar-treinos' %}">
+      <a class="sidenav-link" data-target="criar-treinos" href="{% url 'admin-criar-treinos' %}">
         <span class="ico">
           <img src="{% static 'global/img/icone-halter+.png' %}" style="width: 20px;margin-right: 10px;">
         </span>
         <span class="label">Criar treinos</span>
       </a>
 
-      <a class="sidenav-link" data-target="gerenciar-treinos" href="{% url 'gerenciar-treinos' %}">
+      <a class="sidenav-link" data-target="gerenciar-treinos" href="{% url 'admin-gerenciar-treinos' %}">
         <span class="ico">
           <img src="{% static 'global/img/icone-halter.png' %}" style="width: 20px;margin-right: 10px;">
         </span>
@@ -38,7 +38,7 @@
         <span class="label">Editar Personal</span>
       </a>
 
-      <a class="sidenav-link" data-target="anamnese" href="{% url 'gerenciar-alunos' %}">
+      <a class="sidenav-link" data-target="anamnese" href="{% url 'home-admin' %}#anamnese">
         <span class="ico">
           <img src="{% static 'global/img/icone-anamnese.png' %}" style="width: 20px;margin-right: 10px;">
         </span>
@@ -47,21 +47,21 @@
 
     {# Personal: opções reduzidas #}
     {% elif user.personal or user.is_treinador or user.is_personal %}
-      <a class="sidenav-link" data-target="criar-treinos" href="{% url 'criar-treinos' %}">
+      <a class="sidenav-link" data-target="criar-treinos" href="{% url 'personal-criar-treinos' %}">
         <span class="ico">
           <img src="{% static 'global/img/icone-halter+.png' %}" style="width: 20px;margin-right: 10px;">
         </span>
         <span class="label">Criar treinos</span>
       </a>
 
-      <a class="sidenav-link" data-target="gerenciar-treinos" href="{% url 'gerenciar-treinos' %}">
+      <a class="sidenav-link" data-target="gerenciar-treinos" href="{% url 'personal-gerenciar-treinos' %}">
         <span class="ico">
           <img src="{% static 'global/img/icone-halter.png' %}" style="width: 20px;margin-right: 10px;">
         </span>
         <span class="label">Gerenciar treinos</span>
       </a>
 
-      <a class="sidenav-link" data-target="anamnese" href="{% url 'gerenciar-alunos' %}">
+      <a class="sidenav-link" data-target="anamnese" href="{% url 'home-personal' %}#anamnese">
         <span class="ico">
           <img src="{% static 'global/img/icone-anamnese.png' %}" style="width: 20px;margin-right: 10px;">
         </span>

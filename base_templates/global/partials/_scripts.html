@@ -60,6 +60,8 @@
         const p = location.pathname;
         if (p.endsWith('/admin/treinos/novo/')) return 'criar-treinos';
         if (p.endsWith('/admin/treinos/')) return 'gerenciar-treinos';
+        if (p.endsWith('/personal/treinos/novo/')) return 'criar-treinos';
+        if (p.endsWith('/personal/treinos/')) return 'gerenciar-treinos';
         if (p.endsWith('/admin/personais/')) return 'gerenciar-personal';
         return '';
       }
@@ -412,6 +414,106 @@
       window.addEventListener('hashchange', maybeLoadOnView);
       document.addEventListener('DOMContentLoaded', maybeLoadOnView);
 
+  return { load };
+  })();
+
+    /* ============================================================
+     * ANA — ANAMNESES (admin/personal)
+     * Endpoints:
+     *   GET  /api/anamneses/?q=&page=&page_size=
+     *   GET  /api/anamneses/<id>/
+     *   POST /api/anamneses/<id>/edit/
+     * ============================================================ */
+    const ANA = (() => {
+      const state = { page: 1, pageSize: 10, q: '' };
+      const $ = (s, root = document) => root.querySelector(s);
+      const $$ = (s, root = document) => Array.from(root.querySelectorAll(s));
+
+      function urlList() {
+        const p = new URLSearchParams({ page: state.page, page_size: state.pageSize, q: state.q });
+        return '/api/anamneses/?' + p.toString();
+      }
+
+      async function load() {
+        const res = await fetch(urlList(), { credentials: 'same-origin' });
+        const data = await res.json();
+        renderTable(data.results || []);
+        renderPager(data.page || 1, data.num_pages || 1, data.count || 0);
+      }
+
+      function renderTable(rows) {
+        const tbody = $('#ana-tbody'); if (!tbody) return;
+        tbody.innerHTML = rows.map(r => `
+      <tr data-id="${r.id}">
+        <td><span class="chip">${esc(r.aluno_name || '—')}</span> <div class="muted small">${esc(r.aluno_email || '')}</div></td>
+        <td>${r.peso != null ? Number(r.peso).toFixed(2) : '—'}</td>
+        <td>${r.altura != null ? Number(r.altura).toFixed(2) : '—'}</td>
+        <td><span class="muted">${fmtDateTime(r.data)}</span></td>
+        <td><button class="btn-ghost ana-edit" type="button">Editar</button></td>
+      </tr>`).join('') || `<tr><td colspan="5" class="muted">Nenhuma anamnese encontrada.</td></tr>`;
+        $$('.ana-edit', tbody).forEach(btn => btn.addEventListener('click', () => openEdit(+btn.closest('tr').dataset.id)));
+      }
+
+      function renderPager(page, num, count) {
+        const el = $('#ana-pager'); if (!el) return;
+        el.innerHTML = `
+      <button class="ana-pagebtn" data-p="${page - 1}" ${page <= 1 ? 'disabled' : ''}>‹ Anterior</button>
+      <span class="ana-pageinfo">Página ${page} de ${num} • ${count} registro(s)</span>
+      <button class="ana-pagebtn" data-p="${page + 1}" ${page >= num ? 'disabled' : ''}>Próxima ›</button>
+    `;
+        $$('.ana-pagebtn', el).forEach(b => b.addEventListener('click', () => { const to = +b.dataset.p; if (!Number.isNaN(to)) { state.page = to; load(); } }));
+      }
+
+      async function openEdit(id) {
+        const dlg = $('#ana-edit'); if (!dlg) return;
+        const res = await fetch(`/api/anamneses/${id}/`, { credentials: 'same-origin' });
+        const data = await res.json();
+        const a = data.data || {};
+        dlg.dataset.id = String(id);
+        $('#ana-edit-stu').textContent = `${a.aluno_name || ''} ${a.aluno_email ? '— ' + a.aluno_email : ''}`;
+        $('#ana-peso').value = a.peso ?? '';
+        $('#ana-altura').value = a.altura ?? '';
+        $('#ana-hist').value = a.historico_medico || '';
+        $('#ana-rest').value = a.restricoes || '';
+        $('#ana-obs').value = a.observacoes || '';
+        dlg.showModal();
+      }
+
+      async function saveEdit() {
+        const dlg = $('#ana-edit'); if (!dlg) return;
+        const id = parseInt(dlg.dataset.id, 10); if (!id) return dlg.close();
+        const payload = {
+          peso: $('#ana-peso').value,
+          altura: $('#ana-altura').value,
+          historico_medico: $('#ana-hist').value,
+          restricoes: $('#ana-rest').value,
+          observacoes: $('#ana-obs').value,
+        };
+        const res = await fetch(`/api/anamneses/${id}/edit/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
+          credentials: 'same-origin',
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) { alert('Erro ao salvar.'); return; }
+        dlg.close(); load();
+      }
+
+      function initUI() {
+        $('#ana-q')?.addEventListener('input', debounce(() => { state.q = $('#ana-q').value.trim(); state.page = 1; load(); }, 250));
+        $('#ana-cancel')?.addEventListener('click', () => $('#ana-edit').close());
+        $('#ana-save')?.addEventListener('click', saveEdit);
+      }
+
+      function maybeInit() {
+        const view = (location.hash || '').replace('#', '') || 'inicio';
+        const pathAdmin = location.pathname.endsWith('/admin/home/');
+        const pathPersonal = location.pathname.endsWith('/personal/home/');
+        const pathOk = pathAdmin || pathPersonal;
+        if (view === 'anamnese' || pathOk) { initUI(); load(); }
+      }
+      window.addEventListener('hashchange', maybeInit);
+      document.addEventListener('DOMContentLoaded', maybeInit);
       return { load };
     })();
 
@@ -628,7 +730,9 @@
 
       function maybeInit() {
         const view = (location.hash || '').replace('#', '') || 'inicio';
-        const pathOk = location.pathname.endsWith('/admin/treinos/novo/');
+        const pathAdmin = location.pathname.endsWith('/admin/treinos/novo/');
+        const pathPersonal = location.pathname.endsWith('/personal/treinos/novo/');
+        const pathOk = pathAdmin || pathPersonal;
         if (view === 'criar-treinos' || pathOk) initUI();
         try {
           const params = new URLSearchParams(location.search || '');
@@ -673,6 +777,7 @@
 
       function renderTable(rows) {
         const tbody = $('#wt-tbody'); if (!tbody) return;
+        const baseNew = location.pathname.includes('/personal/') ? '/personal/treinos/novo/' : '/admin/treinos/novo/';
         tbody.innerHTML = rows.map(r => {
           const status = r.is_active ? 'active' : 'inactive';
           return `
@@ -687,7 +792,7 @@
           <td><span class="muted">${fmtDateTime(r.updated_at || r.created_at)}</span></td>
           <td>
               <div class="wt-actions">
-                <a class="btn-ghost" href="/admin/treinos/novo/?id=${r.id}" data-go="criar-treinos">Editar</a>
+                <a class="btn-ghost" href="${baseNew}?id=${r.id}" data-go="criar-treinos">Editar</a>
                 <button class="btn-ghost wt-assign" type="button">Vincular aluno</button>
                 <button class="btn-ghost wt-toggle" type="button">${r.is_active ? 'Desativar' : 'Ativar'}</button>
                 <button class="btn-ghost wt-dup" type="button">Duplicar</button>
@@ -815,7 +920,9 @@
 
       function maybeInit() {
         const view = (location.hash || '').replace('#', '') || 'inicio';
-        const pathOk = location.pathname.endsWith('/admin/treinos/');
+        const pathAdmin = location.pathname.endsWith('/admin/treinos/');
+        const pathPersonal = location.pathname.endsWith('/personal/treinos/');
+        const pathOk = pathAdmin || pathPersonal;
         if (view === 'gerenciar-treinos' || pathOk) { initUI(); load(); }
       }
       window.addEventListener('hashchange', maybeInit);

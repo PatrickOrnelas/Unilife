@@ -15,7 +15,7 @@ from django.core.exceptions import ValidationError
 from django.urls import reverse
 
 from .forms import LoginForm, RegistroAlunoForm, RegistroPersonalForm, PersonalEditForm
-from .models import Personal, Aluno, Proprietario, Treino
+from .models import Personal, Aluno, Proprietario, Treino, Anamnese
 
 
 def destino_por_perfil(user):
@@ -48,6 +48,34 @@ def home_aluno(request):
     aluno = getattr(request.user, "aluno", None)
     treinos = Treino.objects.filter(alunos=aluno, is_active=True).order_by("-updated_at") if aluno else Treino.objects.none()
     return render(request, "global/aluno/home_aluno.html", {"treinos": treinos})
+
+@login_required
+@require_http_methods(["POST"]) 
+def aluno_anamnese_submit(request):
+    aluno = getattr(request.user, "aluno", None)
+    if not aluno:
+        return redirect("home")
+    from decimal import Decimal, InvalidOperation
+    peso_raw = request.POST.get("peso", "").strip()
+    altura_raw = request.POST.get("altura", "").strip()
+    restricoes = (request.POST.get("restricoes", "") or "").strip()
+    try:
+        peso = Decimal(peso_raw.replace(',', '.'))
+        altura = Decimal(altura_raw.replace(',', '.'))
+    except (InvalidOperation, TypeError):
+        messages.error(request, "Informe valores válidos para peso e altura.")
+        return redirect("home-aluno")
+    Anamnese.objects.create(
+        aluno=aluno,
+        responsavel=None,
+        peso=peso,
+        altura=altura,
+        restricoes=restricoes,
+    )
+    messages.success(request, "Anamnese enviada com sucesso.")
+    resp = redirect("home-aluno")
+    resp["Location"] += "#anamnese"
+    return resp
 
 
 @login_required
@@ -99,6 +127,12 @@ def recuperar_senha_view(request):
 def is_admin(user):
     # proprietario é o "admin" do sistema
     return getattr(user, "proprietario", None) is not None or getattr(user, "is_proprietario", False)
+
+def is_admin_or_personal(user):
+    return (
+        getattr(user, "proprietario", None) is not None or getattr(user, "is_proprietario", False) or
+        getattr(user, "personal", None) is not None or getattr(user, "is_personal", False) or getattr(user, "is_treinador", False)
+    )
 
 
 # --------- Personais (views normais, sem API) ---------
@@ -387,7 +421,7 @@ def criar_treinos(request):
 
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_admin_or_personal)
 @require_POST
 def workouts_create(request):
     import json
@@ -415,7 +449,7 @@ def workouts_create(request):
 
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_admin_or_personal)
 def workouts_list(request):
     q = (request.GET.get("q") or "").strip()
     day = (request.GET.get("day") or "").strip()
@@ -466,7 +500,7 @@ def workouts_list(request):
 
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_admin_or_personal)
 def workouts_get(request, pk):
     t = get_object_or_404(Treino, pk=pk)
     a = t.alunos.first()
@@ -486,7 +520,7 @@ def workouts_get(request, pk):
 
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_admin_or_personal)
 @require_POST
 def workouts_edit(request, pk):
     t = get_object_or_404(Treino, pk=pk)
@@ -508,7 +542,7 @@ def workouts_edit(request, pk):
 
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_admin_or_personal)
 @require_POST
 def workouts_toggle(request, pk):
     t = get_object_or_404(Treino, pk=pk)
@@ -518,7 +552,7 @@ def workouts_toggle(request, pk):
 
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_admin_or_personal)
 @require_POST
 def workouts_delete(request, pk):
     t = get_object_or_404(Treino, pk=pk)
@@ -527,7 +561,7 @@ def workouts_delete(request, pk):
 
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_admin_or_personal)
 @require_POST
 def workouts_duplicate(request, pk):
     t = get_object_or_404(Treino, pk=pk)
@@ -543,7 +577,7 @@ def workouts_duplicate(request, pk):
 
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_admin_or_personal)
 def students_search(request):
     q = (request.GET.get("q") or "").strip()
     qs = Aluno.objects.all().order_by("first_name")
@@ -564,7 +598,7 @@ def students_search(request):
 
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_admin_or_personal)
 @require_POST
 def workouts_assign(request):
     import json
@@ -579,4 +613,106 @@ def workouts_assign(request):
     t = get_object_or_404(Treino, pk=int(workout_id))
     a = get_object_or_404(Aluno, pk=int(aluno_id))
     t.alunos.add(a)
+    return JsonResponse({"ok": True})
+
+
+# ------------------ ANAMNESES API ------------------
+@login_required
+@user_passes_test(is_admin_or_personal)
+def anamneses_list(request):
+    q = (request.GET.get("q") or "").strip()
+    page = int(request.GET.get("page") or 1)
+    page_size = int(request.GET.get("page_size") or 10)
+    qs = Anamnese.objects.select_related("aluno").order_by("-data")
+    if q:
+        qs = qs.filter(
+            Q(aluno__first_name__icontains=q) |
+            Q(aluno__last_name__icontains=q) |
+            Q(aluno__email__icontains=q) |
+            Q(restricoes__icontains=q) |
+            Q(observacoes__icontains=q)
+        )
+    paginator = Paginator(qs, page_size)
+    page_obj = paginator.get_page(page)
+
+    def row(a):
+        return {
+            "id": a.id,
+            "aluno_name": a.aluno.first_name,
+            "aluno_email": a.aluno.email,
+            "peso": float(a.peso) if a.peso is not None else None,
+            "altura": float(a.altura) if a.altura is not None else None,
+            "restricoes": a.restricoes or "",
+            "observacoes": a.observacoes or "",
+            "data": a.data.isoformat(),
+            "updated_at": a.atualizado_em.isoformat(),
+        }
+
+    return JsonResponse({
+        "ok": True,
+        "count": paginator.count,
+        "page": page_obj.number,
+        "num_pages": paginator.num_pages,
+        "results": [row(a) for a in page_obj.object_list],
+    })
+
+
+@login_required
+@user_passes_test(is_admin_or_personal)
+def anamnese_get(request, pk):
+    a = get_object_or_404(Anamnese.objects.select_related("aluno"), pk=pk)
+    return JsonResponse({
+        "ok": True,
+        "data": {
+            "id": a.id,
+            "aluno_name": a.aluno.first_name,
+            "aluno_email": a.aluno.email,
+            "peso": float(a.peso) if a.peso is not None else None,
+            "altura": float(a.altura) if a.altura is not None else None,
+            "historico_medico": a.historico_medico or "",
+            "restricoes": a.restricoes or "",
+            "observacoes": a.observacoes or "",
+            "data": a.data.isoformat(),
+            "updated_at": a.atualizado_em.isoformat(),
+        }
+    })
+
+
+@login_required
+@user_passes_test(is_admin_or_personal)
+@require_POST
+def anamnese_edit(request, pk):
+    a = get_object_or_404(Anamnese, pk=pk)
+    import json
+    try:
+        payload = json.loads(request.body.decode("utf-8") or "{}")
+    except Exception:
+        return JsonResponse({"ok": False, "error": "invalid_json"}, status=400)
+    peso_raw = str(payload.get("peso", "")).strip()
+    altura_raw = str(payload.get("altura", "")).strip()
+    historico_medico = (payload.get("historico_medico") or "").strip()
+    restricoes = (payload.get("restricoes") or "").strip()
+    observacoes = (payload.get("observacoes") or "").strip()
+
+    from decimal import Decimal, InvalidOperation
+    updates = []
+    if peso_raw:
+        try:
+            a.peso = Decimal(peso_raw.replace(',', '.'))
+            updates.append("peso")
+        except InvalidOperation:
+            pass
+    if altura_raw:
+        try:
+            a.altura = Decimal(altura_raw.replace(',', '.'))
+            updates.append("altura")
+        except InvalidOperation:
+            pass
+    a.historico_medico = historico_medico
+    a.restricoes = restricoes
+    a.observacoes = observacoes
+    updates += ["historico_medico", "restricoes", "observacoes", "atualizado_em"]
+    a.responsavel = request.user
+    updates.append("responsavel")
+    a.save(update_fields=list(set(updates)))
     return JsonResponse({"ok": True})

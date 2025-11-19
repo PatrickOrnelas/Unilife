@@ -50,6 +50,10 @@ class RegistroAlunoForm(forms.Form):
     tel        = forms.CharField(label="Telefone (com DDD)", max_length=15)
     sex        = forms.ChoiceField(label="Sexo", choices=[("M","Masculino"), ("F","Feminino"), ("O","Outro")])
     date_of_birth = forms.DateField(label="Data de nascimento", widget=forms.DateInput(attrs={"type": "date"}))
+    rua        = forms.CharField(label="Rua", max_length=254)
+    numero     = forms.CharField(label="Número", max_length=20)
+    bairro     = forms.CharField(label="Bairro", max_length=120)
+    cep        = forms.CharField(label="CEP", max_length=9, help_text="Ex.: 00000-000")
     password1  = forms.CharField(label="Senha", widget=forms.PasswordInput)
     password2  = forms.CharField(label="Confirmar senha", widget=forms.PasswordInput)
 
@@ -72,6 +76,13 @@ class RegistroAlunoForm(forms.Form):
         _validate_tel_digits(digits)
         return digits
 
+    def clean_cep(self):
+        raw = self.cleaned_data.get("cep", "")
+        digits = _digits(raw)
+        if len(digits) != 8:
+            raise ValidationError("CEP deve conter 8 dígitos.")
+        return digits
+
     def clean(self):
         cleaned = super().clean()
         p1 = cleaned.get("password1") or ""
@@ -90,6 +101,10 @@ class RegistroAlunoForm(forms.Form):
         tel_digits = self.cleaned_data["tel"]          # já vem só dígitos do clean_tel
         sex        = self.cleaned_data["sex"]
         dob        = self.cleaned_data["date_of_birth"]
+        rua        = self.cleaned_data["rua"].strip()
+        numero     = self.cleaned_data["numero"].strip()
+        bairro     = self.cleaned_data["bairro"].strip()
+        cep_digits = self.cleaned_data["cep"]
         password   = self.cleaned_data["password1"]
 
         # Cria o usuário base (username = CPF dígitos)
@@ -107,6 +122,10 @@ class RegistroAlunoForm(forms.Form):
             sex=sex,
             email=email,
             date_of_birth=dob,
+            rua=rua,
+            numero=numero,
+            bairro=bairro,
+            cep=cep_digits,
         )
         return user
 
@@ -143,9 +162,10 @@ class RegistroPersonalForm(forms.Form):
 
     def clean_cref(self):
         cref = (self.cleaned_data.get("cref") or "").strip().upper()
-        # Só valida se o CREF foi preenchido
-        if cref and Personal.objects.filter(cref=cref).exists():
-            raise ValidationError("Já existe um personal com este CREF.")
+        # Se vazio, salvar como None para evitar strings vazias
+        if not cref:
+            return None
+        # Opcional: permitir duplicados; não validar unicidade
         return cref
 
     def save(self):

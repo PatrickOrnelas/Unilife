@@ -112,20 +112,31 @@
     <section id="anamnese" data-view="anamnese" class="section">
       <h2 class="section-title">Anamnese</h2>
       <div class="card">
-        <p class="muted">Faça sua avaliação técnica agendando no Whatsapp</p>
-        <form class="grid-2">
-          
-          
-          
-          
-          <div class="span-2">
-  <a href="https://wa.me/5517999999999?text=Olá,%20gostaria%20de%20agendar%20minha%20anamnese" 
-     target="_blank" 
-     class="btn" 
-     style="margin-top: 15px; text-align:center; display:inline-block;">
-    Agendar no Whatsapp
-  </a>
-</div>
+        {% if messages %}
+        <div style="margin-bottom:10px;">
+          {% for message in messages %}
+            <div class="card glass" style="padding:12px; border-left:4px solid #22c55e; margin-bottom:8px;">{{ message }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <form class="form-grid" method="post" action="{% url 'aluno-anamnese' %}" autocomplete="on">
+          {% csrf_token %}
+          <div class="field-group">
+            <label for="id_peso">Peso (kg)</label>
+            <input id="id_peso" name="peso" class="field" type="number" step="0.01" min="0" placeholder="Ex.: 72.5" required>
+          </div>
+          <div class="field-group">
+            <label for="id_altura">Altura (m)</label>
+            <input id="id_altura" name="altura" class="field" type="number" step="0.01" min="0" placeholder="Ex.: 1.75" required>
+          </div>
+          <div class="field-group span-2">
+            <label for="id_restricoes">Restrições</label>
+            <textarea id="id_restricoes" name="restricoes" class="field" rows="4" placeholder="Informe restrições médicas, lesões ou observações"></textarea>
+          </div>
+          <div class="span-2 form-actions" style="justify-content:flex-end;">
+            <button type="submit" class="btn">Enviar</button>
+          </div>
         </form>
       </div>
     </section>

@@ -8,6 +8,7 @@ from .views import (
     personal_edit,
     personal_toggle, personal_delete,
     change_password,  # <- nova rota
+    aluno_anamnese_submit,
     workouts_create,
     workouts_list,
     workouts_get,
@@ -18,6 +19,7 @@ from .views import (
     students_search,
     workouts_assign,
     api_personals_list, api_personal_toggle, api_personal_delete, api_personals_bulk,
+    anamneses_list, anamnese_get, anamnese_edit,
 )
 
 urlpatterns = [
@@ -32,17 +34,23 @@ urlpatterns = [
 
 # Personal URLs
     path("personal/home/", home_personal, name="home-personal"),
-    
-    path("personal/treinos/", home_personal, name="gerenciar-treinos"),
+    path("personal/treinos/", home_personal, name="personal-gerenciar-treinos"),
+    path("personal/treinos/novo/", home_personal, name="personal-criar-treinos"),
 
  # Aluno URLs
     path("aluno/home/", home_aluno, name="home-aluno"),
+    path("aluno/anamnese/", aluno_anamnese_submit, name="aluno-anamnese"),
 
 # Proprietario URLs
     path("admin/home/", home_admin, name="home-admin"),
+
+    # APIs de Anamnese
+    path("api/anamneses/", anamneses_list, name="anamneses-list"),
+    path("api/anamneses/<int:pk>/", anamnese_get, name="anamnese-get"),
+    path("api/anamneses/<int:pk>/edit/", anamnese_edit, name="anamnese-edit"),
     path("admin/alunos/", home_admin, name="gerenciar-alunos"),
-    path("admin/treinos/", home_admin, name="gerenciar-treinos"),
-    path("admin/treinos/novo/", home_admin, name="criar-treinos"),
+    path("admin/treinos/", home_admin, name="admin-gerenciar-treinos"),
+    path("admin/treinos/novo/", home_admin, name="admin-criar-treinos"),
 
     # API Treinos
     path("workouts/create/", workouts_create, name="workout-create"),

@@ -93,8 +93,56 @@
           placeholder="(11) 99999-9999" pattern="^\(\d{2}\)\s?\d{4,5}-\d{4}$"
           title="Use o formato (DD) 99999-9999 ou (DD) 9999-9999" value="{{ form.tel.value|default:'' }}">
         {% if form.tel.errors %}
+          <div class="error">
+            {% for e in form.tel.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Rua -->
+      <div class="field-group span-2">
+        <label for="id_rua">Rua</label>
+        <input type="text" name="rua" id="id_rua" required
+               value="{{ form.rua.value|default:'' }}" placeholder="Ex.: Rua das Flores" />
+        {% if form.rua.errors %}
         <div class="error">
-          {% for e in form.tel.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+          {% for e in form.rua.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Número -->
+      <div class="field-group">
+        <label for="id_numero">Número</label>
+        <input type="text" name="numero" id="id_numero" required
+               value="{{ form.numero.value|default:'' }}" placeholder="Ex.: 123" />
+        {% if form.numero.errors %}
+        <div class="error">
+          {% for e in form.numero.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Bairro -->
+      <div class="field-group">
+        <label for="id_bairro">Bairro</label>
+        <input type="text" name="bairro" id="id_bairro" required
+               value="{{ form.bairro.value|default:'' }}" placeholder="Ex.: Centro" />
+        {% if form.bairro.errors %}
+        <div class="error">
+          {% for e in form.bairro.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- CEP -->
+      <div class="field-group">
+        <label for="id_cep">CEP</label>
+        <input type="text" name="cep" id="id_cep" required inputmode="numeric" maxlength="9"
+               value="{{ form.cep.value|default:'' }}" placeholder="00000-000" />
+        {% if form.cep.errors %}
+        <div class="error">
+          {% for e in form.cep.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
         </div>
         {% endif %}
       </div>
@@ -219,11 +267,18 @@
         return v.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
       }
     }
+    function maskCEP(v) {
+      return v.replace(/\D/g, '')
+              .replace(/(\d{5})(\d{0,3})$/, '$1-$2')
+              .substring(0, 9);
+    }
     document.addEventListener("DOMContentLoaded", () => {
       const cpf = document.getElementById("id_cpf");
       const tel = document.getElementById("id_tel");
+      const cep = document.getElementById("id_cep");
       if (cpf) cpf.addEventListener("input", e => e.target.value = maskCPF(e.target.value));
       if (tel) tel.addEventListener("input", e => e.target.value = maskTel(e.target.value));
+      if (cep) cep.addEventListener("input", e => e.target.value = maskCEP(e.target.value));
     });
   </script>
 </body>

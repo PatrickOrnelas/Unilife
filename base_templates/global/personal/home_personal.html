@@ -36,6 +36,64 @@
       </div>
     </section>
 
+    <!-- ANAMNESE (Alunos) -->
+    <section class="section" data-view="anamnese" hidden aria-labelledby="titulo-anamnese">
+      <div class="card glass">
+        <h2 id="titulo-anamnese" class="card-title">Anamnese</h2>
+        <div class="ana-toolbar">
+          <div class="ana-left">
+            <input id="ana-q" class="field" type="search" placeholder="Pesquisar: aluno, e-mail, restrições...">
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="table ana-table" role="grid">
+            <thead>
+              <tr>
+                <th>Aluno</th>
+                <th style="width:140px;">Peso (kg)</th>
+                <th style="width:140px;">Altura (m)</th>
+                <th style="width:180px;">Enviada em</th>
+                <th style="width:160px;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="ana-tbody"></tbody>
+          </table>
+        </div>
+        <div class="table-foot" id="ana-pager"></div>
+      </div>
+
+      <dialog id="ana-edit" class="card" style="max-width:640px;">
+        <h3>Editar anamnese</h3>
+        <p class="muted" id="ana-edit-stu" style="margin:.25rem 0 .75rem;"></p>
+        <div class="form-grid">
+          <div class="field-group">
+            <label for="ana-peso">Peso (kg)</label>
+            <input id="ana-peso" class="field" type="number" step="0.01" min="0" placeholder="Ex.: 72.5">
+          </div>
+          <div class="field-group">
+            <label for="ana-altura">Altura (m)</label>
+            <input id="ana-altura" class="field" type="number" step="0.01" min="0" placeholder="Ex.: 1.75">
+          </div>
+          <div class="field-group span-2">
+            <label for="ana-hist">Histórico médico</label>
+            <textarea id="ana-hist" class="field" rows="3"></textarea>
+          </div>
+          <div class="field-group span-2">
+            <label for="ana-rest">Restrições</label>
+            <textarea id="ana-rest" class="field" rows="3"></textarea>
+          </div>
+          <div class="field-group span-2">
+            <label for="ana-obs">Observações</label>
+            <textarea id="ana-obs" class="field" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="form-actions" style="justify-content:flex-end; margin-top:10px;">
+          <button type="button" class="btn-ghost" id="ana-cancel">Cancelar</button>
+          <button type="button" class="btn" id="ana-save">Salvar</button>
+        </div>
+      </dialog>
+    </section>
+
     <!-- ====== VIEW: CADASTRAR PERSONAL ====== -->
     <section class="section" data-view="cadastrar-personal" hidden>
       <h2 class="section-title">Cadastrar Personal</h2>
@@ -106,6 +164,142 @@
           <li>Documentos e foto podem ser anexados depois em “Gerenciar Personal”.</li>
         </ul>
       </div>
+    </section>
+
+    <!-- CRIAR TREINO -->
+    <section class="section" data-view="criar-treinos" hidden aria-labelledby="titulo-criar-treinos">
+      <div class="card glass">
+        <h2 id="titulo-criar-treinos">Criar treino</h2>
+
+        <div class="tb-builder">
+          <aside class="tb-catalog">
+            <div class="tb-tools">
+              <input id="tb-q" class="field" type="search" placeholder="Buscar máquina/exercício…" autocomplete="off">
+              <select id="tb-filter" class="field">
+                <option value="">Todos os grupos</option>
+                <option>Peitoral</option>
+                <option>Pernas</option>
+                <option>Glúteos</option>
+                <option>Dorsais</option>
+                <option>Deltoides</option>
+                <option>Tríceps</option>
+                <option>Bíceps</option>
+                <option>Abdominais</option>
+              </select>
+            </div>
+            <ul id="tb-list" class="tb-list"></ul>
+          </aside>
+
+          <section class="tb-plan">
+            <div class="tb-head">
+              <input id="tb-name" class="field" placeholder="Nome do treino (ex.: Treino A)">
+              <select id="tb-day" class="field">
+                <option value="">Dia: livre</option>
+                <option>Segunda</option>
+                <option>Terça</option>
+                <option>Quarta</option>
+                <option>Quinta</option>
+                <option>Sexta</option>
+                <option>Sábado</option>
+              </select>
+            </div>
+
+            <div class="table-wrap">
+              <table class="table tb-table">
+                <thead>
+                  <tr>
+                    <th style="width:40px;">#</th>
+                    <th>Exercício</th>
+                    <th>Grupo</th>
+                    <th style="width:76px;">Séries</th>
+                    <th style="width:80px;">Reps</th>
+                    <th style="width:90px;">Carga</th>
+                    <th style="width:86px;">Desc (s)</th>
+                    <th style="width:92px;">Tempo</th>
+                    <th style="min-width:200px;">Obs</th>
+                    <th style="width:118px;">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="tb-body"></tbody>
+              </table>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn-ghost" id="tb-clear" type="button">Limpar</button>
+              <button class="btn" id="tb-save" type="button">Salvar treino</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <!-- GERENCIAR TREINOS -->
+    <section class="section" data-view="gerenciar-treinos" hidden aria-labelledby="titulo-gerenciar-treinos">
+      <div class="card glass">
+        <h2 id="titulo-gerenciar-treinos">Gerenciar Treinos</h2>
+
+        <div class="wt-toolbar">
+          <div class="wt-left">
+            <input id="wt-q" class="field" type="search" placeholder="Pesquisar: aluno, e-mail, nome do treino..." autocomplete="off">
+            <select id="wt-day" class="field">
+              <option value="">Dia: todos</option>
+              <option>Segunda</option>
+              <option>Terça</option>
+              <option>Quarta</option>
+              <option>Quinta</option>
+              <option>Sexta</option>
+              <option>Sábado</option>
+            </select>
+            <select id="wt-status" class="field">
+              <option value="">Status: todos</option>
+              <option value="active">Ativo</option>
+              <option value="inactive">Inativo</option>
+            </select>
+          </div>
+
+          <div class="wt-right">
+            <select id="wt-bulk" class="field">
+              <option value="">Ação em massa…</option>
+              <option value="activate">Ativar selecionados</option>
+              <option value="deactivate">Desativar selecionados</option>
+              <option value="delete">Excluir selecionados</option>
+            </select>
+            <button id="wt-apply" class="btn-ghost" type="button">Aplicar</button>
+            <a class="btn" href="{% url 'personal-criar-treinos' %}" data-go="criar-treinos">Novo treino</a>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table" id="wt-table">
+            <thead>
+              <tr>
+                <th style="width:36px;"><input type="checkbox" id="wt-checkall"></th>
+                <th style="width:68px;">ID</th>
+                <th>Aluno</th>
+                <th>Treino</th>
+                <th style="width:110px;">Dia</th>
+                <th style="width:120px;">Itens</th>
+                <th style="width:96px;">Status</th>
+                <th style="width:160px;">Atualizado</th>
+                <th style="width:220px;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="wt-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="wt-pager" id="wt-pager"></div>
+      </div>
+
+      <dialog id="wt-assign" class="card" style="max-width:560px;">
+        <h3>Vincular aluno</h3>
+        <p class="muted" style="margin:.25rem 0 .75rem;">Digite o nome ou e-mail e selecione na lista.</p>
+        <input id="wt-assign-q" class="field" type="search" placeholder="Buscar aluno…" autocomplete="off">
+        <ul id="wt-assign-list" class="wt-students"></ul>
+        <div class="form-actions" style="justify-content:flex-end;">
+          <button type="button" class="btn-ghost" id="wt-assign-cancel">Cancelar</button>
+        </div>
+      </dialog>
     </section>
 
     {% comment %} Includes dos partials para Perfil, Configurações e Ajuda {% endcomment %}
