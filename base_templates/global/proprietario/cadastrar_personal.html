@@ -20,21 +20,18 @@
   </style>
 </head>
 <body>
-  <header>
-    <img src="{% static 'global/img/logo-unilife.png' %}" alt="Unilife" class="logo-img1">
-    <nav>
-      <a href="{% url 'home-admin' %}">← Voltar ao Painel</a>
-    </nav>
-  </header>
+  {% include 'global/partials/_header.html' %}
+  <div class="nav-backdrop" aria-hidden="true"></div>
+  {% include 'global/partials/_sidebar.html' %}
 
   <main class="content">
     <section class="section" aria-labelledby="titulo-cadastrar-personal">
       <div class="form-wrapper" style="margin-bottom: 6px;">
         <div class="card glass">
-          <h2 class="card-title" id="titulo-cadastrar-personal">Cadastrar Personal</h2>
+          <h2 class="card-title" id="titulo-cadastrar-personal">{% if personal %}Editar Personal{% else %}Cadastrar Personal{% endif %}</h2>
 
           <!-- importante: envia para a view Django -->
-          <form method="post" action="{% url 'cadastrar-personal' %}" autocomplete="on" novalidate>
+          <form method="post" action="{{ form_action|default:request.path }}" autocomplete="on" novalidate>
             {% csrf_token %}
             {% if messages %}
               <div style="margin-bottom:10px;">
@@ -79,9 +76,9 @@
             <!-- CPF -->
             <div class="field-group">
               <label for="id_cpf">CPF</label>
-              <input type="text" name="cpf" id="id_cpf" class="field cpf-mask" required
-                value="{{ form.cpf.value|default:'' }}" placeholder="000.000.000-00" />
-              {% if form.cpf.errors %}
+              <input type="text" id="id_cpf" class="field cpf-mask" {% if personal %}disabled{% else %}name="cpf" required{% endif %}
+                value="{{ personal.cpf|default:form.cpf.value|default:'' }}" placeholder="000.000.000-00" />
+              {% if form.cpf and form.cpf.errors %}
                 <div class="error">{% for e in form.cpf.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
               {% endif %}
             </div>
@@ -140,7 +137,7 @@
 
             <div class="span-2 form-actions">
               <button type="reset" class="btn-ghost">Limpar</button>
-              <button type="submit" class="btn">Salvar cadastro</button>
+              <button type="submit" class="btn">{% if personal %}Salvar alterações{% else %}Salvar cadastro{% endif %}</button>
             </div>
           </form>
         </div>
@@ -174,5 +171,6 @@
       }
     });
   </script>
+  {% include "global/partials/_scripts.html" %}
 </body>
 </html>

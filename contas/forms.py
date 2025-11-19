@@ -178,3 +178,17 @@ class RegistroPersonalForm(forms.Form):
             ativo=True,
         )
         return personal  # Retornar o Personal em vez do User
+
+
+class PersonalEditForm(forms.ModelForm):
+    class Meta:
+        model = Personal
+        fields = (
+            "first_name", "last_name", "email", "tel", "sex", "date_of_birth", "cref", "ativo",
+        )
+
+    def clean_tel(self):
+        raw = self.cleaned_data.get("tel", "")
+        digits = _digits(raw)
+        _validate_tel_digits(digits)
+        return digits

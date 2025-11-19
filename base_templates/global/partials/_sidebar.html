@@ -70,7 +70,13 @@
 
     {# Outros usuários (aluno, etc.) - apenas o básico #}
     {% else %}
-      <a class="sidenav-link" data-target="anamnese" href="{% url 'gerenciar-alunos' %}">
+      <a class="sidenav-link" data-target="treinos" href="{% url 'home-aluno' %}#treinos">
+        <span class="ico">
+          <img src="{% static 'global/img/icone-halter.png' %}" style="width: 20px;margin-right: 10px;">
+        </span>
+        <span class="label">Treinos</span>
+      </a>
+      <a class="sidenav-link" data-target="anamnese" href="{% url 'home-aluno' %}#anamnese">
         <span class="ico">
           <img src="{% static 'global/img/icone-anamnese.png' %}" style="width: 20px;margin-right: 10px;">
         </span>

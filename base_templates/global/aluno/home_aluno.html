@@ -59,32 +59,37 @@
     </section>
 
     <!-- ========== VIEW: TREINOS ========== -->
-    <section id="treinos" data-view="treinos" class="section" hidden="">
+    <section id="treinos" data-view="treinos" class="section" hidden>
       <h2 class="section-title">Planos de treino</h2>
       <div class="card">
-        <details open="">
-          <summary><b>Treino A</b> — Peito/Tríceps</summary>
+        {% for t in treinos %}
+        <details {% if forloop.first %}open{% endif %}>
+          <summary><b>{{ t.titulo }}</b> {% if t.dia %}— {{ t.dia }}{% endif %}</summary>
           <table class="table">
-            <thead><tr><th>Exercício</th><th>Séries</th><th>Reps</th><th>Descanso</th></tr></thead>
+            <thead>
+              <tr><th>Exercício</th><th>Grupo</th><th>Séries</th><th>Reps</th><th>Carga</th><th>Desc (s)</th><th>Tempo</th><th>Obs</th></tr>
+            </thead>
             <tbody>
-              <tr><td>Supino reto</td><td>4</td><td>8–10</td><td>90s</td></tr>
-              <tr><td>Crucifixo inclinado</td><td>3</td><td>10–12</td><td>60s</td></tr>
-              <tr><td>Tríceps testa</td><td>3</td><td>10–12</td><td>60s</td></tr>
+              {% for it in t.items %}
+                <tr>
+                  <td>{{ it.name }}</td>
+                  <td>{{ it.muscle|default:"—" }}</td>
+                  <td>{{ it.sets|default:"—" }}</td>
+                  <td>{{ it.reps|default:"—" }}</td>
+                  <td>{{ it.load|default:"—" }}</td>
+                  <td>{{ it.rest|default:"—" }}</td>
+                  <td>{{ it.tempo|default:"—" }}</td>
+                  <td>{{ it.note|default:"" }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="8" class="muted">Este treino não possui exercícios.</td></tr>
+              {% endfor %}
             </tbody>
           </table>
         </details>
-
-        <details>
-          <summary><b>Treino B</b> — Costas/Bíceps</summary>
-          <table class="table">
-            <thead><tr><th>Exercício</th><th>Séries</th><th>Reps</th><th>Descanso</th></tr></thead>
-            <tbody>
-              <tr><td>Puxada na frente</td><td>4</td><td>8–10</td><td>90s</td></tr>
-              <tr><td>Remada curvada</td><td>3</td><td>10–12</td><td>75s</td></tr>
-              <tr><td>Rosca direta</td><td>3</td><td>10–12</td><td>60s</td></tr>
-            </tbody>
-          </table>
-        </details>
+        {% empty %}
+          <p class="muted">Você ainda não possui treinos vinculados.</p>
+        {% endfor %}
       </div>
     </section>
 

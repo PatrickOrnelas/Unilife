@@ -53,9 +53,15 @@
       }
       function currentFromHash() {
         const h = (location.hash || '').replace('#', '');
-        // Se não houver hash, não retornar 'inicio' automaticamente
-        // Isso evita adicionar #inicio quando a página carrega sem hash
         return h && views.some(v => v.dataset.view === h) ? h : '';
+      }
+
+      function viewFromPath() {
+        const p = location.pathname;
+        if (p.endsWith('/admin/treinos/novo/')) return 'criar-treinos';
+        if (p.endsWith('/admin/treinos/')) return 'gerenciar-treinos';
+        if (p.endsWith('/admin/personais/')) return 'gerenciar-personal';
+        return '';
       }
 
       links.forEach(a => a.addEventListener('click', (e) => {
@@ -81,12 +87,12 @@
         closeNav(); 
       });
       
-      // Inicialização: só mostra uma view se houver hash na URL
-      const initialView = currentFromHash();
+      // Inicialização: determina view por hash ou pathname
+      const initialView = currentFromHash() || viewFromPath();
       if (initialView) {
-        show(initialView);
+        views.forEach(v => v.hidden = (v.dataset.view !== initialView));
+        links.forEach(a => a.classList.toggle('active', a.dataset.target === initialView));
       } else {
-        // Se não houver hash, mostra a view 'inicio' sem adicionar hash
         views.forEach(v => v.hidden = (v.dataset.view !== 'inicio'));
         links.forEach(a => a.classList.toggle('active', a.dataset.target === 'inicio'));
       }
@@ -295,7 +301,7 @@
         <td><span class="muted">${created}</span></td>
         <td>
           <div class="gp-actions">
-            <a class="btn-ghost" href="/personals/${r.id}/edit/">Editar</a>
+            <a class="btn-ghost" href="/admin/personais/${r.id}/edit/">Editar</a>
             <button class="btn-ghost gp-toggle" type="button">${r.is_active ? 'Desativar' : 'Ativar'}</button>
             <button class="btn-ghost gp-del" type="button" style="color:#b91c1c;">Remover</button>
           </div>
@@ -400,7 +406,8 @@
 
       function maybeLoadOnView() {
         const current = (location.hash || '').replace('#', '') || 'inicio';
-        if (current === 'gerenciar-personal') { initUI(); load(); }
+        const pathOk = location.pathname.endsWith('/admin/personais/');
+        if (current === 'gerenciar-personal' || pathOk) { initUI(); load(); }
       }
       window.addEventListener('hashchange', maybeLoadOnView);
       document.addEventListener('DOMContentLoaded', maybeLoadOnView);
@@ -582,7 +589,9 @@
         }
         try {
          
-          const res = await fetch('/workouts/create/', {
+          const id = (window.__TB_EDITING_ID__ || null);
+          const url = id ? `/workouts/${id}/edit/` : '/workouts/create/';
+          const res = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
             credentials: 'same-origin',
@@ -595,6 +604,7 @@
           state.rows = [];
           renderRows();
           persist();
+          window.__TB_EDITING_ID__ = null;
         } catch (err) {
           console.error(err);
           alert('Erro ao salvar treino.');
@@ -603,10 +613,28 @@
 
       function cryptoRandom() { return (self.crypto?.randomUUID?.() || (String(Math.random()).slice(2) + Date.now())); }
       function escapeHTML(s) { return (s ?? '').toString().replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+      async function loadExisting(id){
+        const res = await fetch(`/workouts/${id}/`, { credentials: 'same-origin' });
+        if (!res.ok) return;
+        const data = await res.json();
+        const w = data.workout || {};
+        state.name = w.name || '';
+        state.day = w.day || '';
+        state.rows = (Array.isArray(w.items) ? w.items.map((it, idx) => ({ id: cryptoRandom()+idx, ...it })) : []);
+        renderRows();
+        persist();
+        window.__TB_EDITING_ID__ = id;
+      }
 
       function maybeInit() {
         const view = (location.hash || '').replace('#', '') || 'inicio';
-        if (view === 'criar-treinos') initUI();
+        const pathOk = location.pathname.endsWith('/admin/treinos/novo/');
+        if (view === 'criar-treinos' || pathOk) initUI();
+        try {
+          const params = new URLSearchParams(location.search || '');
+          const id = parseInt(params.get('id') || '');
+          if (pathOk && id) loadExisting(id);
+        } catch (_) {}
       }
       window.addEventListener('hashchange', maybeInit);
       document.addEventListener('DOMContentLoaded', maybeInit);
@@ -659,7 +687,7 @@
           <td><span class="muted">${fmtDateTime(r.updated_at || r.created_at)}</span></td>
           <td>
               <div class="wt-actions">
-                <a class="btn-ghost" href="{% url 'criar-treinos' %}" data-go="criar-treinos">Editar</a>
+                <a class="btn-ghost" href="/admin/treinos/novo/?id=${r.id}" data-go="criar-treinos">Editar</a>
                 <button class="btn-ghost wt-assign" type="button">Vincular aluno</button>
                 <button class="btn-ghost wt-toggle" type="button">${r.is_active ? 'Desativar' : 'Ativar'}</button>
                 <button class="btn-ghost wt-dup" type="button">Duplicar</button>
@@ -787,7 +815,8 @@
 
       function maybeInit() {
         const view = (location.hash || '').replace('#', '') || 'inicio';
-        if (view === 'gerenciar-treinos') { initUI(); load(); }
+        const pathOk = location.pathname.endsWith('/admin/treinos/');
+        if (view === 'gerenciar-treinos' || pathOk) { initUI(); load(); }
       }
       window.addEventListener('hashchange', maybeInit);
       document.addEventListener('DOMContentLoaded', maybeInit);

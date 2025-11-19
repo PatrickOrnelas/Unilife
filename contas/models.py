@@ -80,6 +80,9 @@ class Treino(models.Model):
     criado_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name="treinos_criados")
     # M2M simples (sem through) => compatível com filter_horizontal no admin
     alunos = models.ManyToManyField(Aluno, related_name="treinos", blank=True)
+    dia = models.CharField(max_length=16, blank=True)
+    items = models.JSONField(default=list, blank=True)
+    is_active = models.BooleanField(default=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
